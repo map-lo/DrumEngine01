@@ -26,7 +26,7 @@ namespace DrumEngine
         void reset();
 
         void render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                    bool multiOutEnabled);
+                    bool multiOutEnabled, float slotGain);
 
         bool isActive() const { return state != State::Inactive; }
         State getState() const { return state; }
@@ -91,7 +91,7 @@ namespace DrumEngine
         MicVoice *allocateVoice();
 
         void renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                       bool multiOutEnabled);
+                       bool multiOutEnabled, const std::array<float, 8> &slotGains);
 
     private:
         std::vector<std::unique_ptr<MicVoice>> voices;

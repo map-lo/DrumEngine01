@@ -267,11 +267,9 @@ namespace DrumEngine
             // Set slot index for routing
             voice->slotIndex = slotIdx;
 
-            float slotGain = getEffectiveSlotGain(slotIdx);
-            float finalGain = gain * slotGain;
-
-            // Start voice
-            voice->start(sample, finalGain, fadeLenSamples);
+            // Start voice with just velocity gain (not slot gain)
+            // Slot gain (volume/mute/solo) will be applied only to mix during render
+            voice->start(sample, gain, fadeLenSamples);
             newGroup.voices[slotIdx] = voice;
         }
 
@@ -282,7 +280,12 @@ namespace DrumEngine
     void Engine::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
                         bool multiOutEnabled)
     {
-        voicePool.renderAll(buffer, startSample, numSamples, multiOutEnabled);
+        // Build slot gains array (applies to mix only)
+        std::array<float, 8> slotGainsForMix;
+        for (int i = 0; i < 8; ++i)
+            slotGainsForMix[i] = getEffectiveSlotGain(i);
+
+        voicePool.renderAll(buffer, startSample, numSamples, multiOutEnabled, slotGainsForMix);
     }
 
 } // namespace DrumEngine

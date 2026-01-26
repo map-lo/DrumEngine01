@@ -34,7 +34,7 @@ namespace DrumEngine
     }
 
     void MicVoice::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                          bool multiOutEnabled)
+                          bool multiOutEnabled, float mixSlotGain)
     {
         if (state == State::Inactive || !currentSample || !currentSample->isValid())
             return;
@@ -110,11 +110,11 @@ namespace DrumEngine
             sampleLeft *= gain * fadeGain;
             sampleRight *= gain * fadeGain;
 
-            // Always write to mix output
-            mixLeft[i] += sampleLeft;
-            mixRight[i] += sampleRight;
+            // Always write to mix output (with slot gain for volume/mute/solo)
+            mixLeft[i] += sampleLeft * mixSlotGain;
+            mixRight[i] += sampleRight * mixSlotGain;
 
-            // Also write to individual slot output if multi-out enabled
+            // Also write to individual slot output if multi-out enabled (raw, no slot gain)
             if (slotLeft && slotRight)
             {
                 slotLeft[i] += sampleLeft;
@@ -194,13 +194,14 @@ namespace DrumEngine
     }
 
     void VoicePool::renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                              bool multiOutEnabled)
+                              bool multiOutEnabled, const std::array<float, 8> &slotGains)
     {
         for (auto &voice : voices)
         {
             if (voice->isActive())
             {
-                voice->render(buffer, startSample, numSamples, multiOutEnabled);
+                float mixGain = slotGains[voice->slotIndex];
+                voice->render(buffer, startSample, numSamples, multiOutEnabled, mixGain);
             }
         }
     }
