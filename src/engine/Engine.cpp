@@ -287,7 +287,7 @@ namespace DrumEngine
     }
 
     void Engine::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                       int outputChannel, int slotFilter)
+                        int outputChannel, int slotFilter)
     {
         voicePool.renderAll(buffer, startSample, numSamples, outputChannel, slotFilter);
     }

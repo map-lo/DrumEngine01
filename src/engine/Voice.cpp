@@ -34,7 +34,7 @@ namespace DrumEngine
     }
 
     void MicVoice::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                         int outputChannel)
+                          int outputChannel)
     {
         if (state == State::Inactive || !currentSample || !currentSample->isValid())
             return;
@@ -165,7 +165,7 @@ namespace DrumEngine
     }
 
     void VoicePool::renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                             int outputChannel, int slotFilter)
+                              int outputChannel, int slotFilter)
     {
         for (auto &voice : voices)
         {

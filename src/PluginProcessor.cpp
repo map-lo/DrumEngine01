@@ -161,7 +161,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     {
         // Multi-out mode: render each slot to its own stereo pair
         int numOutputBuses = getBusCount(false);
-        
+
         for (int slotIdx = 0; slotIdx < 8; ++slotIdx)
         {
             // Check if this output bus is enabled
@@ -170,7 +170,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
             // Calculate output channels for this slot
             int outputChannel = slotIdx * 2;
-            
+
             // Make sure we have enough channels
             if (outputChannel + 1 >= totalNumOutputChannels)
                 break;

@@ -352,10 +352,10 @@ void AudioPluginAudioProcessorEditor::onOutputModeChanged()
 {
     int selectedId = outputModeCombo.getSelectedId();
     auto newMode = (selectedId == 2) ? AudioPluginAudioProcessor::OutputMode::MultiOut
-                                      : AudioPluginAudioProcessor::OutputMode::Stereo;
-    
+                                     : AudioPluginAudioProcessor::OutputMode::Stereo;
+
     processorRef.setOutputMode(newMode);
-    
+
     // Update status to inform user
     if (newMode == AudioPluginAudioProcessor::OutputMode::MultiOut)
     {

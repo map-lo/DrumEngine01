@@ -3,6 +3,7 @@
 ## Overview
 
 DrumEngine01 now supports **two output modes**:
+
 1. **Stereo Mode** (default): All 8 slots are mixed to a single stereo output
 2. **Multi-Out Mode**: Each slot has its own dedicated stereo output pair
 
@@ -11,11 +12,13 @@ This allows maximum flexibility in your DAW for processing individual mic channe
 ## Output Configuration
 
 ### Stereo Mode
+
 - **Output routing**: All slots → Main stereo output (channels 1-2)
 - **Use case**: Simple playback, pre-mixed sound
 - **DAW setup**: Single stereo track
 
 ### Multi-Out Mode
+
 - **Output routing**:
   - Slot 1 (top) → Output 1-2
   - Slot 2 (bottom) → Output 3-4
@@ -42,11 +45,13 @@ The status label will update to confirm the mode change.
 ### Status Messages
 
 **Stereo Mode:**
+
 ```
 Stereo mode: All slots mixed to main output
 ```
 
 **Multi-Out Mode:**
+
 ```
 Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
 ```
@@ -56,10 +61,12 @@ Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
 ### Ableton Live
 
 **Stereo Mode:**
+
 1. Add plugin to MIDI track
 2. Single stereo output automatically routed
 
 **Multi-Out Mode:**
+
 1. Add plugin to MIDI track
 2. Track automatically expands to show 8 output routing dropdowns
 3. Create 8 audio tracks
@@ -68,15 +75,17 @@ Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
    - "2-DrumEngine01" → Audio Track 2 (Snare Bottom)
    - "3-DrumEngine01" → Audio Track 3 (Overheads)
    - etc.
-4. Process each mic separately with EQ, compression, reverb
+5. Process each mic separately with EQ, compression, reverb
 
 ### Logic Pro
 
 **Stereo Mode:**
+
 1. Add plugin to Software Instrument track
 2. Default stereo output
 
 **Multi-Out Mode:**
+
 1. Add plugin as "Multi-Output" instrument
 2. In Mixer, expand the track (disclosure triangle)
 3. You'll see 8 auxiliary channels (one per slot)
@@ -86,10 +95,12 @@ Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
 ### Reaper
 
 **Stereo Mode:**
+
 1. Add plugin to track
 2. Outputs to master stereo
 
 **Multi-Out Mode:**
+
 1. Add plugin to track
 2. Right-click track → "I/O" → Enable all 8 output pairs
 3. Create routing to separate tracks:
@@ -101,10 +112,12 @@ Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
 ### Cubase/Nuendo
 
 **Stereo Mode:**
+
 1. Add to Instrument Track
 2. Stereo output
 
 **Multi-Out Mode:**
+
 1. Load as "Rack Instrument" or "Multi-Timbral" instrument
 2. Activate desired outputs in the rack (Output 1-16)
 3. Create audio channels for each output pair
@@ -171,12 +184,14 @@ Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
 ### Audio Engine Behavior
 
 #### Stereo Mode
+
 - MIDI events trigger voices for all active slots
 - All voices render to channels 0-1 (main stereo output)
 - Volume, mute, solo controls still function per-slot
 - Final mix is sum of all unmuted/unsoloed slots
 
 #### Multi-Out Mode
+
 - MIDI events trigger voices for all active slots (once)
 - Each slot's voices render to their dedicated output pair
 - Volume, mute, solo controls apply per-slot
@@ -186,21 +201,25 @@ Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
 ### Performance Considerations
 
 **CPU Usage:**
+
 - Both modes have similar CPU usage
 - Multi-out adds minimal overhead (routing only)
 - Voice allocation and rendering cost is the same
 
 **Latency:**
+
 - No additional latency in either mode
 - Plugin-reported latency is 0 samples
 
 **Memory:**
+
 - Multi-out mode uses slightly more memory for buffer management
 - Difference is negligible (a few KB per buffer)
 
 ### Bus Configuration
 
 **VST3 Bus Layout:**
+
 - **Main output (Bus 0)**: Always enabled, stereo
 - **Slot 2 output (Bus 1)**: Enabled in multi-out mode, stereo
 - **Slot 3 output (Bus 2)**: Enabled in multi-out mode, stereo
@@ -215,6 +234,7 @@ When switching from Multi-Out to Stereo, buses 1-7 are disabled automatically. W
 ### Host Compatibility
 
 The plugin notifies the host when the bus configuration changes using:
+
 ```cpp
 updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
 ```
@@ -226,18 +246,21 @@ Most modern DAWs will handle this gracefully, but some older hosts may require y
 The plugin's **internal mixer controls** (volume, mute, solo) work in both modes:
 
 ### Stereo Mode
+
 - Controls affect the mix before summing to main output
 - Muting a slot removes it from the stereo mix
 - Soloing a slot silences all other slots in the mix
 - Volume adjusts the slot's contribution to the mix
 
 ### Multi-Out Mode
+
 - Controls affect each output pair individually
 - Muting a slot silences that output pair
 - Soloing a slot only affects the "solo" output pair (others still output)
 - Volume adjusts the gain on that output pair
 
 **Important**: In Multi-Out mode, your DAW's mixer gives you additional control beyond the plugin's internal mixer. You can:
+
 - Mute/solo at the DAW track level
 - Apply per-track effects
 - Route to buses and groups
@@ -251,7 +274,7 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 ✅ **Simple arrangements**: Limited track count  
 ✅ **Pre-production**: Demoing ideas quickly  
 ✅ **Live performance**: Minimal CPU overhead  
-✅ **MIDI mockups**: Not final mix  
+✅ **MIDI mockups**: Not final mix
 
 ### When to Use Multi-Out Mode
 
@@ -260,7 +283,7 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 ✅ **Parallel compression**: Apply to specific mics  
 ✅ **Automation**: Automate individual mic levels  
 ✅ **Stem exports**: Export separate mic stems  
-✅ **Advanced mixing**: Full professional workflow  
+✅ **Advanced mixing**: Full professional workflow
 
 ## Troubleshooting
 
@@ -271,6 +294,7 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 ### "Some outputs are silent in Multi-Out mode"
 
 **Check**:
+
 1. Is the preset using that slot? (Inactive slots shown at 30% opacity in UI)
 2. Is the slot muted in the plugin UI?
 3. Is the DAW track receiving that output muted/soloed?
@@ -279,6 +303,7 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 ### "Switching modes causes audio glitches"
 
 **Solution**: This is normal. The plugin rebuilds its bus configuration when switching modes. Some hosts may briefly stop audio. If persistent, try:
+
 1. Stop playback before switching modes
 2. Reload the plugin
 3. Check host compatibility
@@ -286,11 +311,13 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 ### "My DAW doesn't show all 8 outputs"
 
 **Possible causes**:
+
 1. DAW track is in "Stereo" mode, not "Multi-Out" mode
 2. Need to enable multi-output in plugin settings (DAW-specific)
 3. DAW version doesn't support VST3 multi-output
 
 **Solutions**:
+
 - Ableton: Plugin automatically goes multi-out
 - Logic: Choose "Multi-Output" when adding instrument
 - Reaper: Enable outputs in track I/O panel
@@ -319,6 +346,7 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 ### Organization
 
 **Naming Convention** (Multi-Out):
+
 - Track 1: "Drum - Top"
 - Track 2: "Drum - Bottom"
 - Track 3: "Drum - OH"
@@ -327,11 +355,13 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 - Etc.
 
 **Color Coding**:
+
 - Close mics: One color (e.g., red)
 - Overheads: Another color (e.g., blue)
 - Room mics: Another color (e.g., green)
 
 **Grouping**:
+
 - Create "DRUM" folder/group containing all mic tracks
 - Create "DRUM CLOSE" subgroup for top + bottom
 - Create "DRUM ROOM" subgroup for room mics
@@ -339,6 +369,7 @@ The plugin's **internal mixer controls** (volume, mute, solo) work in both modes
 ## Summary
 
 Multi-output support gives you **maximum flexibility**:
+
 - **Stereo Mode**: Fast, simple, pre-mixed
 - **Multi-Out Mode**: Professional, customizable, per-mic control
 

@@ -77,8 +77,8 @@ public:
     // Output mode
     enum class OutputMode
     {
-        Stereo,   // Single stereo output (all slots mixed)
-        MultiOut  // 8 stereo pairs (one per slot)
+        Stereo,  // Single stereo output (all slots mixed)
+        MultiOut // 8 stereo pairs (one per slot)
     };
 
     void setOutputMode(OutputMode mode);
