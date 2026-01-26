@@ -1,5 +1,4 @@
 #include "Voice.h"
-#include <fstream>
 
 namespace DrumEngine
 {
@@ -15,16 +14,6 @@ namespace DrumEngine
         playbackFrame = 0;
         fadePosition = 0;
         state = State::Playing;
-
-        // Log sample assignment
-        static int startCounter = 0;
-        if (startCounter++ < 20)
-        {
-            std::ofstream log("/tmp/drumengine_debug.txt", std::ios::app);
-            log << "START: slotIndex=" << slotIndex
-                << " sample=" << sample.get()
-                << " frames=" << sample->getTotalFrames() << std::endl;
-        }
     }
 
     void MicVoice::beginRelease()
@@ -69,17 +58,8 @@ namespace DrumEngine
             int leftChannel = slotIndex * 2 + 2;
             int rightChannel = slotIndex * 2 + 3;
 
-            // Verify slotIndex is valid
+            // Verify slotIndex is valid and channels exist
             jassert(slotIndex >= 0 && slotIndex < 8);
-
-            // Log to file
-            static int renderCounter = 0;
-            if (state == State::Playing && playbackFrame < 5 && renderCounter++ < 40)
-            {
-                std::ofstream log("/tmp/drumengine_debug.txt", std::ios::app);
-                log << "RENDER: slotIndex=" << slotIndex << " leftCh=" << leftChannel
-                    << " rightCh=" << rightChannel << " bufCh=" << bufferChannels << std::endl;
-            }
 
             if (rightChannel < bufferChannels)
             {
