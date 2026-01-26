@@ -68,6 +68,10 @@ namespace DrumEngine
         // Reset RR counters
         rrCounters.fill(0);
 
+        // Clear all solo states when loading a new preset
+        slotSoloed.fill(false);
+        anySoloed = false;
+
         DBG("Preset loaded successfully");
 
         return juce::Result::ok();
