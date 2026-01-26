@@ -8,7 +8,14 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #if !JucePlugin_IsSynth
                          .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
-                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Main", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Slot 2", juce::AudioChannelSet::stereo(), false)
+                         .withOutput("Slot 3", juce::AudioChannelSet::stereo(), false)
+                         .withOutput("Slot 4", juce::AudioChannelSet::stereo(), false)
+                         .withOutput("Slot 5", juce::AudioChannelSet::stereo(), false)
+                         .withOutput("Slot 6", juce::AudioChannelSet::stereo(), false)
+                         .withOutput("Slot 7", juce::AudioChannelSet::stereo(), false)
+                         .withOutput("Slot 8", juce::AudioChannelSet::stereo(), false)
 #endif
       )
 {
@@ -111,15 +118,20 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout &layout
     juce::ignoreUnused(layouts);
     return true;
 #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    // Main output must be stereo
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-    // This checks if the input layout matches the output layout
+    // All additional outputs (if enabled) must be stereo
+    for (int i = 1; i < layouts.outputBuses.size(); ++i)
+    {
+        if (!layouts.getChannelSet(false, i).isDisabled() &&
+            layouts.getChannelSet(false, i) != juce::AudioChannelSet::stereo())
+            return false;
+    }
+
 #if !JucePlugin_IsSynth
+    // Input (if present) should match main output
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
 #endif
@@ -133,13 +145,40 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 {
     juce::ScopedNoDenormals noDenormals;
 
-    // Ensure we have stereo output
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     if (totalNumOutputChannels < 2)
         return;
 
-    // Process through the drum engine
-    engine.processBlock(buffer, midiMessages);
+    // Clear all output channels
+    buffer.clear();
+
+    if (outputMode == OutputMode::Stereo)
+    {
+        // Stereo mode: render all slots to main stereo output (channels 0-1)
+        engine.processBlock(buffer, midiMessages, 0, -1); // -1 = all slots mixed
+    }
+    else // MultiOut
+    {
+        // Multi-out mode: render each slot to its own stereo pair
+        int numOutputBuses = getBusCount(false);
+        
+        for (int slotIdx = 0; slotIdx < 8; ++slotIdx)
+        {
+            // Check if this output bus is enabled
+            if (slotIdx < numOutputBuses && !getBus(false, slotIdx)->isEnabled())
+                continue;
+
+            // Calculate output channels for this slot
+            int outputChannel = slotIdx * 2;
+            
+            // Make sure we have enough channels
+            if (outputChannel + 1 >= totalNumOutputChannels)
+                break;
+
+            // Render this slot to its dedicated output pair
+            engine.processBlock(buffer, midiMessages, outputChannel, slotIdx);
+        }
+    }
 }
 
 //==============================================================================
@@ -253,7 +292,36 @@ AudioPluginAudioProcessor::SlotState AudioPluginAudioProcessor::getSlotState(int
     }
     return SlotState();
 }
+void AudioPluginAudioProcessor::setOutputMode(OutputMode mode)
+{
+    if (outputMode == mode)
+        return;
 
+    outputMode = mode;
+
+    // Enable/disable output buses based on mode
+    if (mode == OutputMode::Stereo)
+    {
+        // Disable all buses except main
+        for (int i = 1; i < getBusCount(false); ++i)
+        {
+            if (auto *bus = getBus(false, i))
+                bus->enable(false);
+        }
+    }
+    else // MultiOut
+    {
+        // Enable all 8 output buses
+        for (int i = 1; i < getBusCount(false) && i < 8; ++i)
+        {
+            if (auto *bus = getBus(false, i))
+                bus->enable(true);
+        }
+    }
+
+    // Notify host of bus configuration change
+    updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
+}
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()

@@ -25,7 +25,10 @@ namespace DrumEngine
         void beginRelease();
         void reset();
 
-        void render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples);
+        void render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
+                   int outputChannel = 0);
+        
+        int slotIndex = 0; // Which slot this voice belongs to (0-7)
 
         bool isActive() const { return state != State::Inactive; }
         State getState() const { return state; }
@@ -87,7 +90,8 @@ namespace DrumEngine
 
         MicVoice *allocateVoice();
 
-        void renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples);
+        void renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
+                      int outputChannel = 0, int slotFilter = -1);
 
     private:
         std::vector<std::unique_ptr<MicVoice>> voices;

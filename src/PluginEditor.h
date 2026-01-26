@@ -22,6 +22,7 @@ private:
     void onSlotVolumeChanged(int slotIndex);
     void onSlotMuteClicked(int slotIndex);
     void onSlotSoloClicked(int slotIndex);
+    void onOutputModeChanged();
 
     AudioPluginAudioProcessor &processorRef;
 
@@ -30,6 +31,8 @@ private:
     juce::Label statusLabel;
     juce::Label presetInfoLabel;
     juce::Label instructionsLabel;
+    juce::ComboBox outputModeCombo;
+    juce::Label outputModeLabel;
 
     // Slot controls (up to 8 slots)
     struct SlotControl

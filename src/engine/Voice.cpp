@@ -33,17 +33,18 @@ namespace DrumEngine
         fadePosition = 0;
     }
 
-    void MicVoice::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples)
+    void MicVoice::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
+                         int outputChannel)
     {
         if (state == State::Inactive || !currentSample || !currentSample->isValid())
             return;
 
         int bufferChannels = buffer.getNumChannels();
-        if (bufferChannels < 2)
-            return; // Require stereo output
+        if (outputChannel + 1 >= bufferChannels)
+            return; // Need stereo pair
 
-        float *leftChannel = buffer.getWritePointer(0, startSample);
-        float *rightChannel = buffer.getWritePointer(1, startSample);
+        float *leftChannel = buffer.getWritePointer(outputChannel, startSample);
+        float *rightChannel = buffer.getWritePointer(outputChannel + 1, startSample);
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -163,13 +164,18 @@ namespace DrumEngine
         return nullptr;
     }
 
-    void VoicePool::renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples)
+    void VoicePool::renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
+                             int outputChannel, int slotFilter)
     {
         for (auto &voice : voices)
         {
             if (voice->isActive())
             {
-                voice->render(buffer, startSample, numSamples);
+                // If slotFilter is specified, only render voices from that slot
+                if (slotFilter != -1 && voice->slotIndex != slotFilter)
+                    continue;
+
+                voice->render(buffer, startSample, numSamples, outputChannel);
             }
         }
     }

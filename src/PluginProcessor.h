@@ -74,9 +74,20 @@ public:
     void setSlotSoloed(int slotIndex, bool soloed);
     SlotState getSlotState(int slotIndex) const;
 
+    // Output mode
+    enum class OutputMode
+    {
+        Stereo,   // Single stereo output (all slots mixed)
+        MultiOut  // 8 stereo pairs (one per slot)
+    };
+
+    void setOutputMode(OutputMode mode);
+    OutputMode getOutputMode() const { return outputMode; }
+
 private:
     //==============================================================================
     DrumEngine::Engine engine;
+    OutputMode outputMode = OutputMode::Stereo;
 
     // Track last loaded preset for UI
     mutable juce::CriticalSection presetInfoLock;

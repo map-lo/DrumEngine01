@@ -169,36 +169,40 @@ namespace DrumEngine
         return slotGains[slotIndex];
     }
 
-    void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages)
+    void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages,
+                              int outputChannel, int slotFilter)
     {
-        // Clear buffer
-        buffer.clear();
-
         // Get current preset
         auto *preset = activePreset.load();
         if (!preset)
             return;
 
-        // Process MIDI events
-        for (const auto metadata : midiMessages)
+        // Process MIDI events (only once, regardless of slot filter)
+        if (slotFilter == -1 || slotFilter == 0)
         {
-            auto message = metadata.getMessage();
-
-            if (message.isNoteOn())
+            for (const auto metadata : midiMessages)
             {
-                handleNoteOn(message.getNoteNumber(), message.getVelocity());
+                auto message = metadata.getMessage();
+
+                if (message.isNoteOn())
+                {
+                    handleNoteOn(message.getNoteNumber(), message.getVelocity());
+                }
             }
         }
 
-        // Render all voices
-        render(buffer, 0, buffer.getNumSamples());
+        // Render voices for the specified slot(s) to the specified output channels
+        render(buffer, 0, buffer.getNumSamples(), outputChannel, slotFilter);
 
-        // Clean up inactive hit groups
-        activeHitGroups.erase(
-            std::remove_if(activeHitGroups.begin(), activeHitGroups.end(),
-                           [](const HitGroup &hg)
-                           { return !hg.isActive(); }),
-            activeHitGroups.end());
+        // Clean up inactive hit groups (only once)
+        if (slotFilter == -1 || slotFilter == 0)
+        {
+            activeHitGroups.erase(
+                std::remove_if(activeHitGroups.begin(), activeHitGroups.end(),
+                               [](const HitGroup &hg)
+                               { return !hg.isActive(); }),
+                activeHitGroups.end());
+        }
     }
 
     void Engine::handleNoteOn(int note, int velocity)
@@ -266,6 +270,9 @@ namespace DrumEngine
                 continue;
             }
 
+            // Set slot index for routing
+            voice->slotIndex = slotIdx;
+
             // Calculate final gain (velocity gain * slot gain)
             float slotGain = getEffectiveSlotGain(slotIdx);
             float finalGain = gain * slotGain;
@@ -279,9 +286,10 @@ namespace DrumEngine
         activeHitGroups.push_back(newGroup);
     }
 
-    void Engine::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples)
+    void Engine::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
+                       int outputChannel, int slotFilter)
     {
-        voicePool.renderAll(buffer, startSample, numSamples);
+        voicePool.renderAll(buffer, startSample, numSamples, outputChannel, slotFilter);
     }
 
 } // namespace DrumEngine

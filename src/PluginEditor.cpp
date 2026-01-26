@@ -32,6 +32,20 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
         juce::dontSendNotification);
     addAndMakeVisible(instructionsLabel);
 
+    // Output mode selector
+    outputModeLabel.setFont(juce::FontOptions(11.0f));
+    outputModeLabel.setJustificationType(juce::Justification::centredRight);
+    outputModeLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    outputModeLabel.setText("Output:", juce::dontSendNotification);
+    addAndMakeVisible(outputModeLabel);
+
+    outputModeCombo.addItem("Stereo", 1);
+    outputModeCombo.addItem("Multi-Out (8x Stereo)", 2);
+    outputModeCombo.setSelectedId(1, juce::dontSendNotification);
+    outputModeCombo.onChange = [this]
+    { onOutputModeChanged(); };
+    addAndMakeVisible(outputModeCombo);
+
     // Setup slot controls
     for (int i = 0; i < 8; ++i)
     {
@@ -121,6 +135,11 @@ void AudioPluginAudioProcessorEditor::resized()
     loadPresetButton.setBounds(topSection.removeFromTop(35).reduced(150, 0));
     topSection.removeFromTop(5);
     statusLabel.setBounds(topSection.removeFromTop(25));
+
+    // Output mode selector
+    auto outputModeArea = topSection.removeFromTop(25);
+    outputModeLabel.setBounds(outputModeArea.removeFromLeft(60));
+    outputModeCombo.setBounds(outputModeArea.removeFromLeft(200));
 
     area.removeFromTop(10);
 
@@ -326,5 +345,26 @@ void AudioPluginAudioProcessorEditor::onSlotSoloClicked(int slotIndex)
     {
         bool soloed = slotControls[slotIndex].soloButton.getToggleState();
         processorRef.setSlotSoloed(slotIndex, soloed);
+    }
+}
+
+void AudioPluginAudioProcessorEditor::onOutputModeChanged()
+{
+    int selectedId = outputModeCombo.getSelectedId();
+    auto newMode = (selectedId == 2) ? AudioPluginAudioProcessor::OutputMode::MultiOut
+                                      : AudioPluginAudioProcessor::OutputMode::Stereo;
+    
+    processorRef.setOutputMode(newMode);
+    
+    // Update status to inform user
+    if (newMode == AudioPluginAudioProcessor::OutputMode::MultiOut)
+    {
+        statusLabel.setText("Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.", juce::dontSendNotification);
+        statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);
+    }
+    else
+    {
+        statusLabel.setText("Stereo mode: All slots mixed to main output", juce::dontSendNotification);
+        statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightblue);
     }
 }
