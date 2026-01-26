@@ -53,13 +53,15 @@ namespace DrumEngine
 
         if (multiOutEnabled)
         {
-            // Individual slot outputs start at channel 2 (bus 1 = channels 2-3, bus 2 = channels 4-5, etc.)
-            int slotOutputChannel = (this->slotIndex + 1) * 2;
+            // Individual mic outputs: mic 0 -> channels 2-3, mic 1 -> channels 4-5, etc.
+            // Formula: channels (slotIndex * 2 + 2) and (slotIndex * 2 + 3)
+            int leftChannel = slotIndex * 2 + 2;
+            int rightChannel = slotIndex * 2 + 3;
 
-            if (slotOutputChannel + 1 < bufferChannels)
+            if (rightChannel < bufferChannels)
             {
-                slotLeft = buffer.getWritePointer(slotOutputChannel, startSample);
-                slotRight = buffer.getWritePointer(slotOutputChannel + 1, startSample);
+                slotLeft = buffer.getWritePointer(leftChannel, startSample);
+                slotRight = buffer.getWritePointer(rightChannel, startSample);
             }
         }
 
