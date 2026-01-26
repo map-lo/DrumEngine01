@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "snare",
+  "slotNames": [
+    "top",
+    "bottom",
+    "oh",
+    "room1",
+    "room2",
+    "extra1",
+    "extra2"
+  ],
+  "rootFolder": "/Users/marian/Samples/YurtRock/JoeyWaronker/All Samples/Gretsch Studio Kit/Slow Mix/Snare",
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 42,
+      "wavsBySlot": {
+        "1": [
+          "LudwigSlowSnare1.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 43,
+      "hi": 84,
+      "wavsBySlot": {
+        "1": [
+          "LudwigSlowSnare2.wav",
+          "LudwigSlowSnare3.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 85,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "LudwigSlowSnare4.wav",
+          "LudwigSlowSnare5.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  }
+}
