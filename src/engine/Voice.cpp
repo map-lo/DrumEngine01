@@ -34,17 +34,34 @@ namespace DrumEngine
     }
 
     void MicVoice::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                          int outputChannel)
+                          bool multiOutEnabled)
     {
         if (state == State::Inactive || !currentSample || !currentSample->isValid())
             return;
 
         int bufferChannels = buffer.getNumChannels();
-        if (outputChannel + 1 >= bufferChannels)
-            return; // Need stereo pair
+        if (bufferChannels < 2)
+            return; // Need at least stereo
 
-        float *leftChannel = buffer.getWritePointer(outputChannel, startSample);
-        float *rightChannel = buffer.getWritePointer(outputChannel + 1, startSample);
+        // Always write to mix (channels 0-1)
+        float *mixLeft = buffer.getWritePointer(0, startSample);
+        float *mixRight = buffer.getWritePointer(1, startSample);
+
+        // In multi-out mode, also write to individual slot output
+        float *slotLeft = nullptr;
+        float *slotRight = nullptr;
+
+        if (multiOutEnabled)
+        {
+            // Individual slot outputs start at channel 2 (bus 1 = channels 2-3, bus 2 = channels 4-5, etc.)
+            int slotOutputChannel = (this->slotIndex + 1) * 2;
+
+            if (slotOutputChannel + 1 < bufferChannels)
+            {
+                slotLeft = buffer.getWritePointer(slotOutputChannel, startSample);
+                slotRight = buffer.getWritePointer(slotOutputChannel + 1, startSample);
+            }
+        }
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -88,9 +105,16 @@ namespace DrumEngine
             sampleLeft *= gain * fadeGain;
             sampleRight *= gain * fadeGain;
 
-            // Mix into buffer
-            leftChannel[i] += sampleLeft;
-            rightChannel[i] += sampleRight;
+            // Always write to mix output
+            mixLeft[i] += sampleLeft;
+            mixRight[i] += sampleRight;
+
+            // Also write to individual slot output if multi-out enabled
+            if (slotLeft && slotRight)
+            {
+                slotLeft[i] += sampleLeft;
+                slotRight[i] += sampleRight;
+            }
         }
     }
 
@@ -165,17 +189,13 @@ namespace DrumEngine
     }
 
     void VoicePool::renderAll(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                              int outputChannel, int slotFilter)
+                              bool multiOutEnabled)
     {
         for (auto &voice : voices)
         {
             if (voice->isActive())
             {
-                // If slotFilter is specified, only render voices from that slot
-                if (slotFilter != -1 && voice->slotIndex != slotFilter)
-                    continue;
-
-                voice->render(buffer, startSample, numSamples, outputChannel);
+                voice->render(buffer, startSample, numSamples, multiOutEnabled);
             }
         }
     }

@@ -170,39 +170,33 @@ namespace DrumEngine
     }
 
     void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages,
-                              int outputChannel, int slotFilter)
+                              bool multiOutEnabled)
     {
         // Get current preset
         auto *preset = activePreset.load();
         if (!preset)
             return;
 
-        // Process MIDI events (only once, regardless of slot filter)
-        if (slotFilter == -1 || slotFilter == 0)
+        // Process MIDI events
+        for (const auto metadata : midiMessages)
         {
-            for (const auto metadata : midiMessages)
-            {
-                auto message = metadata.getMessage();
+            auto message = metadata.getMessage();
 
-                if (message.isNoteOn())
-                {
-                    handleNoteOn(message.getNoteNumber(), message.getVelocity());
-                }
+            if (message.isNoteOn())
+            {
+                handleNoteOn(message.getNoteNumber(), message.getVelocity());
             }
         }
 
-        // Render voices for the specified slot(s) to the specified output channels
-        render(buffer, 0, buffer.getNumSamples(), outputChannel, slotFilter);
+        // Render all voices (each voice renders to mix + individual output if multi-out enabled)
+        render(buffer, 0, buffer.getNumSamples(), multiOutEnabled);
 
-        // Clean up inactive hit groups (only once)
-        if (slotFilter == -1 || slotFilter == 0)
-        {
-            activeHitGroups.erase(
-                std::remove_if(activeHitGroups.begin(), activeHitGroups.end(),
-                               [](const HitGroup &hg)
-                               { return !hg.isActive(); }),
-                activeHitGroups.end());
-        }
+        // Clean up inactive hit groups
+        activeHitGroups.erase(
+            std::remove_if(activeHitGroups.begin(), activeHitGroups.end(),
+                           [](const HitGroup &hg)
+                           { return !hg.isActive(); }),
+            activeHitGroups.end());
     }
 
     void Engine::handleNoteOn(int note, int velocity)
@@ -287,9 +281,9 @@ namespace DrumEngine
     }
 
     void Engine::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                        int outputChannel, int slotFilter)
+                        bool multiOutEnabled)
     {
-        voicePool.renderAll(buffer, startSample, numSamples, outputChannel, slotFilter);
+        voicePool.renderAll(buffer, startSample, numSamples, multiOutEnabled);
     }
 
 } // namespace DrumEngine

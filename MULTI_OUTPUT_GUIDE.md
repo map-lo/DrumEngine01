@@ -20,16 +20,17 @@ This allows maximum flexibility in your DAW for processing individual mic channe
 ### Multi-Out Mode
 
 - **Output routing**:
-  - Slot 1 (top) → Output 1-2
-  - Slot 2 (bottom) → Output 3-4
-  - Slot 3 (oh) → Output 5-6
-  - Slot 4 (room1) → Output 7-8
-  - Slot 5 (room2) → Output 9-10
-  - Slot 6 (extra1) → Output 11-12
-  - Slot 7 (extra2) → Output 13-14
-  - Slot 8 → Output 15-16
-- **Use case**: Individual processing per mic, custom mixing
-- **DAW setup**: 8 stereo tracks or buses
+  - **Mix (all slots)** → Output 1-2 (Main)
+  - Slot 1 (top) → Output 3-4
+  - Slot 2 (bottom) → Output 5-6
+  - Slot 3 (oh) → Output 7-8
+  - Slot 4 (room1) → Output 9-10
+  - Slot 5 (room2) → Output 11-12
+  - Slot 6 (extra1) → Output 13-14
+  - Slot 7 (extra2) → Output 15-16
+  - Slot 8 → Output 17-18
+- **Use case**: Get both the full mix AND individual mics for parallel processing
+- **DAW setup**: 9 stereo outputs (1 for mix + 8 for individual mics)
 
 ## How to Switch Modes
 
@@ -47,13 +48,13 @@ The status label will update to confirm the mode change.
 **Stereo Mode:**
 
 ```
-Stereo mode: All slots mixed to main output
+Stereo mode: Mix on outputs 1-2
 ```
 
 **Multi-Out Mode:**
 
 ```
-Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.
+Multi-Out: Mix→1-2, Slot1→3-4, Slot2→5-6, etc.
 ```
 
 ## DAW Configuration Examples

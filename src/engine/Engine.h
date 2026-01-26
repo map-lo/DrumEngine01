@@ -37,13 +37,7 @@ namespace DrumEngine
         PresetInfo getCurrentPresetInfo() const;
 
         // Audio processing
-        // outputChannel: target stereo pair (0 for channels 0-1, 2 for channels 2-3, etc.)
-        // slotFilter: render only this slot (-1 = all slots)
-        void processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages,
-                          int outputChannel = 0, int slotFilter = -1);
-
-        // Config
-        void setFadeLengthSamples(int samples) { fadeLenSamples = samples; }
+        void processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages, bool multiOutEnabled = false);
         int getFadeLengthSamples() const { return fadeLenSamples; }
 
         // Slot controls
@@ -82,10 +76,7 @@ namespace DrumEngine
 
         // Internal methods
         void handleNoteOn(int note, int velocity);
-        void render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
-                    int outputChannel = 0, int slotFilter = -1);
-
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Engine)
+        void render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples, bool multiOutEnabled);
     };
 
 } // namespace DrumEngine

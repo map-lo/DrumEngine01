@@ -8,7 +8,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #if !JucePlugin_IsSynth
                          .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
-                         .withOutput("Main", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Main (Mix)", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Slot 1", juce::AudioChannelSet::stereo(), false)
                          .withOutput("Slot 2", juce::AudioChannelSet::stereo(), false)
                          .withOutput("Slot 3", juce::AudioChannelSet::stereo(), false)
                          .withOutput("Slot 4", juce::AudioChannelSet::stereo(), false)
@@ -152,33 +153,9 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     // Clear all output channels
     buffer.clear();
 
-    if (outputMode == OutputMode::Stereo)
-    {
-        // Stereo mode: render all slots to main stereo output (channels 0-1)
-        engine.processBlock(buffer, midiMessages, 0, -1); // -1 = all slots mixed
-    }
-    else // MultiOut
-    {
-        // Multi-out mode: render each slot to its own stereo pair
-        int numOutputBuses = getBusCount(false);
-
-        for (int slotIdx = 0; slotIdx < 8; ++slotIdx)
-        {
-            // Check if this output bus is enabled
-            if (slotIdx < numOutputBuses && !getBus(false, slotIdx)->isEnabled())
-                continue;
-
-            // Calculate output channels for this slot
-            int outputChannel = slotIdx * 2;
-
-            // Make sure we have enough channels
-            if (outputChannel + 1 >= totalNumOutputChannels)
-                break;
-
-            // Render this slot to its dedicated output pair
-            engine.processBlock(buffer, midiMessages, outputChannel, slotIdx);
-        }
-    }
+    // Process audio - voices render to mix (1-2) and individual outputs (3-18) simultaneously
+    bool multiOutEnabled = (outputMode == OutputMode::MultiOut);
+    engine.processBlock(buffer, midiMessages, multiOutEnabled);
 }
 
 //==============================================================================

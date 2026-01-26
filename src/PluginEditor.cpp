@@ -359,12 +359,12 @@ void AudioPluginAudioProcessorEditor::onOutputModeChanged()
     // Update status to inform user
     if (newMode == AudioPluginAudioProcessor::OutputMode::MultiOut)
     {
-        statusLabel.setText("Multi-Out enabled: Slot 1→Out 1-2, Slot 2→Out 3-4, etc.", juce::dontSendNotification);
+        statusLabel.setText("Multi-Out: Mix\u21921-2, Slot1\u21923-4, Slot2\u21925-6, etc.", juce::dontSendNotification);
         statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);
     }
     else
     {
-        statusLabel.setText("Stereo mode: All slots mixed to main output", juce::dontSendNotification);
+        statusLabel.setText("Stereo mode: Mix on outputs 1-2", juce::dontSendNotification);
         statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightblue);
     }
 }
