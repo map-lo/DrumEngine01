@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <fstream>
 
 namespace DrumEngine
 {
@@ -266,6 +267,17 @@ namespace DrumEngine
 
             // Set slot index for routing
             voice->slotIndex = slotIdx;
+
+            // Log to file with sample info
+            static int allocCounter = 0;
+            if (allocCounter++ < 20)
+            {
+                std::ofstream log("/tmp/drumengine_debug.txt", std::ios::app);
+                log << "ALLOC: slot=" << slotIdx << " voice=" << voice
+                    << " slotIndex=" << voice->slotIndex
+                    << " sample=" << sample.get()
+                    << " frames=" << sample->getTotalFrames() << std::endl;
+            }
 
             // Calculate final gain (velocity gain * slot gain)
             float slotGain = getEffectiveSlotGain(slotIdx);

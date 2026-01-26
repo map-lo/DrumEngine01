@@ -9,14 +9,14 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                          .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
                          .withOutput("Main (Mix)", juce::AudioChannelSet::stereo(), true)
-                         .withOutput("Mic 1", juce::AudioChannelSet::stereo(), false)
-                         .withOutput("Mic 2", juce::AudioChannelSet::stereo(), false)
-                         .withOutput("Mic 3", juce::AudioChannelSet::stereo(), false)
-                         .withOutput("Mic 4", juce::AudioChannelSet::stereo(), false)
-                         .withOutput("Mic 5", juce::AudioChannelSet::stereo(), false)
-                         .withOutput("Mic 6", juce::AudioChannelSet::stereo(), false)
-                         .withOutput("Mic 7", juce::AudioChannelSet::stereo(), false)
-                         .withOutput("Mic 8", juce::AudioChannelSet::stereo(), false)
+                         .withOutput("Mic 1", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Mic 2", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Mic 3", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Mic 4", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Mic 5", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Mic 6", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Mic 7", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Mic 8", juce::AudioChannelSet::stereo(), true)
 #endif
       )
 {
@@ -150,11 +150,17 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     if (totalNumOutputChannels < 2)
         return;
 
-    // Clear all output channels
+    // Clear the buffer first
     buffer.clear();
 
-    // Process audio - voices render to mix (1-2) and individual outputs (3-18) simultaneously
     bool multiOutEnabled = (outputMode == OutputMode::MultiOut);
+
+    // The buffer parameter contains all bus channels laid out sequentially
+    // Bus 0 (main): channels 0-1
+    // Bus 1 (Mic 1): channels 2-3
+    // Bus 2 (Mic 2): channels 4-5, etc.
+
+    // So we can just process directly into the buffer!
     engine.processBlock(buffer, midiMessages, multiOutEnabled);
 }
 
@@ -276,29 +282,11 @@ void AudioPluginAudioProcessor::setOutputMode(OutputMode mode)
 
     outputMode = mode;
 
-    // Enable/disable output buses based on mode
-    if (mode == OutputMode::Stereo)
-    {
-        // Disable all buses except main
-        for (int i = 1; i < getBusCount(false); ++i)
-        {
-            if (auto *bus = getBus(false, i))
-                bus->enable(false);
-        }
-    }
-    else // MultiOut
-    {
-        // Enable all 8 output buses
-        for (int i = 1; i < getBusCount(false) && i < 8; ++i)
-        {
-            if (auto *bus = getBus(false, i))
-                bus->enable(true);
-        }
-    }
-
-    // Notify host of bus configuration change
-    updateHostDisplay(ChangeDetails().withNonParameterStateChanged(true));
+    // That's it! All buses are always enabled.
+    // In Stereo mode, we just don't write to individual outputs (channels 2-17 stay silent).
+    // In Multi-Out mode, voices write to both mix and individual outputs.
 }
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()
