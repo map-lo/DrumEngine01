@@ -56,9 +56,23 @@ public:
         int slotCount = 0;
         int layerCount = 0;
         juce::StringArray slotNames;
+        std::array<bool, 8> activeSlots = {}; // Which slots have samples
     };
 
     PresetInfo getPresetInfo() const;
+
+    // Slot control
+    struct SlotState
+    {
+        float volume = 1.0f;
+        bool muted = false;
+        bool soloed = false;
+    };
+
+    void setSlotVolume(int slotIndex, float volume);
+    void setSlotMuted(int slotIndex, bool muted);
+    void setSlotSoloed(int slotIndex, bool soloed);
+    SlotState getSlotState(int slotIndex) const;
 
 private:
     //==============================================================================
@@ -67,6 +81,10 @@ private:
     // Track last loaded preset for UI
     mutable juce::CriticalSection presetInfoLock;
     PresetInfo currentPresetInfo;
+
+    // Slot states (volume, mute, solo per slot)
+    mutable juce::CriticalSection slotStateLock;
+    std::array<SlotState, 8> slotStates;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)
 };

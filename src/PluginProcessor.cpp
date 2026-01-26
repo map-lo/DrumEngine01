@@ -187,6 +187,16 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
         currentPresetInfo.slotCount = info.slotCount;
         currentPresetInfo.layerCount = info.layerCount;
         currentPresetInfo.slotNames = info.slotNames;
+        currentPresetInfo.activeSlots = info.activeSlots;
+
+        // Update engine with current slot states
+        for (int i = 0; i < 8; ++i)
+        {
+            auto slotState = getSlotState(i);
+            engine.setSlotGain(i, slotState.volume);
+            engine.setSlotMuted(i, slotState.muted);
+            engine.setSlotSoloed(i, slotState.soloed);
+        }
     }
 
     return result;
@@ -196,6 +206,52 @@ AudioPluginAudioProcessor::PresetInfo AudioPluginAudioProcessor::getPresetInfo()
 {
     juce::ScopedLock lock(presetInfoLock);
     return currentPresetInfo;
+}
+
+void AudioPluginAudioProcessor::setSlotVolume(int slotIndex, float volume)
+{
+    if (slotIndex >= 0 && slotIndex < 8)
+    {
+        {
+            juce::ScopedLock lock(slotStateLock);
+            slotStates[slotIndex].volume = volume;
+        }
+        engine.setSlotGain(slotIndex, volume);
+    }
+}
+
+void AudioPluginAudioProcessor::setSlotMuted(int slotIndex, bool muted)
+{
+    if (slotIndex >= 0 && slotIndex < 8)
+    {
+        {
+            juce::ScopedLock lock(slotStateLock);
+            slotStates[slotIndex].muted = muted;
+        }
+        engine.setSlotMuted(slotIndex, muted);
+    }
+}
+
+void AudioPluginAudioProcessor::setSlotSoloed(int slotIndex, bool soloed)
+{
+    if (slotIndex >= 0 && slotIndex < 8)
+    {
+        {
+            juce::ScopedLock lock(slotStateLock);
+            slotStates[slotIndex].soloed = soloed;
+        }
+        engine.setSlotSoloed(slotIndex, soloed);
+    }
+}
+
+AudioPluginAudioProcessor::SlotState AudioPluginAudioProcessor::getSlotState(int slotIndex) const
+{
+    if (slotIndex >= 0 && slotIndex < 8)
+    {
+        juce::ScopedLock lock(slotStateLock);
+        return slotStates[slotIndex];
+    }
+    return SlotState();
 }
 
 //==============================================================================

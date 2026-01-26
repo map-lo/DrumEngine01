@@ -31,6 +31,7 @@ namespace DrumEngine
             int slotCount = 0;
             int layerCount = 0;
             juce::StringArray slotNames;
+            std::array<bool, 8> activeSlots = {}; // Which slots have samples
         };
 
         PresetInfo getCurrentPresetInfo() const;
@@ -41,6 +42,12 @@ namespace DrumEngine
         // Config
         void setFadeLengthSamples(int samples) { fadeLenSamples = samples; }
         int getFadeLengthSamples() const { return fadeLenSamples; }
+
+        // Slot controls
+        void setSlotGain(int slotIndex, float gain);
+        void setSlotMuted(int slotIndex, bool muted);
+        void setSlotSoloed(int slotIndex, bool soloed);
+        float getEffectiveSlotGain(int slotIndex) const;
 
     private:
         static constexpr int kMaxHitGroups = 3;
@@ -56,6 +63,12 @@ namespace DrumEngine
         // Track schema for preset info
         mutable juce::CriticalSection schemaLock;
         PresetSchema currentSchema;
+
+        // Slot controls (gain, mute, solo per slot)
+        std::array<float, 8> slotGains = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+        std::array<bool, 8> slotMuted = {};
+        std::array<bool, 8> slotSoloed = {};
+        bool anySoloed = false;
 
         // Voice management
         VoicePool voicePool;

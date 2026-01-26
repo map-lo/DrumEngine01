@@ -87,9 +87,86 @@ namespace DrumEngine
             info.slotCount = juce::jmin(8, currentSchema.slotNames.size());
             info.layerCount = static_cast<int>(currentSchema.velocityLayers.size());
             info.slotNames = currentSchema.slotNames;
+
+            // Determine which slots are active (have samples in any velocity layer)
+            auto *preset = activePreset.load();
+            if (preset)
+            {
+                const auto &layers = preset->getLayers();
+                for (int slotIdx = 0; slotIdx < info.slotCount; ++slotIdx)
+                {
+                    bool hasAnySample = false;
+                    for (const auto &layer : layers)
+                    {
+                        for (const auto &rrSlots : layer.samples)
+                        {
+                            if (slotIdx < static_cast<int>(rrSlots.size()) && rrSlots[slotIdx])
+                            {
+                                hasAnySample = true;
+                                break;
+                            }
+                        }
+                        if (hasAnySample)
+                            break;
+                    }
+                    info.activeSlots[slotIdx] = hasAnySample;
+                }
+            }
         }
 
         return info;
+    }
+
+    void Engine::setSlotGain(int slotIndex, float gain)
+    {
+        if (slotIndex >= 0 && slotIndex < 8)
+        {
+            slotGains[slotIndex] = gain;
+        }
+    }
+
+    void Engine::setSlotMuted(int slotIndex, bool muted)
+    {
+        if (slotIndex >= 0 && slotIndex < 8)
+        {
+            slotMuted[slotIndex] = muted;
+        }
+    }
+
+    void Engine::setSlotSoloed(int slotIndex, bool soloed)
+    {
+        if (slotIndex >= 0 && slotIndex < 8)
+        {
+            slotSoloed[slotIndex] = soloed;
+
+            // Update anySoloed flag
+            anySoloed = false;
+            for (bool s : slotSoloed)
+            {
+                if (s)
+                {
+                    anySoloed = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    float Engine::getEffectiveSlotGain(int slotIndex) const
+    {
+        if (slotIndex < 0 || slotIndex >= 8)
+            return 0.0f;
+
+        // If muted, gain is 0
+        if (slotMuted[slotIndex])
+            return 0.0f;
+
+        // If any slot is soloed and this isn't one of them, gain is 0
+        if (anySoloed && !slotSoloed[slotIndex])
+            return 0.0f;
+
+        // Otherwise return the slot's gain
+        return slotGains[slotIndex];
     }
 
     void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages)
@@ -189,8 +266,12 @@ namespace DrumEngine
                 continue;
             }
 
+            // Calculate final gain (velocity gain * slot gain)
+            float slotGain = getEffectiveSlotGain(slotIdx);
+            float finalGain = gain * slotGain;
+
             // Start voice
-            voice->start(sample, gain, fadeLenSamples);
+            voice->start(sample, finalGain, fadeLenSamples);
             newGroup.voices[slotIdx] = voice;
         }
 

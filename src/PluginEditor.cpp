@@ -18,29 +18,64 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     addAndMakeVisible(statusLabel);
 
     // Preset Info Label
-    presetInfoLabel.setFont(juce::FontOptions(12.0f));
+    presetInfoLabel.setFont(juce::FontOptions(10.0f));
     presetInfoLabel.setJustificationType(juce::Justification::topLeft);
     presetInfoLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible(presetInfoLabel);
 
     // Instructions Label
-    instructionsLabel.setFont(juce::FontOptions(11.0f));
+    instructionsLabel.setFont(juce::FontOptions(10.0f));
     instructionsLabel.setJustificationType(juce::Justification::centred);
     instructionsLabel.setColour(juce::Label::textColourId, juce::Colours::grey);
     instructionsLabel.setText(
-        "Trigger with MIDI Note (default: 38/D1)\n"
-        "Velocity: 1-127 selects velocity layer\n"
-        "Max 3 concurrent hits, RR cycles per layer",
+        "Trigger with MIDI Note (default: 38/D1) | Solo: only that slot plays",
         juce::dontSendNotification);
     addAndMakeVisible(instructionsLabel);
+
+    // Setup slot controls
+    for (int i = 0; i < 8; ++i)
+    {
+        auto &slot = slotControls[i];
+
+        // Slot name label
+        slot.nameLabel.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+        slot.nameLabel.setJustificationType(juce::Justification::centred);
+        slot.nameLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+        slot.nameLabel.setText(juce::String(i + 1), juce::dontSendNotification);
+        addAndMakeVisible(slot.nameLabel);
+
+        // Volume slider (vertical)
+        slot.volumeSlider.setSliderStyle(juce::Slider::LinearVertical);
+        slot.volumeSlider.setRange(0.0, 1.0, 0.01);
+        slot.volumeSlider.setValue(1.0);
+        slot.volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+        slot.volumeSlider.onValueChange = [this, i]
+        { onSlotVolumeChanged(i); };
+        addAndMakeVisible(slot.volumeSlider);
+
+        // Mute button
+        slot.muteButton.setButtonText("M");
+        slot.muteButton.setClickingTogglesState(true);
+        slot.muteButton.onClick = [this, i]
+        { onSlotMuteClicked(i); };
+        addAndMakeVisible(slot.muteButton);
+
+        // Solo button
+        slot.soloButton.setButtonText("S");
+        slot.soloButton.setClickingTogglesState(true);
+        slot.soloButton.onClick = [this, i]
+        { onSlotSoloClicked(i); };
+        addAndMakeVisible(slot.soloButton);
+    }
 
     // Start timer to update status
     startTimer(100); // Update every 100ms
 
     // Initial status update
     updateStatusDisplay();
+    updateSlotControls();
 
-    setSize(500, 400);
+    setSize(900, 500);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -79,28 +114,55 @@ void AudioPluginAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
     bounds.removeFromTop(70); // Skip header
 
-    auto area = bounds.reduced(20);
+    auto area = bounds.reduced(10);
 
-    // Load button at top
-    loadPresetButton.setBounds(area.removeFromTop(40).reduced(50, 0));
+    // Top section: load button and status
+    auto topSection = area.removeFromTop(80);
+    loadPresetButton.setBounds(topSection.removeFromTop(35).reduced(150, 0));
+    topSection.removeFromTop(5);
+    statusLabel.setBounds(topSection.removeFromTop(25));
+
     area.removeFromTop(10);
 
-    // Status label
-    statusLabel.setBounds(area.removeFromTop(30));
-    area.removeFromTop(10);
+    // Left side: slot controls
+    auto leftPanel = area.removeFromLeft(600);
 
-    // Preset info (flexible height)
-    auto infoHeight = juce::jmin(150, area.getHeight() - 80);
-    presetInfoLabel.setBounds(area.removeFromTop(infoHeight));
+    // Slot mixer section
+    const int slotWidth = 70;
+    const int slotSpacing = 5;
 
-    // Instructions at bottom
-    area.removeFromTop(10);
-    instructionsLabel.setBounds(area.removeFromTop(70));
+    for (int i = 0; i < 8; ++i)
+    {
+        auto &slot = slotControls[i];
+        auto slotArea = leftPanel.removeFromLeft(slotWidth);
+
+        // Name label at top
+        slot.nameLabel.setBounds(slotArea.removeFromTop(20));
+
+        // Volume slider (most of the height)
+        slot.volumeSlider.setBounds(slotArea.removeFromTop(slotArea.getHeight() - 65));
+
+        slotArea.removeFromTop(5);
+
+        // Mute and Solo buttons at bottom
+        slot.muteButton.setBounds(slotArea.removeFromTop(28));
+        slotArea.removeFromTop(2);
+        slot.soloButton.setBounds(slotArea.removeFromTop(28));
+
+        leftPanel.removeFromLeft(slotSpacing);
+    }
+
+    // Right side: preset info and instructions
+    area.removeFromLeft(10);
+    presetInfoLabel.setBounds(area.removeFromTop(area.getHeight() - 35));
+    area.removeFromTop(5);
+    instructionsLabel.setBounds(area);
 }
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
     updateStatusDisplay();
+    updateSlotControls();
 }
 
 void AudioPluginAudioProcessorEditor::loadPresetButtonClicked()
@@ -185,5 +247,84 @@ void AudioPluginAudioProcessorEditor::updateStatusDisplay()
         statusLabel.setText(lastStatusMessage, juce::dontSendNotification);
         statusLabel.setColour(juce::Label::textColourId,
                               statusIsError ? juce::Colours::red : juce::Colours::lightgreen);
+    }
+}
+
+void AudioPluginAudioProcessorEditor::updateSlotControls()
+{
+    auto info = processorRef.getPresetInfo();
+
+    for (int i = 0; i < 8; ++i)
+    {
+        auto &slot = slotControls[i];
+
+        // Determine if this slot is active in the current preset
+        bool isActive = info.isPresetLoaded && i < info.slotCount && info.activeSlots[i];
+        slot.isActive = isActive;
+
+        // Update visual appearance based on active state
+        float alpha = isActive ? 1.0f : 0.3f;
+
+        slot.nameLabel.setAlpha(alpha);
+        slot.volumeSlider.setAlpha(alpha);
+        slot.muteButton.setAlpha(alpha);
+        slot.soloButton.setAlpha(alpha);
+
+        // Update label text
+        if (isActive && i < info.slotNames.size())
+        {
+            slot.nameLabel.setText(info.slotNames[i], juce::dontSendNotification);
+        }
+        else
+        {
+            slot.nameLabel.setText(juce::String(i + 1), juce::dontSendNotification);
+        }
+
+        // Disable inactive slots
+        slot.volumeSlider.setEnabled(isActive);
+        slot.muteButton.setEnabled(isActive);
+        slot.soloButton.setEnabled(isActive);
+
+        // Update button states from processor
+        auto slotState = processorRef.getSlotState(i);
+        slot.muteButton.setToggleState(slotState.muted, juce::dontSendNotification);
+        slot.soloButton.setToggleState(slotState.soloed, juce::dontSendNotification);
+
+        // Update button colors
+        slot.muteButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
+        slot.soloButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::yellow);
+
+        // Sync slider value (without triggering callback)
+        if (std::abs(slot.volumeSlider.getValue() - slotState.volume) > 0.001)
+        {
+            slot.volumeSlider.setValue(slotState.volume, juce::dontSendNotification);
+        }
+    }
+}
+
+void AudioPluginAudioProcessorEditor::onSlotVolumeChanged(int slotIndex)
+{
+    if (slotIndex >= 0 && slotIndex < 8)
+    {
+        float volume = static_cast<float>(slotControls[slotIndex].volumeSlider.getValue());
+        processorRef.setSlotVolume(slotIndex, volume);
+    }
+}
+
+void AudioPluginAudioProcessorEditor::onSlotMuteClicked(int slotIndex)
+{
+    if (slotIndex >= 0 && slotIndex < 8)
+    {
+        bool muted = slotControls[slotIndex].muteButton.getToggleState();
+        processorRef.setSlotMuted(slotIndex, muted);
+    }
+}
+
+void AudioPluginAudioProcessorEditor::onSlotSoloClicked(int slotIndex)
+{
+    if (slotIndex >= 0 && slotIndex < 8)
+    {
+        bool soloed = slotControls[slotIndex].soloButton.getToggleState();
+        processorRef.setSlotSoloed(slotIndex, soloed);
     }
 }
