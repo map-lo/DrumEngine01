@@ -6,16 +6,29 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     : AudioProcessorEditor(&p), processorRef(p)
 {
     // Preset Browser Label
-    presetBrowserLabel.setFont(juce::FontOptions(11.0f));
+    presetBrowserLabel.setFont(juce::FontOptions(10.0f));
     presetBrowserLabel.setJustificationType(juce::Justification::centredRight);
     presetBrowserLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     presetBrowserLabel.setText("Preset:", juce::dontSendNotification);
     addAndMakeVisible(presetBrowserLabel);
 
+    // Prev Preset Button
+    prevPresetButton.setButtonText("<");
+    prevPresetButton.onClick = [this]
+    { loadPrevPreset(); };
+    addAndMakeVisible(prevPresetButton);
+
     // Preset Browser
+    presetBrowser.setLookAndFeel(&monospaceLookAndFeel);
     presetBrowser.onChange = [this]
     { onPresetSelected(); };
     addAndMakeVisible(presetBrowser);
+
+    // Next Preset Button
+    nextPresetButton.setButtonText(">");
+    nextPresetButton.onClick = [this]
+    { loadNextPreset(); };
+    addAndMakeVisible(nextPresetButton);
 
     // Scan presets folder and populate browser
     scanPresetsFolder();
@@ -128,6 +141,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
     stopTimer();
+    presetBrowser.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -178,12 +192,16 @@ void AudioPluginAudioProcessorEditor::resized()
 
     // Preset browser and controls in header
     auto browserArea = headerArea.withTrimmedTop(45).withTrimmedLeft(20).withTrimmedRight(20);
-    presetBrowserLabel.setBounds(browserArea.removeFromLeft(50));
+    presetBrowserLabel.setBounds(browserArea.removeFromLeft(45));
+    browserArea.removeFromLeft(3);
+    prevPresetButton.setBounds(browserArea.removeFromLeft(25));
+    browserArea.removeFromLeft(2);
+    presetBrowser.setBounds(browserArea.removeFromLeft(380));
+    browserArea.removeFromLeft(2);
+    nextPresetButton.setBounds(browserArea.removeFromLeft(25));
     browserArea.removeFromLeft(5);
-    presetBrowser.setBounds(browserArea.removeFromLeft(400));
-    browserArea.removeFromLeft(10);
     loadPresetButton.setBounds(browserArea.removeFromLeft(100));
-    browserArea.removeFromLeft(20);
+    browserArea.removeFromLeft(15);
 
     // Output mode in header
     outputModeLabel.setBounds(browserArea.removeFromLeft(50));
@@ -469,18 +487,17 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
     }
 
     presetBrowser.addItem("-- Select Preset --", 1);
-    presetList.push_back({"-- Select Preset --", juce::File{}, 0, false});
 
     int itemId = 2;
 
-    // Recursively scan folders
-    std::function<void(const juce::File &, int)> scanFolder = [&](const juce::File &folder, int depth)
+    // Scan all JSON files recursively and flatten
+    std::function<void(const juce::File &, const juce::String &)> scanFolder =
+        [&](const juce::File &folder, const juce::String &categoryPath)
     {
+        auto allFiles = folder.findChildFiles(juce::File::findFilesAndDirectories, false, "*");
+
         juce::Array<juce::File> subFolders;
         juce::Array<juce::File> jsonFiles;
-
-        // Use findChildFiles instead of RangedDirectoryIterator
-        auto allFiles = folder.findChildFiles(juce::File::findFilesAndDirectories, false, "*");
 
         for (const auto &file : allFiles)
         {
@@ -490,49 +507,48 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
                 jsonFiles.add(file);
         }
 
-        // Sort folders and files alphabetically
         subFolders.sort();
         jsonFiles.sort();
 
-        // Add folders first
-        for (const auto &subFolder : subFolders)
-        {
-            juce::String indent = juce::String::repeatedString("  ", depth);
-            juce::String displayName = indent + "\u25b6 " + subFolder.getFileName();
-
-            presetBrowser.addItem(displayName, itemId);
-            presetList.push_back({displayName, juce::File{}, depth, true});
-            itemId++;
-
-            // Recursively scan subfolder
-            scanFolder(subFolder, depth + 1);
-        }
-
-        // Add JSON files in this folder
+        // Process JSON files in this folder
         for (const auto &jsonFile : jsonFiles)
         {
-            juce::String indent = juce::String::repeatedString("  ", depth + 1);
-            juce::String fileName = jsonFile.getFileNameWithoutExtension();
-            juce::String displayName = indent + "\u2022 " + fileName;
+            juce::String displayName = jsonFile.getFileNameWithoutExtension();
+            juce::String category = categoryPath.isEmpty() ? folder.getFileName() : categoryPath;
 
-            presetBrowser.addItem(displayName, itemId);
-            presetList.push_back({displayName, jsonFile, depth, false});
+            // Add category prefix for better organization
+            juce::String fullDisplayName = category + " / " + displayName;
+
+            presetBrowser.addItem(fullDisplayName, itemId);
+            presetList.push_back({displayName, category, jsonFile});
             itemId++;
+        }
+
+        // Recurse into subfolders
+        for (const auto &subFolder : subFolders)
+        {
+            juce::String newCategoryPath = categoryPath.isEmpty() ? folder.getFileName() + "/" + subFolder.getFileName() : categoryPath + "/" + subFolder.getFileName();
+            scanFolder(subFolder, newCategoryPath);
         }
     };
 
-    scanFolder(kitsFolder, 0);
+    scanFolder(kitsFolder, "");
 
     presetBrowser.setSelectedId(1, juce::dontSendNotification);
+    currentPresetIndex = -1;
 }
 
 void AudioPluginAudioProcessorEditor::onPresetSelected()
 {
     int selectedId = presetBrowser.getSelectedId();
     if (selectedId <= 1)
-        return; // "Select Preset" header selected
+    {
+        currentPresetIndex = -1;
+        return;
+    }
 
-    loadPresetByIndex(selectedId - 1);
+    currentPresetIndex = selectedId - 2; // Adjust for header item
+    loadPresetByIndex(currentPresetIndex);
 }
 
 void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
@@ -542,8 +558,8 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
 
     const auto &entry = presetList[index];
 
-    if (entry.isSeparator || !entry.file.existsAsFile())
-        return; // Folder header, not a loadable preset
+    if (!entry.file.existsAsFile())
+        return;
 
     lastLoadedPreset = entry.file.getFullPathName();
 
@@ -551,8 +567,12 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
 
     if (result.wasOk())
     {
-        lastStatusMessage = "✓ Loaded: " + entry.file.getFileNameWithoutExtension();
+        lastStatusMessage = "✓ Loaded: " + entry.displayName;
         statusIsError = false;
+        currentPresetIndex = index;
+
+        // Update combo box selection (add 2 for header offset)
+        presetBrowser.setSelectedId(index + 2, juce::dontSendNotification);
     }
     else
     {
@@ -561,4 +581,28 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
     }
 
     updateStatusDisplay();
+}
+
+void AudioPluginAudioProcessorEditor::loadNextPreset()
+{
+    if (presetList.empty())
+        return;
+
+    int nextIndex = currentPresetIndex + 1;
+    if (nextIndex >= static_cast<int>(presetList.size()))
+        nextIndex = 0; // Wrap around to first preset
+
+    loadPresetByIndex(nextIndex);
+}
+
+void AudioPluginAudioProcessorEditor::loadPrevPreset()
+{
+    if (presetList.empty())
+        return;
+
+    int prevIndex = currentPresetIndex - 1;
+    if (prevIndex < 0)
+        prevIndex = static_cast<int>(presetList.size()) - 1; // Wrap around to last preset
+
+    loadPresetByIndex(prevIndex);
 }

@@ -3,6 +3,27 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
+class MonospaceLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    juce::Font getComboBoxFont(juce::ComboBox &) override
+    {
+        return juce::Font(juce::FontOptions(juce::Font::getDefaultMonospacedFontName(), 11.0f, juce::Font::plain));
+    }
+
+    juce::Font getPopupMenuFont() override
+    {
+        return juce::Font(juce::FontOptions(juce::Font::getDefaultMonospacedFontName(), 11.0f, juce::Font::plain));
+    }
+
+    void getIdealPopupMenuItemSize(const juce::String &text, bool isSeparator, int standardMenuItemHeight, int &idealWidth, int &idealHeight) override
+    {
+        LookAndFeel_V4::getIdealPopupMenuItemSize(text, isSeparator, standardMenuItemHeight, idealWidth, idealHeight);
+        idealHeight = 18; // Compact item height
+    }
+};
+
+//==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor,
                                               private juce::Timer
 {
@@ -27,12 +48,16 @@ private:
     void onVelocityToggleClicked();
     void scanPresetsFolder();
     void loadPresetByIndex(int index);
+    void loadNextPreset();
+    void loadPrevPreset();
 
     AudioPluginAudioProcessor &processorRef;
 
     // UI Components
     juce::TextButton loadPresetButton;
     juce::ComboBox presetBrowser;
+    juce::TextButton prevPresetButton;
+    juce::TextButton nextPresetButton;
     juce::Label presetBrowserLabel;
     juce::Label statusLabel;
     juce::Label presetInfoLabel;
@@ -46,11 +71,11 @@ private:
     struct PresetEntry
     {
         juce::String displayName;
+        juce::String category;
         juce::File file;
-        int indentLevel = 0;
-        bool isSeparator = false;
     };
     std::vector<PresetEntry> presetList;
+    int currentPresetIndex = -1;
 
     // Slot controls (up to 8 slots)
     struct SlotControl
@@ -65,6 +90,9 @@ private:
 
     // File chooser (must persist for async callback)
     std::unique_ptr<juce::FileChooser> fileChooser;
+
+    // Custom look and feel for monospace preset browser
+    MonospaceLookAndFeel monospaceLookAndFeel;
 
     // Status tracking
     juce::String lastLoadedPreset;
