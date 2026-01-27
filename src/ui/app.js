@@ -88,7 +88,7 @@ class DrumEngineUI {
 
             // Solo button
             strip.soloBtn.addEventListener('click', () => {
-                const isSoloed = strip.soloBtn.classList.contains('bg-yellow-600');
+                const isSoloed = strip.soloBtn.classList.contains('bg-yellow-400');
                 this.sendMessage('setSlotSoloed', { slot: index, soloed: !isSoloed });
             });
         });
@@ -185,22 +185,22 @@ class DrumEngineUI {
                     strip.fader.value = volumePercent;
                     strip.volumeValue.textContent = volumePercent + '%';
 
-                    // Mute button
+                    // Mute button - update for new white/black styling
                     if (slot.muted) {
-                        strip.muteBtn.classList.add('bg-red-600');
-                        strip.muteBtn.classList.remove('bg-drum-darker');
+                        strip.muteBtn.classList.add('bg-red-600', 'text-white');
+                        strip.muteBtn.classList.remove('bg-white', 'text-black');
                     } else {
-                        strip.muteBtn.classList.remove('bg-red-600');
-                        strip.muteBtn.classList.add('bg-drum-darker');
+                        strip.muteBtn.classList.remove('bg-red-600', 'text-white');
+                        strip.muteBtn.classList.add('bg-white', 'text-black');
                     }
 
-                    // Solo button
+                    // Solo button - update for new white/yellow styling
                     if (slot.soloed) {
-                        strip.soloBtn.classList.add('bg-yellow-600');
-                        strip.soloBtn.classList.remove('bg-drum-darker');
+                        strip.soloBtn.classList.add('bg-yellow-400');
+                        strip.soloBtn.classList.remove('bg-white');
                     } else {
-                        strip.soloBtn.classList.remove('bg-yellow-600');
-                        strip.soloBtn.classList.add('bg-drum-darker');
+                        strip.soloBtn.classList.remove('bg-yellow-400');
+                        strip.soloBtn.classList.add('bg-white');
                     }
                 }
             });
