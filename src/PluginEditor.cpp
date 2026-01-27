@@ -1,138 +1,71 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "BinaryData.h"
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
-    // Preset Browser Label
-    presetBrowserLabel.setFont(juce::FontOptions(10.0f));
-    presetBrowserLabel.setJustificationType(juce::Justification::centredRight);
-    presetBrowserLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    presetBrowserLabel.setText("Preset:", juce::dontSendNotification);
-    addAndMakeVisible(presetBrowserLabel);
+    // Load HTML content from binary resources
+    juce::String html(BinaryData::index_html, static_cast<size_t>(BinaryData::index_htmlSize));
+    juce::String css(BinaryData::styles_css, static_cast<size_t>(BinaryData::styles_cssSize));
+    juce::String js(BinaryData::app_js, static_cast<size_t>(BinaryData::app_jsSize));
 
-    // Prev Preset Button
-    prevPresetButton.setButtonText("<");
-    prevPresetButton.onClick = [this]
-    { loadPrevPreset(); };
-    addAndMakeVisible(prevPresetButton);
+    // Modify JavaScript to use JUCE event listener instead of postMessage
+    js = js.replace(
+        "window.juce.postMessage(JSON.stringify(message));",
+        "window.__JUCE__.backend.emitEvent('fromWebView', message);");
 
-    // Preset Browser
-    presetBrowser.setLookAndFeel(&monospaceLookAndFeel);
-    presetBrowser.onChange = [this]
-    { onPresetSelected(); };
-    addAndMakeVisible(presetBrowser);
+    // Create complete HTML with inline CSS and JS
+    juce::String fullHtml = html;
+    fullHtml = fullHtml.replace("</head>",
+                                "<style>" + css + "</style></head>");
+    fullHtml = fullHtml.replace("</body>",
+                                "<script>" + js + "</script></body>");
 
-    // Next Preset Button
-    nextPresetButton.setButtonText(">");
-    nextPresetButton.onClick = [this]
-    { loadNextPreset(); };
-    addAndMakeVisible(nextPresetButton);
+    // Remove external references
+    fullHtml = fullHtml.replace("<link rel=\"stylesheet\" href=\"styles.css\">", "");
+    fullHtml = fullHtml.replace("<script src=\"app.js\"></script>", "");
 
-    // Scan presets folder and populate browser
+    // Store the HTML content for the resource provider
+    htmlContent = fullHtml;
+
+    // Create WebBrowserComponent with native integration and resource provider
+    webView = std::make_unique<juce::WebBrowserComponent>(
+        juce::WebBrowserComponent::Options{}
+            .withBackend(juce::WebBrowserComponent::Options::Backend::defaultBackend)
+            .withNativeIntegrationEnabled()
+            .withUserScript(
+                "console.log('JUCE WebView initialized');"
+                "window.juce = window.__JUCE__.backend;")
+            .withEventListener("fromWebView", [this](const juce::var &message)
+                               { handleMessageFromWebView(juce::JSON::toString(message)); })
+            .withEventListener("pageReady", [this](const juce::var &)
+                               { 
+                                   pageLoaded = true;
+                                   sendPresetListToWebView();
+                                   sendStateUpdateToWebView(); })
+            .withResourceProvider([this](const juce::String &url) -> std::optional<juce::WebBrowserComponent::Resource>
+                                  {
+                if (url == "/" || url == "/index.html")
+                {
+                    std::vector<std::byte> data;
+                    data.resize(this->htmlContent.length());
+                    std::memcpy(data.data(), this->htmlContent.toRawUTF8(), this->htmlContent.length());
+                    return juce::WebBrowserComponent::Resource { data, "text/html" };
+                }
+                return std::nullopt; }));
+
+    addAndMakeVisible(webView.get());
+
+    // Navigate to the root which will trigger the resource provider
+    webView->goToURL(juce::WebBrowserComponent::getResourceProviderRoot());
+
+    // Scan presets folder
     scanPresetsFolder();
 
-    // Load Preset Button (for manual file selection)
-    loadPresetButton.setButtonText("Browse Files...");
-    loadPresetButton.onClick = [this]
-    { loadPresetButtonClicked(); };
-    addAndMakeVisible(loadPresetButton);
-
-    // Status Label
-    statusLabel.setFont(juce::FontOptions(14.0f, juce::Font::bold));
-    statusLabel.setJustificationType(juce::Justification::centred);
-    statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightgreen);
-    addAndMakeVisible(statusLabel);
-
-    // Preset Info Label
-    presetInfoLabel.setFont(juce::FontOptions(10.0f));
-    presetInfoLabel.setJustificationType(juce::Justification::topLeft);
-    presetInfoLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    addAndMakeVisible(presetInfoLabel);
-
-    // Instructions Label
-    instructionsLabel.setFont(juce::FontOptions(10.0f));
-    instructionsLabel.setJustificationType(juce::Justification::centred);
-    instructionsLabel.setColour(juce::Label::textColourId, juce::Colours::grey);
-    instructionsLabel.setText(
-        "Trigger with MIDI Note (default: 38/D1) | Solo: only that slot plays",
-        juce::dontSendNotification);
-    addAndMakeVisible(instructionsLabel);
-
-    // Output mode selector
-    outputModeLabel.setFont(juce::FontOptions(11.0f));
-    outputModeLabel.setJustificationType(juce::Justification::centredRight);
-    outputModeLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    outputModeLabel.setText("Output:", juce::dontSendNotification);
-    addAndMakeVisible(outputModeLabel);
-
-    outputModeCombo.addItem("Stereo", 1);
-    outputModeCombo.addItem("Multi-Out (8x Stereo)", 2);
-    outputModeCombo.setSelectedId(1, juce::dontSendNotification);
-    outputModeCombo.onChange = [this]
-    { onOutputModeChanged(); };
-    addAndMakeVisible(outputModeCombo);
-
-    // Velocity to volume toggle
-    velocityToggleLabel.setFont(juce::FontOptions(12.0f, juce::Font::bold));
-    velocityToggleLabel.setJustificationType(juce::Justification::centredLeft);
-    velocityToggleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    velocityToggleLabel.setText("Velocity -> Volume:", juce::dontSendNotification);
-    addAndMakeVisible(velocityToggleLabel);
-
-    velocityToggle.setButtonText("OFF");
-    velocityToggle.setToggleState(false, juce::dontSendNotification);
-    velocityToggle.setClickingTogglesState(true);
-    velocityToggle.setColour(juce::TextButton::buttonOnColourId, juce::Colours::green);
-    velocityToggle.setColour(juce::TextButton::textColourOffId, juce::Colours::lightgrey);
-    velocityToggle.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    velocityToggle.onClick = [this]
-    { onVelocityToggleClicked(); };
-    addAndMakeVisible(velocityToggle);
-
-    // Setup slot controls
-    for (int i = 0; i < 8; ++i)
-    {
-        auto &slot = slotControls[i];
-
-        // Slot name label
-        slot.nameLabel.setFont(juce::FontOptions(11.0f, juce::Font::bold));
-        slot.nameLabel.setJustificationType(juce::Justification::centred);
-        slot.nameLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-        slot.nameLabel.setText(juce::String(i + 1), juce::dontSendNotification);
-        addAndMakeVisible(slot.nameLabel);
-
-        // Volume slider (vertical)
-        slot.volumeSlider.setSliderStyle(juce::Slider::LinearVertical);
-        slot.volumeSlider.setRange(0.0, 1.0, 0.01);
-        slot.volumeSlider.setValue(1.0);
-        slot.volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        slot.volumeSlider.onValueChange = [this, i]
-        { onSlotVolumeChanged(i); };
-        addAndMakeVisible(slot.volumeSlider);
-
-        // Mute button
-        slot.muteButton.setButtonText("M");
-        slot.muteButton.setClickingTogglesState(true);
-        slot.muteButton.onClick = [this, i]
-        { onSlotMuteClicked(i); };
-        addAndMakeVisible(slot.muteButton);
-
-        // Solo button
-        slot.soloButton.setButtonText("S");
-        slot.soloButton.setClickingTogglesState(true);
-        slot.soloButton.onClick = [this, i]
-        { onSlotSoloClicked(i); };
-        addAndMakeVisible(slot.soloButton);
-    }
-
-    // Start timer to update status
+    // Start timer to update UI
     startTimer(100); // Update every 100ms
-
-    // Initial status update
-    updateStatusDisplay();
-    updateSlotControls();
 
     setSize(900, 550);
     setResizable(false, false);
@@ -141,352 +74,213 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
     stopTimer();
-    presetBrowser.setLookAndFeel(nullptr);
+    webView.reset();
 }
 
 //==============================================================================
 void AudioPluginAudioProcessorEditor::paint(juce::Graphics &g)
 {
-    // Dark background
+    // WebView fills the entire area
     g.fillAll(juce::Colour(0xff252525));
-
-    auto bounds = getLocalBounds();
-
-    // Header section
-    auto headerArea = bounds.removeFromTop(100);
-
-    // Header background gradient
-    g.setGradientFill(juce::ColourGradient(
-        juce::Colour(0xff3a3a3a), 0, 0,
-        juce::Colour(0xff252525), 0, (float)headerArea.getHeight(),
-        false));
-    g.fillRect(headerArea);
-
-    // Title
-    g.setColour(juce::Colours::white);
-    g.setFont(juce::FontOptions(28.0f, juce::Font::bold));
-    auto titleArea = headerArea.withTrimmedTop(10).withTrimmedLeft(20);
-    g.drawText("DrumEngine01", titleArea.removeFromTop(35), juce::Justification::topLeft);
-
-    // Subtle separator line
-    g.setColour(juce::Colour(0xff404040));
-    g.drawLine(0, 100, (float)getWidth(), 100, 1.0f);
-
-    // Mixer section background
-    auto mixerBg = bounds.withTrimmedTop(10).withTrimmedBottom(10).withTrimmedLeft(10).withTrimmedRight(350);
-    g.setColour(juce::Colour(0xff2a2a2a));
-    g.fillRoundedRectangle(mixerBg.toFloat(), 8.0f);
-
-    // Info panel background
-    auto infoBg = bounds.withTrimmedTop(10).withTrimmedBottom(10).withTrimmedRight(10).removeFromRight(330);
-    g.setColour(juce::Colour(0xff2a2a2a));
-    g.fillRoundedRectangle(infoBg.toFloat(), 8.0f);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds();
-
-    // Header section (100px)
-    auto headerArea = bounds.removeFromTop(100);
-
-    // Preset browser and controls in header
-    auto browserArea = headerArea.withTrimmedTop(45).withTrimmedLeft(20).withTrimmedRight(20);
-    presetBrowserLabel.setBounds(browserArea.removeFromLeft(45));
-    browserArea.removeFromLeft(3);
-    prevPresetButton.setBounds(browserArea.removeFromLeft(25));
-    browserArea.removeFromLeft(2);
-    presetBrowser.setBounds(browserArea.removeFromLeft(380));
-    browserArea.removeFromLeft(2);
-    nextPresetButton.setBounds(browserArea.removeFromLeft(25));
-    browserArea.removeFromLeft(5);
-    loadPresetButton.setBounds(browserArea.removeFromLeft(100));
-    browserArea.removeFromLeft(15);
-
-    // Output mode in header
-    outputModeLabel.setBounds(browserArea.removeFromLeft(50));
-    browserArea.removeFromLeft(5);
-    outputModeCombo.setBounds(browserArea.removeFromLeft(180));
-
-    // Main content area
-    auto contentArea = bounds.reduced(10);
-
-    // Right panel for info (330px wide)
-    auto rightPanel = contentArea.removeFromRight(330);
-    rightPanel.removeFromLeft(10); // spacing
-
-    // Status at top of info panel
-    statusLabel.setBounds(rightPanel.removeFromTop(30).reduced(10, 5));
-    rightPanel.removeFromTop(5);
-
-    // Velocity to volume toggle
-    auto velToggleArea = rightPanel.removeFromTop(40).reduced(10);
-    velocityToggleLabel.setBounds(velToggleArea.removeFromTop(16));
-    velocityToggle.setBounds(velToggleArea.withHeight(20));
-    rightPanel.removeFromTop(5);
-
-    // Preset info
-    presetInfoLabel.setBounds(rightPanel.removeFromTop(140).reduced(10));
-
-    rightPanel.removeFromTop(10);
-
-    // Instructions at bottom
-    instructionsLabel.setBounds(rightPanel.reduced(10));
-
-    // Mixer section (left side)
-    auto mixerArea = contentArea.reduced(10);
-
-    mixerArea.removeFromTop(10);
-
-    // 8 channel strips
-    const int slotWidth = 65;
-    const int slotSpacing = 3;
-
-    for (int i = 0; i < 8; ++i)
-    {
-        auto &slot = slotControls[i];
-        auto slotArea = mixerArea.removeFromLeft(slotWidth);
-
-        if (i < 7)
-            mixerArea.removeFromLeft(slotSpacing);
-
-        // Slot label at top
-        slot.nameLabel.setBounds(slotArea.removeFromTop(25));
-
-        // Volume fader
-        slot.volumeSlider.setBounds(slotArea.removeFromTop(slotArea.getHeight() - 70));
-
-        slotArea.removeFromTop(5);
-
-        // Mute and Solo buttons
-        slot.muteButton.setBounds(slotArea.removeFromTop(30));
-        slotArea.removeFromTop(2);
-        slot.soloButton.setBounds(slotArea.removeFromTop(30));
-    }
+    if (webView)
+        webView->setBounds(getLocalBounds());
 }
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-    updateStatusDisplay();
-    updateSlotControls();
+    if (pageLoaded)
+        sendStateUpdateToWebView();
 }
 
-void AudioPluginAudioProcessorEditor::loadPresetButtonClicked()
+//==============================================================================
+void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::String &message)
 {
-    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+    auto json = juce::JSON::parse(message);
+    if (!json.isObject())
+        return;
 
-    fileChooser = std::make_unique<juce::FileChooser>("Select Preset JSON File",
-                                                      juce::File::getSpecialLocation(juce::File::userHomeDirectory),
-                                                      "*.json");
+    auto obj = json.getDynamicObject();
+    if (!obj)
+        return;
 
-    fileChooser->launchAsync(chooserFlags, [this](const juce::FileChooser &chooser)
-                             {
-        auto file = chooser.getResult();
-        
-        if (file == juce::File{})
-            return;
-        
-        lastLoadedPreset = file.getFullPathName();
-        
-        // Attempt to load
-        auto result = processorRef.loadPresetFromFile(file);
-        
-        if (result.wasOk())
-        {
-            lastStatusMessage = "✓ Preset loaded successfully!";
-            statusIsError = false;
-        }
+    juce::String action = obj->getProperty("action").toString();
+
+    if (action == "requestPresetList")
+    {
+        sendPresetListToWebView();
+    }
+    else if (action == "requestUpdate")
+    {
+        sendStateUpdateToWebView();
+    }
+    else if (action == "loadPresetByIndex")
+    {
+        int index = obj->getProperty("index");
+        loadPresetByIndex(index);
+    }
+    else if (action == "loadNextPreset")
+    {
+        loadNextPreset();
+    }
+    else if (action == "loadPrevPreset")
+    {
+        loadPrevPreset();
+    }
+    else if (action == "browseForPreset")
+    {
+        browseForPreset();
+    }
+    else if (action == "setOutputMode")
+    {
+        juce::String mode = obj->getProperty("mode").toString();
+        auto newMode = (mode == "multiout") ? AudioPluginAudioProcessor::OutputMode::MultiOut
+                                            : AudioPluginAudioProcessor::OutputMode::Stereo;
+        processorRef.setOutputMode(newMode);
+
+        if (newMode == AudioPluginAudioProcessor::OutputMode::MultiOut)
+            lastStatusMessage = "Multi-Out: Mix→1-2, Slot1→3-4, Slot2→5-6, etc.";
         else
-        {
-            lastStatusMessage = "✗ Failed: " + result.getErrorMessage();
-            statusIsError = true;
-        }
-        
-        updateStatusDisplay(); });
+            lastStatusMessage = "Stereo: Mix output on channels 1-2";
+        statusIsError = false;
+    }
+    else if (action == "setVelocityToVolume")
+    {
+        bool enabled = obj->getProperty("enabled");
+        processorRef.setUseVelocityToVolume(enabled);
+    }
+    else if (action == "setSlotVolume")
+    {
+        int slot = obj->getProperty("slot");
+        double volume = obj->getProperty("volume");
+        processorRef.setSlotVolume(slot, static_cast<float>(volume));
+    }
+    else if (action == "setSlotMuted")
+    {
+        int slot = obj->getProperty("slot");
+        bool muted = obj->getProperty("muted");
+        processorRef.setSlotMuted(slot, muted);
+    }
+    else if (action == "setSlotSoloed")
+    {
+        int slot = obj->getProperty("slot");
+        bool soloed = obj->getProperty("soloed");
+        processorRef.setSlotSoloed(slot, soloed);
+    }
 }
 
-void AudioPluginAudioProcessorEditor::updateStatusDisplay()
+void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
 {
+    if (!webView)
+        return;
+
     auto info = processorRef.getPresetInfo();
 
-    if (info.isPresetLoaded)
-    {
-        // Update velocity toggle state
-        velocityToggle.setToggleState(info.useVelocityToVolume, juce::dontSendNotification);
-        velocityToggle.setButtonText(info.useVelocityToVolume ? "ON" : "OFF");
+    juce::DynamicObject::Ptr state = new juce::DynamicObject();
 
-        // Update preset info
-        juce::String infoText;
-        infoText << "Preset: " << info.presetName << "\n";
-        infoText << "Type: " << info.instrumentType << "\n";
-        infoText << "Fixed MIDI Note: " << juce::String(info.fixedMidiNote) << "\n";
-        infoText << "Slots: " << juce::String(info.slotCount) << "\n";
-        infoText << "Velocity Layers: " << juce::String(info.layerCount) << "\n";
-        infoText << "Vel->Vol: " << (info.useVelocityToVolume ? "On" : "Off") << "\n";
-
-        if (info.slotNames.size() > 0)
-        {
-            infoText << "\nMic Slots:\n";
-            for (int i = 0; i < info.slotNames.size(); ++i)
-                infoText << "  " << juce::String(i + 1) << ": " << info.slotNames[i] << "\n";
-        }
-
-        presetInfoLabel.setText(infoText, juce::dontSendNotification);
-
-        // Update status if no manual message
-        if (lastStatusMessage.isEmpty())
-        {
-            statusLabel.setText("Ready - Preset Loaded", juce::dontSendNotification);
-            statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightgreen);
-        }
-    }
-    else
-    {
-        presetInfoLabel.setText("No preset loaded\n\nClick 'Load Preset...' to load a JSON preset file",
-                                juce::dontSendNotification);
-
-        if (lastStatusMessage.isEmpty())
-        {
-            statusLabel.setText("No Preset - Click Load Button", juce::dontSendNotification);
-            statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);
-        }
-    }
-
-    // Show any manual status message
+    // Status message
     if (lastStatusMessage.isNotEmpty())
     {
-        statusLabel.setText(lastStatusMessage, juce::dontSendNotification);
-        statusLabel.setColour(juce::Label::textColourId,
-                              statusIsError ? juce::Colours::red : juce::Colours::lightgreen);
+        state->setProperty("statusMessage", lastStatusMessage);
+        state->setProperty("statusIsError", statusIsError);
     }
-}
-
-void AudioPluginAudioProcessorEditor::updateSlotControls()
-{
-    auto info = processorRef.getPresetInfo();
-
-    for (int i = 0; i < 8; ++i)
+    else if (info.isPresetLoaded)
     {
-        auto &slot = slotControls[i];
-
-        // Determine if this slot is active in the current preset
-        bool isActive = info.isPresetLoaded && i < info.slotCount && info.activeSlots[i];
-        slot.isActive = isActive;
-
-        // Update visual appearance based on active state
-        float alpha = isActive ? 1.0f : 0.3f;
-
-        slot.nameLabel.setAlpha(alpha);
-        slot.volumeSlider.setAlpha(alpha);
-        slot.muteButton.setAlpha(alpha);
-        slot.soloButton.setAlpha(alpha);
-
-        // Update label text
-        if (info.isPresetLoaded && i < info.slotNames.size())
-        {
-            slot.nameLabel.setText(info.slotNames[i], juce::dontSendNotification);
-        }
-        else
-        {
-            slot.nameLabel.setText(juce::String(i + 1), juce::dontSendNotification);
-        }
-
-        // Disable inactive slots
-        slot.volumeSlider.setEnabled(isActive);
-        slot.muteButton.setEnabled(isActive);
-        slot.soloButton.setEnabled(isActive);
-
-        // Update button states from processor
-        auto slotState = processorRef.getSlotState(i);
-        slot.muteButton.setToggleState(slotState.muted, juce::dontSendNotification);
-        slot.soloButton.setToggleState(slotState.soloed, juce::dontSendNotification);
-
-        // Update button colors
-        slot.muteButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
-        slot.soloButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::yellow);
-
-        // Sync slider value (without triggering callback)
-        if (std::abs(slot.volumeSlider.getValue() - slotState.volume) > 0.001)
-        {
-            slot.volumeSlider.setValue(slotState.volume, juce::dontSendNotification);
-        }
-    }
-}
-
-void AudioPluginAudioProcessorEditor::onSlotVolumeChanged(int slotIndex)
-{
-    if (slotIndex >= 0 && slotIndex < 8)
-    {
-        float volume = static_cast<float>(slotControls[slotIndex].volumeSlider.getValue());
-        processorRef.setSlotVolume(slotIndex, volume);
-    }
-}
-
-void AudioPluginAudioProcessorEditor::onSlotMuteClicked(int slotIndex)
-{
-    if (slotIndex >= 0 && slotIndex < 8)
-    {
-        bool muted = slotControls[slotIndex].muteButton.getToggleState();
-        processorRef.setSlotMuted(slotIndex, muted);
-    }
-}
-
-void AudioPluginAudioProcessorEditor::onSlotSoloClicked(int slotIndex)
-{
-    if (slotIndex >= 0 && slotIndex < 8)
-    {
-        bool soloed = slotControls[slotIndex].soloButton.getToggleState();
-        processorRef.setSlotSoloed(slotIndex, soloed);
-    }
-}
-
-void AudioPluginAudioProcessorEditor::onOutputModeChanged()
-{
-    int selectedId = outputModeCombo.getSelectedId();
-    auto newMode = (selectedId == 2) ? AudioPluginAudioProcessor::OutputMode::MultiOut
-                                     : AudioPluginAudioProcessor::OutputMode::Stereo;
-
-    processorRef.setOutputMode(newMode);
-
-    // Update status to inform user
-    if (newMode == AudioPluginAudioProcessor::OutputMode::MultiOut)
-    {
-        statusLabel.setText("Multi-Out: Mix\u21921-2, Slot1\u21923-4, Slot2\u21925-6, etc.", juce::dontSendNotification);
+        state->setProperty("statusMessage", "Ready - Preset Loaded");
+        state->setProperty("statusIsError", false);
     }
     else
     {
-        statusLabel.setText("Stereo: Mix output on channels 1-2", juce::dontSendNotification);
+        state->setProperty("statusMessage", "No Preset - Click Load Button");
+        state->setProperty("statusIsError", false);
+        state->setProperty("statusIsWarning", true);
+    }
+
+    // Preset info
+    juce::DynamicObject::Ptr presetInfoObj = new juce::DynamicObject();
+    presetInfoObj->setProperty("isPresetLoaded", info.isPresetLoaded);
+    presetInfoObj->setProperty("presetName", info.presetName);
+    presetInfoObj->setProperty("instrumentType", info.instrumentType);
+    presetInfoObj->setProperty("fixedMidiNote", info.fixedMidiNote);
+    presetInfoObj->setProperty("slotCount", info.slotCount);
+    presetInfoObj->setProperty("layerCount", info.layerCount);
+    presetInfoObj->setProperty("useVelocityToVolume", info.useVelocityToVolume);
+
+    juce::Array<juce::var> slotNamesArray;
+    for (const auto &name : info.slotNames)
+        slotNamesArray.add(name);
+    presetInfoObj->setProperty("slotNames", slotNamesArray);
+
+    state->setProperty("presetInfo", juce::var(presetInfoObj.get()));
+
+    // Slot states
+    juce::Array<juce::var> slotsArray;
+    for (int i = 0; i < 8; ++i)
+    {
+        bool isActive = info.isPresetLoaded && i < info.slotCount && info.activeSlots[static_cast<size_t>(i)];
+        auto slotState = processorRef.getSlotState(i);
+
+        juce::DynamicObject::Ptr slotObj = new juce::DynamicObject();
+        slotObj->setProperty("isActive", isActive);
+        slotObj->setProperty("name", i < static_cast<int>(info.slotNames.size()) ? info.slotNames[static_cast<size_t>(i)] : juce::String(i + 1));
+        slotObj->setProperty("volume", slotState.volume);
+        slotObj->setProperty("muted", slotState.muted);
+        slotObj->setProperty("soloed", slotState.soloed);
+
+        slotsArray.add(juce::var(slotObj.get()));
+    }
+    state->setProperty("slots", slotsArray);
+
+    // Output mode
+    auto outputMode = processorRef.getOutputMode();
+    state->setProperty("outputMode", outputMode == AudioPluginAudioProcessor::OutputMode::MultiOut ? "multiout" : "stereo");
+
+    // Current preset index
+    state->setProperty("currentPresetIndex", currentPresetIndex);
+
+    // Convert to JSON and send to WebView
+    juce::String jsonState = juce::JSON::toString(juce::var(state.get()));
+
+    // Only send if state has changed to avoid overwriting user input
+    if (jsonState != lastSentState)
+    {
+        lastSentState = jsonState;
+        if (webView)
+            webView->evaluateJavascript("window.updateStateFromCpp(" + jsonState + ");");
     }
 }
 
-void AudioPluginAudioProcessorEditor::onVelocityToggleClicked()
+void AudioPluginAudioProcessorEditor::sendPresetListToWebView()
 {
-    bool enabled = velocityToggle.getToggleState();
-    processorRef.setUseVelocityToVolume(enabled);
+    if (!webView)
+        return;
 
-    // Update button text
-    velocityToggle.setButtonText(enabled ? "ON" : "OFF");
+    juce::Array<juce::var> presetsArray;
+    for (const auto &preset : presetList)
+    {
+        juce::DynamicObject::Ptr presetObj = new juce::DynamicObject();
+        presetObj->setProperty("displayName", preset.displayName);
+        presetObj->setProperty("category", preset.category);
+        presetsArray.add(juce::var(presetObj.get()));
+    }
 
-    // Update status display
-    updateStatusDisplay();
+    juce::String jsonPresets = juce::JSON::toString(presetsArray);
+    webView->evaluateJavascript("window.updatePresetListFromCpp(" + jsonPresets + ");");
 }
 
+//==============================================================================
 void AudioPluginAudioProcessorEditor::scanPresetsFolder()
 {
     presetList.clear();
-    presetBrowser.clear();
 
     // For development, use absolute path
     juce::File kitsFolder("/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits");
 
     if (!kitsFolder.exists() || !kitsFolder.isDirectory())
-    {
-        presetBrowser.addItem("No kits folder found", 1);
-        presetBrowser.setEnabled(false);
         return;
-    }
-
-    presetBrowser.addItem("-- Select Preset --", 1);
 
     int itemId = 2;
 
@@ -519,8 +313,7 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
             // Add category prefix for better organization
             juce::String fullDisplayName = category + " / " + displayName;
 
-            presetBrowser.addItem(fullDisplayName, itemId);
-            presetList.push_back({displayName, category, jsonFile});
+            presetList.push_back({fullDisplayName, category, jsonFile});
             itemId++;
         }
 
@@ -533,22 +326,7 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
     };
 
     scanFolder(kitsFolder, "");
-
-    presetBrowser.setSelectedId(1, juce::dontSendNotification);
     currentPresetIndex = -1;
-}
-
-void AudioPluginAudioProcessorEditor::onPresetSelected()
-{
-    int selectedId = presetBrowser.getSelectedId();
-    if (selectedId <= 1)
-    {
-        currentPresetIndex = -1;
-        return;
-    }
-
-    currentPresetIndex = selectedId - 2; // Adjust for header item
-    loadPresetByIndex(currentPresetIndex);
 }
 
 void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
@@ -556,12 +334,10 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
     if (index < 0 || index >= static_cast<int>(presetList.size()))
         return;
 
-    const auto &entry = presetList[index];
+    const auto &entry = presetList[static_cast<size_t>(index)];
 
     if (!entry.file.existsAsFile())
         return;
-
-    lastLoadedPreset = entry.file.getFullPathName();
 
     auto result = processorRef.loadPresetFromFile(entry.file);
 
@@ -570,9 +346,6 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
         lastStatusMessage = "✓ Loaded: " + entry.displayName;
         statusIsError = false;
         currentPresetIndex = index;
-
-        // Update combo box selection (add 2 for header offset)
-        presetBrowser.setSelectedId(index + 2, juce::dontSendNotification);
     }
     else
     {
@@ -580,7 +353,7 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
         statusIsError = true;
     }
 
-    updateStatusDisplay();
+    sendStateUpdateToWebView();
 }
 
 void AudioPluginAudioProcessorEditor::loadNextPreset()
@@ -605,4 +378,36 @@ void AudioPluginAudioProcessorEditor::loadPrevPreset()
         prevIndex = static_cast<int>(presetList.size()) - 1; // Wrap around to last preset
 
     loadPresetByIndex(prevIndex);
+}
+
+void AudioPluginAudioProcessorEditor::browseForPreset()
+{
+    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    fileChooser = std::make_unique<juce::FileChooser>("Select Preset JSON File",
+                                                      juce::File::getSpecialLocation(juce::File::userHomeDirectory),
+                                                      "*.json");
+
+    fileChooser->launchAsync(chooserFlags, [this](const juce::FileChooser &chooser)
+                             {
+        auto file = chooser.getResult();
+        
+        if (file == juce::File{})
+            return;
+        
+        // Attempt to load
+        auto result = processorRef.loadPresetFromFile(file);
+        
+        if (result.wasOk())
+        {
+            lastStatusMessage = "✓ Preset loaded successfully!";
+            statusIsError = false;
+        }
+        else
+        {
+            lastStatusMessage = "✗ Failed: " + result.getErrorMessage();
+            statusIsError = true;
+        }
+        
+        sendStateUpdateToWebView(); });
 }

@@ -91,8 +91,8 @@ target_sources(DrumEngine01
 
 target_compile_definitions(DrumEngine01
     PUBLIC
-        # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-        JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
+        # Enable WebBrowser for WebView UI
+        JUCE_WEB_BROWSER=1  # Required for WebBrowserComponent
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
         JUCE_VST3_CAN_REPLACE_VST2=0)
 
@@ -103,7 +103,14 @@ target_compile_definitions(DrumEngine01
 # static library. These source files can be of any kind (wav data, images, fonts, icons etc.).
 # Conversion to binary-data will happen when your target is built.
 
-# juce_add_binary_data(AudioPluginData SOURCES ...)
+# Add WebView UI files as binary data
+juce_add_binary_data(AudioPluginData
+    HEADER_NAME BinaryData.h
+    NAMESPACE BinaryData
+    SOURCES
+        src/ui/index.html
+        src/ui/styles.css
+        src/ui/app.js)
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
 # we're linking our executable target to the `juce::juce_audio_utils` module. Inter-module
@@ -113,7 +120,7 @@ target_compile_definitions(DrumEngine01
 
 target_link_libraries(DrumEngine01
     PRIVATE
-        # AudioPluginData           # If we'd created a binary data target, we'd link to it here
+        AudioPluginData           # Link the binary data containing our WebView UI
         juce::juce_audio_utils
         juce::juce_audio_formats
     PUBLIC

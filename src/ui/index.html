@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DrumEngine01</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Section -->
+      <header class="header">
+        <h1 class="title">DrumEngine01</h1>
+        <div class="header-controls">
+          <label class="preset-label">Preset:</label>
+          <button class="nav-button" id="prevPresetBtn">&lt;</button>
+          <select class="preset-browser" id="presetBrowser">
+            <option value="">-- Select Preset --</option>
+          </select>
+          <button class="nav-button" id="nextPresetBtn">&gt;</button>
+          <button class="load-button" id="loadPresetBtn">
+            Browse Files...
+          </button>
+          <label class="output-label">Output:</label>
+          <select class="output-mode" id="outputMode">
+            <option value="stereo">Stereo</option>
+            <option value="multiout">Multi-Out (8x Stereo)</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <div class="content">
+        <!-- Mixer Section -->
+        <div class="mixer">
+          <div class="channel-strip" data-slot="0">
+            <div class="slot-label">1</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+          <div class="channel-strip" data-slot="1">
+            <div class="slot-label">2</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+          <div class="channel-strip" data-slot="2">
+            <div class="slot-label">3</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+          <div class="channel-strip" data-slot="3">
+            <div class="slot-label">4</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+          <div class="channel-strip" data-slot="4">
+            <div class="slot-label">5</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+          <div class="channel-strip" data-slot="5">
+            <div class="slot-label">6</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+          <div class="channel-strip" data-slot="6">
+            <div class="slot-label">7</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+          <div class="channel-strip" data-slot="7">
+            <div class="slot-label">8</div>
+            <input
+              type="range"
+              class="volume-fader"
+              orient="vertical"
+              min="0"
+              max="100"
+              value="100"
+            />
+            <div class="volume-value">100%</div>
+            <button class="mute-button">M</button>
+            <button class="solo-button">S</button>
+          </div>
+        </div>
+
+        <!-- Info Panel -->
+        <aside class="info-panel">
+          <div class="status" id="status">No Preset - Click Load Button</div>
+
+          <div class="velocity-control">
+            <label class="velocity-label">Velocity → Volume:</label>
+            <button class="velocity-toggle" id="velocityToggle">OFF</button>
+          </div>
+
+          <div class="preset-info" id="presetInfo">
+            <p>No preset loaded</p>
+            <p>
+              Click 'Load Preset...' or select from dropdown to load a JSON
+              preset file
+            </p>
+          </div>
+
+          <div class="instructions">
+            Trigger with MIDI Note (default: 38/D1) | Solo: only that slot plays
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
