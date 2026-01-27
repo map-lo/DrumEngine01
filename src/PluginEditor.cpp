@@ -298,6 +298,63 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
         slotNamesArray.add(name);
     presetInfoObj->setProperty("slotNames", slotNamesArray);
 
+    // Build sample map for preset quality indicator
+    // sampleMap structure: { "velocity-1": [1, 2, 3], "velocity-2": [1, 2], ... }
+    // Each velocity layer gets an array of RR indices that have samples
+    if (info.isPresetLoaded)
+    {
+        juce::DynamicObject::Ptr sampleMapObj = new juce::DynamicObject();
+
+        // Get the active preset from the engine
+        const auto *activePresetPtr = processorRef.getEngine().getActivePreset();
+        if (activePresetPtr != nullptr)
+        {
+            const auto &layers = activePresetPtr->getLayers();
+
+            // Iterate through velocity layers (max 10)
+            for (size_t velocityIndex = 0; velocityIndex < layers.size() && velocityIndex < 10; ++velocityIndex)
+            {
+                const auto &layer = layers[velocityIndex];
+                juce::Array<juce::var> rrIndicesArray;
+
+                // Check each RR sample (max 5) for the first slot that has samples
+                // Find first active slot
+                int firstActiveSlot = -1;
+                for (int slot = 0; slot < info.slotCount; ++slot)
+                {
+                    if (info.activeSlots[slot])
+                    {
+                        firstActiveSlot = slot;
+                        break;
+                    }
+                }
+
+                if (firstActiveSlot >= 0)
+                {
+                    // Check each RR index
+                    for (size_t rrIndex = 0; rrIndex < layer.samples.size() && rrIndex < 5; ++rrIndex)
+                    {
+                        if (rrIndex < layer.samples.size() &&
+                            firstActiveSlot < layer.samples[rrIndex].size() &&
+                            layer.samples[rrIndex][firstActiveSlot] != nullptr)
+                        {
+                            rrIndicesArray.add(static_cast<int>(rrIndex) + 1); // 1-indexed for CSS classes
+                        }
+                    }
+                }
+
+                // Add to sample map if there are any samples for this velocity layer
+                if (rrIndicesArray.size() > 0)
+                {
+                    juce::String velocityKey = "velocity-" + juce::String(static_cast<int>(velocityIndex) + 1);
+                    sampleMapObj->setProperty(velocityKey, rrIndicesArray);
+                }
+            }
+        }
+
+        presetInfoObj->setProperty("sampleMap", juce::var(sampleMapObj.get()));
+    }
+
     state->setProperty("presetInfo", juce::var(presetInfoObj.get()));
 
     // Slot states

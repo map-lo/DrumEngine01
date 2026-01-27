@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full overflow-hidden">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body
-    class="bg-white text-black font-bold select-none cursor-pointer! h-full"
+    class="bg-white text-black font-bold select-none cursor-pointer! h-full overflow-hidden"
   >
     <div class="m-[2px] h-full flex flex-col justify-end">
       <!-- Toolbar -->
@@ -77,56 +77,156 @@
           <div
             class="grid grid-cols-10 gap-y-[5px] gap-x-[3px] preset-quality-indicator"
           >
-            <div class="w-[10px] h-[4px] bg-black velocity-1 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-2 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-3 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-4 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-5 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-6 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-7 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-8 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-9 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-10 rr-5"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-1 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-2 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-3 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-4 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-5 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-6 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-7 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-8 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-9 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-10 rr-4"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-1 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-2 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-3 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-4 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-5 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-6 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-7 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-8 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-9 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-10 rr-3"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-1 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-2 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-3 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-4 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-5 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-6 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-7 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-8 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-9 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-10 rr-2"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-1 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-2 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-3 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-4 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-5 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-6 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-7 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-8 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-9 rr-1"></div>
-            <div class="w-[10px] h-[4px] bg-black velocity-10 rr-1"></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-1 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-2 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-3 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-4 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-5 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-6 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-7 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-8 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-9 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-10 rr-5"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-1 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-2 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-3 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-4 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-5 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-6 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-7 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-8 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-9 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-10 rr-4"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-1 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-2 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-3 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-4 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-5 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-6 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-7 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-8 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-9 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-10 rr-3"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-1 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-2 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-3 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-4 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-5 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-6 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-7 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-8 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-9 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-10 rr-2"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-1 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-2 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-3 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-4 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-5 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-6 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-7 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-8 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-9 rr-1"
+            ></div>
+            <div
+              class="w-[10px] h-[4px] bg-black opacity-20 velocity-10 rr-1"
+            ></div>
           </div>
         </div>
       </div>

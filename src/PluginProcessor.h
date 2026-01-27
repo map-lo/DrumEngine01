@@ -89,6 +89,9 @@ public:
     void setUseVelocityToVolume(bool enabled);
     bool getUseVelocityToVolume() const;
 
+    // Engine access for editor
+    const DrumEngine::Engine &getEngine() const { return engine; }
+
 private:
     // Common preset loading logic
     juce::Result loadPresetFromJsonInternal(const juce::String &jsonText,

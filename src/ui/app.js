@@ -31,6 +31,32 @@ class DrumEngineUI {
         return db.toFixed(1);
     }
 
+    // Update preset quality indicator based on available samples
+    updatePresetQualityIndicator(sampleMap) {
+        if (!this.presetQualityIndicator || !sampleMap) return;
+
+        // Reset all indicators to inactive (lower opacity)
+        const allIndicators = this.presetQualityIndicator.querySelectorAll('div');
+        allIndicators.forEach(indicator => {
+            indicator.classList.remove('opacity-100');
+            indicator.classList.add('opacity-20');
+        });
+
+        // Activate indicators based on sampleMap
+        // sampleMap should be an object like: { "velocity-1": [1, 2, 3], "velocity-2": [1, 2, 3, 4, 5], ... }
+        // where the array contains the RR indices that have samples
+        for (const [velocityClass, rrIndices] of Object.entries(sampleMap)) {
+            rrIndices.forEach(rrIndex => {
+                const selector = `.${velocityClass}.rr-${rrIndex}`;
+                const indicator = this.presetQualityIndicator.querySelector(selector);
+                if (indicator) {
+                    indicator.classList.remove('opacity-20');
+                    indicator.classList.add('opacity-100');
+                }
+            });
+        }
+    }
+
     initializeElements() {
         // Header controls
         this.presetBrowser = document.getElementById('presetBrowser');
@@ -38,6 +64,9 @@ class DrumEngineUI {
         this.nextPresetBtn = document.getElementById('nextPresetBtn');
         this.loadPresetBtn = document.getElementById('loadPresetBtn');
         this.outputMode = document.getElementById('outputMode');
+
+        // Preset quality indicator
+        this.presetQualityIndicator = document.querySelector('.preset-quality-indicator');
 
         // Info panel elements
         this.statusMessage = document.getElementById('statusMessage');
@@ -206,6 +235,11 @@ class DrumEngineUI {
             // Update velocity checkbox
             if (this.velocityToVolume) {
                 this.velocityToVolume.checked = info.useVelocityToVolume;
+            }
+
+            // Update preset quality indicator
+            if (info.sampleMap) {
+                this.updatePresetQualityIndicator(info.sampleMap);
             }
         }
 

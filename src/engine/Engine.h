@@ -51,6 +51,9 @@ namespace DrumEngine
         void setUseVelocityToVolume(bool enabled);
         bool getUseVelocityToVolume() const;
 
+        // Access to active preset (thread-safe, read-only)
+        const RuntimePreset *getActivePreset() const { return activePreset.load(); }
+
     private:
         static constexpr int kMaxHitGroups = 3;
         static constexpr int kMaxVelocityLayers = 10;

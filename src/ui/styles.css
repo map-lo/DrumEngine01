@@ -1101,6 +1101,10 @@ video {
   opacity: 0;
 }
 
+.opacity-20 {
+  opacity: 0.2;
+}
+
 .outline-none {
   outline: 2px solid transparent;
   outline-offset: 2px;
