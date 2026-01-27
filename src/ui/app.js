@@ -74,13 +74,48 @@ class DrumEngineUI {
 
         // Channel strip controls
         this.channelStrips.forEach((strip, index) => {
-            // Volume fader
+            // Volume fader (invisible range input)
             strip.fader.addEventListener('input', (e) => {
                 const value = parseFloat(e.target.value) / 100.0;
                 const percent = e.target.value;
                 strip.volumeValue.textContent = percent + '%';
                 strip.volumeIndicator.style.height = percent + '%';
                 this.sendMessage('setSlotVolume', { slot: index, volume: value });
+            });
+
+            // Make volume indicator interactive (click and drag)
+            const faderContainer = strip.volumeIndicator.parentElement;
+            let isDragging = false;
+
+            const updateVolumeFromPosition = (e) => {
+                const rect = faderContainer.getBoundingClientRect();
+                const y = e.clientY - rect.top;
+                const height = rect.height;
+                // Invert because bottom = 0, top = 100
+                let percent = Math.round(((height - y) / height) * 100);
+                percent = Math.max(0, Math.min(100, percent));
+
+                const value = percent / 100.0;
+                strip.fader.value = percent;
+                strip.volumeValue.textContent = percent + '%';
+                strip.volumeIndicator.style.height = percent + '%';
+                this.sendMessage('setSlotVolume', { slot: index, volume: value });
+            };
+
+            faderContainer.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                updateVolumeFromPosition(e);
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    updateVolumeFromPosition(e);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
             });
 
             // Mute button
