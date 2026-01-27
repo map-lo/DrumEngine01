@@ -97,6 +97,9 @@ private:
     // Track last loaded preset for UI
     mutable juce::CriticalSection presetInfoLock;
     PresetInfo currentPresetInfo;
+    juce::String currentPresetJsonData;   // Full JSON content of preset
+    juce::String currentPresetRootFolder; // Root folder path for samples
+    bool stateRestored = false;           // Track if state was restored from session
 
     // Slot states (volume, mute, solo per slot)
     mutable juce::CriticalSection slotStateLock;

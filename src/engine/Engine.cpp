@@ -77,6 +77,56 @@ namespace DrumEngine
         return juce::Result::ok();
     }
 
+    juce::Result Engine::loadPresetFromJson(const juce::String &jsonText, const juce::String &rootFolder)
+    {
+        // Create schema by parsing from temp file
+        PresetSchema schema;
+
+        // Save to temp file and parse
+        juce::File tempFile = juce::File::createTempFile(".json");
+        if (tempFile.replaceWithText(jsonText))
+        {
+            auto result = PresetSchema::parseFromFile(tempFile, schema);
+            tempFile.deleteFile();
+
+            if (result.failed())
+                return result;
+        }
+        else
+        {
+            return juce::Result::fail("Failed to create temp file for preset");
+        }
+
+        // Override root folder if provided AND schema doesn't have one
+        // (for when samples have moved or schema has relative paths)
+        if (!rootFolder.isEmpty() && schema.rootFolder.isEmpty())
+            schema.rootFolder = rootFolder;
+        auto newPreset = std::make_unique<RuntimePreset>();
+        auto buildResult = newPreset->buildFromSchema(schema);
+
+        if (buildResult.failed())
+            return buildResult;
+
+        // Store schema
+        {
+            juce::ScopedLock lock(schemaLock);
+            currentSchema = schema;
+        }
+
+        // Atomically swap preset
+        auto *oldPreset = activePreset.exchange(newPreset.release());
+        delete oldPreset;
+
+        // Reset RR counters
+        rrCounters.fill(0);
+
+        // Clear all solo states
+        slotSoloed.fill(false);
+        anySoloed = false;
+
+        return juce::Result::ok();
+    }
+
     Engine::PresetInfo Engine::getCurrentPresetInfo() const
     {
         PresetInfo info;

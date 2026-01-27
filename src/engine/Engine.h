@@ -22,6 +22,7 @@ namespace DrumEngine
 
         // Preset loading (call from non-audio thread)
         juce::Result loadPresetAsync(const juce::File &presetFile);
+        juce::Result loadPresetFromJson(const juce::String &jsonText, const juce::String &rootFolder);
 
         struct PresetInfo
         {

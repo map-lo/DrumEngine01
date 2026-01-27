@@ -97,12 +97,16 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     // Initialize the drum engine
     engine.prepareToPlay(sampleRate, samplesPerBlock);
 
-    // Load a test preset (you can change this path or make it configurable)
-    // For now, we'll try to load BITE.json if it exists
-    juce::File presetFile = juce::File("/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits/ThatSound DarrenKing/Snare/BITE.json");
-    if (presetFile.existsAsFile())
+    // Only load default preset if no state was restored (i.e., new instance, not loading from session)
+    if (!stateRestored)
     {
-        loadPresetFromFile(presetFile);
+        // Load a test preset (you can change this path or make it configurable)
+        // For now, we'll try to load BITE.json if it exists
+        juce::File presetFile = juce::File("/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits/ThatSound DarrenKing/Snare/BITE.json");
+        if (presetFile.existsAsFile())
+        {
+            loadPresetFromFile(presetFile);
+        }
     }
 }
 
@@ -178,22 +182,184 @@ juce::AudioProcessorEditor *AudioPluginAudioProcessor::createEditor()
 //==============================================================================
 void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
-    juce::ignoreUnused(destData);
+    // Create XML to store state
+    juce::XmlElement xml("DrumEngine01State");
+
+    // Save preset JSON data and root folder
+    {
+        juce::ScopedLock lock(presetInfoLock);
+        if (!currentPresetJsonData.isEmpty())
+        {
+            // Use child element with CDATA for large JSON content to avoid XML attribute size limits
+            auto *presetElement = xml.createNewChildElement("PresetData");
+            presetElement->setAttribute("name", currentPresetInfo.presetName);
+            presetElement->setAttribute("rootFolder", currentPresetRootFolder);
+            presetElement->addTextElement(currentPresetJsonData);
+        }
+    }
+
+    // Save output mode
+    xml.setAttribute("outputMode", static_cast<int>(outputMode));
+
+    // Save velocity to volume setting
+    xml.setAttribute("useVelocityToVolume", getUseVelocityToVolume());
+
+    // Save slot states
+    auto *slotsXml = xml.createNewChildElement("SlotStates");
+    for (int i = 0; i < 8; ++i)
+    {
+        auto state = getSlotState(i);
+        auto *slotXml = slotsXml->createNewChildElement("Slot");
+        slotXml->setAttribute("index", i);
+        slotXml->setAttribute("volume", state.volume);
+        slotXml->setAttribute("muted", state.muted);
+        slotXml->setAttribute("soloed", state.soloed);
+    }
+
+    // Convert to binary
+    copyXmlToBinary(xml, destData);
 }
 
 void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-    juce::ignoreUnused(data, sizeInBytes);
+    // Parse XML from binary
+    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+
+    if (xml == nullptr || !xml->hasTagName("DrumEngine01State"))
+        return;
+
+    // Debug logging
+    juce::File debugFile = juce::File::getSpecialLocation(juce::File::userHomeDirectory).getChildFile("DrumEngine01_Debug.txt");
+    juce::FileOutputStream debugStream(debugFile, 1024);
+    if (debugStream.openedOk())
+    {
+        debugStream << "[" << juce::Time::getCurrentTime().toString(true, true, true, true) << "] setStateInformation called\n";
+        if (xml->hasAttribute("presetName"))
+        {
+            debugStream << "  Preset name: " << xml->getStringAttribute("presetName") << "\n";
+        }
+    }
+
+    // Restore output mode
+    if (xml->hasAttribute("outputMode"))
+    {
+        int modeValue = xml->getIntAttribute("outputMode", 0);
+        outputMode = static_cast<OutputMode>(modeValue);
+    }
+
+    // Restore slot states first (before loading preset)
+    if (auto *slotsXml = xml->getChildByName("SlotStates"))
+    {
+        for (auto *slotXml : slotsXml->getChildIterator())
+        {
+            if (slotXml->hasTagName("Slot"))
+            {
+                int index = slotXml->getIntAttribute("index", -1);
+                if (index >= 0 && index < 8)
+                {
+                    float volume = static_cast<float>(slotXml->getDoubleAttribute("volume", 1.0));
+                    bool muted = slotXml->getBoolAttribute("muted", false);
+                    bool soloed = slotXml->getBoolAttribute("soloed", false);
+
+                    setSlotVolume(index, volume);
+                    setSlotMuted(index, muted);
+                    setSlotSoloed(index, soloed);
+                }
+            }
+        }
+    }
+
+    // Restore preset from JSON data stored in child element
+    if (auto *presetElement = xml->getChildByName("PresetData"))
+    {
+        debugStream << "  Found PresetData element\n";
+        juce::String presetJson = presetElement->getAllSubText();
+        juce::String rootFolder = presetElement->getStringAttribute("rootFolder");
+        juce::String presetName = presetElement->getStringAttribute("name", "Unknown");
+
+        debugStream << "  JSON length: " << presetJson.length() << "\n";
+        debugStream << "  Root folder: " << rootFolder << "\n";
+        debugStream << "  First 500 chars of JSON:\n"
+                    << presetJson.substring(0, 500) << "\n";
+
+        if (!presetJson.isEmpty())
+        {
+            debugStream << "  Calling loadPresetFromJson...\n";
+            auto result = engine.loadPresetFromJson(presetJson, rootFolder);
+
+            debugStream << "  Result: " << (result.wasOk() ? "OK" : result.getErrorMessage()) << "\n";
+
+            if (result.wasOk())
+            {
+                // Update preset info
+                juce::ScopedLock lock(presetInfoLock);
+
+                auto info = engine.getCurrentPresetInfo();
+                currentPresetInfo.isPresetLoaded = info.isValid;
+                currentPresetInfo.presetName = presetName;
+                currentPresetInfo.instrumentType = info.instrumentType;
+                currentPresetInfo.fixedMidiNote = info.fixedMidiNote;
+                currentPresetInfo.slotCount = info.slotCount;
+                currentPresetInfo.layerCount = info.layerCount;
+                currentPresetInfo.slotNames = info.slotNames;
+                currentPresetInfo.activeSlots = info.activeSlots;
+                currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
+
+                currentPresetJsonData = presetJson;
+                currentPresetRootFolder = rootFolder;
+
+                // Debug: log active slots
+                debugStream << "  Active slots: ";
+                for (int i = 0; i < 8; ++i)
+                    debugStream << (info.activeSlots[i] ? "1" : "0");
+                debugStream << "\n";
+
+                // Apply slot states to engine
+                for (int i = 0; i < 8; ++i)
+                {
+                    auto state = getSlotState(i);
+                    engine.setSlotGain(i, state.volume);
+                    engine.setSlotMuted(i, state.muted);
+                    engine.setSlotSoloed(i, state.soloed);
+                }
+
+                // Mark that state was successfully restored
+                stateRestored = true;
+
+                // Debug logging - reuse the same debug stream
+                debugStream << "  Successfully restored preset: " << presetName << "\n";
+            }
+            else
+            {
+                debugStream << "  Failed to restore preset\n";
+            }
+        }
+        else
+        {
+            debugStream << "  presetJson is empty\n";
+        }
+    }
+    else
+    {
+        debugStream << "  No PresetData element found\n";
+    }
+
+    // Restore velocity to volume setting (after preset is loaded)
+    if (xml->hasAttribute("useVelocityToVolume"))
+    {
+        bool velToVol = xml->getBoolAttribute("useVelocityToVolume", false);
+        setUseVelocityToVolume(velToVol);
+    }
 }
 
 //==============================================================================
 juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &presetFile)
 {
+    // Read the JSON content
+    juce::String jsonText = presetFile.loadFileAsString();
+    if (jsonText.isEmpty())
+        return juce::Result::fail("Preset file is empty or cannot be read");
+
     auto result = engine.loadPresetAsync(presetFile);
 
     if (result.wasOk())
@@ -212,7 +378,9 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
         currentPresetInfo.activeSlots = info.activeSlots;
         currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
 
-        // Update engine with current slot states
+        // Store preset JSON data and root folder for state saving
+        currentPresetJsonData = jsonText;
+        currentPresetRootFolder = presetFile.getParentDirectory().getFullPathName();
         for (int i = 0; i < 8; ++i)
         {
             auto slotState = getSlotState(i);
