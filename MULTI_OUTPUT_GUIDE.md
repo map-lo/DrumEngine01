@@ -28,7 +28,7 @@ This allows maximum flexibility in your DAW for processing individual mic channe
   - Slot 5 (room2) → Output 11-12
   - Slot 6 (extra1) → Output 13-14
   - Slot 7 (extra2) → Output 15-16
-  - Slot 8 → Output 17-18
+  - Slot 8 (extra3) → Output 17-18
 - **Use case**: Get both the full mix AND individual mics for parallel processing
 - **DAW setup**: 9 stereo outputs (1 for mix + 8 for individual mics)
 

@@ -13,9 +13,9 @@ The plugin now features a **professional mixer interface** with individual contr
 │               ✓ Preset loaded successfully!                                          │
 │                                                                                       │
 │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐   Preset: BITE   │
-│  │ top │ │ bot │ │ oh  │ │room1│ │room2│ │extra│ │extra│ │  8  │   Type: snare     │
-│  │  │  │ │  │  │ │  │  │ │  │  │ │  │  │ │  1  │ │  2  │ │     │   MIDI: 38        │
-│  │  │  │ │  │  │ │  │  │ │  │  │ │  │  │ │     │ │     │ │     │   Slots: 7/8      │
+│  │ top │ │ bot │ │ oh  │ │room1│ │room2│ │extra│ │extra│ │extra│   Type: snare     │
+│  │  │  │ │  │  │ │  │  │ │  │  │ │  │  │ │  1  │ │  2  │ │  3  │   MIDI: 38        │
+│  │  │  │ │  │  │ │  │  │ │  │  │ │  │  │ │     │ │     │ │     │   Slots: 8/8      │
 │  │  ■  │ │  ■  │ │  ■  │ │  ■  │ │  ■  │ │  ░  │ │  ░  │ │  ░  │   Layers: 10      │
 │  │  ■  │ │  ■  │ │  ■  │ │  ■  │ │  ■  │ │  ░  │ │  ░  │ │  ░  │                   │
 │  │  ■  │ │  ■  │ │  ■  │ │  ■  │ │  ■  │ │  ░  │ │  ░  │ │  ░  │   Active slots:   │
@@ -242,7 +242,7 @@ When loading a new preset:
 3. Set slot 3 (oh) to 60%
 4. Set slot 4 (room1) to 30%
 5. Set slot 5 (room2) to 20%
-6. Mute extra1/extra2 if present
+6. Mute extra1/extra2/extra3 if present
 
 ## Technical Details
 

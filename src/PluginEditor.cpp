@@ -336,7 +336,7 @@ void AudioPluginAudioProcessorEditor::updateSlotControls()
         slot.soloButton.setAlpha(alpha);
 
         // Update label text
-        if (isActive && i < info.slotNames.size())
+        if (info.isPresetLoaded && i < info.slotNames.size())
         {
             slot.nameLabel.setText(info.slotNames[i], juce::dontSendNotification);
         }

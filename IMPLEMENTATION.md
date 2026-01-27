@@ -99,7 +99,16 @@ A JUCE-based drum engine VST3 plugin with JSON-driven preset loading, memory-map
 {
   "schemaVersion": 1,
   "instrumentType": "snare",
-  "slotNames": ["top", "bottom", "oh", "room1", "room2", "extra1", "extra2"],
+  "slotNames": [
+    "top",
+    "bottom",
+    "oh",
+    "room1",
+    "room2",
+    "extra1",
+    "extra2",
+    "extra3"
+  ],
   "rootFolder": "/path/to/samples",
   "fixedMidiNote": 38,
   "velocityLayers": [

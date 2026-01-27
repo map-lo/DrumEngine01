@@ -18,7 +18,7 @@ The plugin now has a **functional UI** with the following features:
 │   Preset: BITE                                  │
 │   Type: snare                                   │
 │   Fixed MIDI Note: 38                           │
-│   Slots: 7                                      │
+│   Slots: 8                                      │
 │   Velocity Layers: 10                           │
 │                                                 │
 │   Mic Slots:                                    │
@@ -29,6 +29,7 @@ The plugin now has a **functional UI** with the following features:
 │     5: room2                                    │
 │     6: extra1                                   │
 │     7: extra2                                   │
+│     8: extra3                                   │
 │                                                 │
 │                                                 │
 │   Trigger with MIDI Note (default: 38/D1)      │
