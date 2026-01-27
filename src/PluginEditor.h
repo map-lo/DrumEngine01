@@ -23,16 +23,31 @@ private:
     void onSlotMuteClicked(int slotIndex);
     void onSlotSoloClicked(int slotIndex);
     void onOutputModeChanged();
+    void onPresetSelected();
+    void scanPresetsFolder();
+    void loadPresetByIndex(int index);
 
     AudioPluginAudioProcessor &processorRef;
 
     // UI Components
     juce::TextButton loadPresetButton;
+    juce::ComboBox presetBrowser;
+    juce::Label presetBrowserLabel;
     juce::Label statusLabel;
     juce::Label presetInfoLabel;
     juce::Label instructionsLabel;
     juce::ComboBox outputModeCombo;
     juce::Label outputModeLabel;
+
+    // Preset management
+    struct PresetEntry
+    {
+        juce::String displayName;
+        juce::File file;
+        int indentLevel = 0;
+        bool isSeparator = false;
+    };
+    std::vector<PresetEntry> presetList;
 
     // Slot controls (up to 8 slots)
     struct SlotControl

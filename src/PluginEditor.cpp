@@ -5,8 +5,23 @@
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
-    // Load Preset Button
-    loadPresetButton.setButtonText("Load Preset...");
+    // Preset Browser Label
+    presetBrowserLabel.setFont(juce::FontOptions(11.0f));
+    presetBrowserLabel.setJustificationType(juce::Justification::centredRight);
+    presetBrowserLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    presetBrowserLabel.setText("Preset:", juce::dontSendNotification);
+    addAndMakeVisible(presetBrowserLabel);
+
+    // Preset Browser
+    presetBrowser.onChange = [this]
+    { onPresetSelected(); };
+    addAndMakeVisible(presetBrowser);
+
+    // Scan presets folder and populate browser
+    scanPresetsFolder();
+
+    // Load Preset Button (for manual file selection)
+    loadPresetButton.setButtonText("Browse Files...");
     loadPresetButton.onClick = [this]
     { loadPresetButtonClicked(); };
     addAndMakeVisible(loadPresetButton);
@@ -89,7 +104,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     updateStatusDisplay();
     updateSlotControls();
 
-    setSize(900, 500);
+    setSize(900, 550);
+    setResizable(false, false);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -100,82 +116,112 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 //==============================================================================
 void AudioPluginAudioProcessorEditor::paint(juce::Graphics &g)
 {
-    // Background gradient
-    g.fillAll(juce::Colour(0xff1e1e1e));
+    // Dark background
+    g.fillAll(juce::Colour(0xff252525));
 
     auto bounds = getLocalBounds();
 
-    // Header background
-    auto headerArea = bounds.removeFromTop(60);
+    // Header section
+    auto headerArea = bounds.removeFromTop(100);
+
+    // Header background gradient
     g.setGradientFill(juce::ColourGradient(
-        juce::Colour(0xff2d2d30), 0, 0,
-        juce::Colour(0xff1e1e1e), 0, headerArea.getHeight(),
+        juce::Colour(0xff3a3a3a), 0, 0,
+        juce::Colour(0xff252525), 0, (float)headerArea.getHeight(),
         false));
     g.fillRect(headerArea);
 
     // Title
     g.setColour(juce::Colours::white);
-    g.setFont(juce::FontOptions(24.0f, juce::Font::bold));
-    g.drawText("DrumEngine01", headerArea.reduced(10), juce::Justification::centredLeft);
+    g.setFont(juce::FontOptions(28.0f, juce::Font::bold));
+    auto titleArea = headerArea.withTrimmedTop(10).withTrimmedLeft(20);
+    g.drawText("DrumEngine01", titleArea.removeFromTop(35), juce::Justification::topLeft);
 
-    // Separator line
-    g.setColour(juce::Colour(0xff3e3e42));
-    g.drawLine(10, 60, getWidth() - 10, 60, 2.0f);
+    // Subtle separator line
+    g.setColour(juce::Colour(0xff404040));
+    g.drawLine(0, 100, (float)getWidth(), 100, 1.0f);
+
+    // Mixer section background
+    auto mixerBg = bounds.withTrimmedTop(10).withTrimmedBottom(10).withTrimmedLeft(10).withTrimmedRight(350);
+    g.setColour(juce::Colour(0xff2a2a2a));
+    g.fillRoundedRectangle(mixerBg.toFloat(), 8.0f);
+
+    // Info panel background
+    auto infoBg = bounds.withTrimmedTop(10).withTrimmedBottom(10).withTrimmedRight(10).removeFromRight(330);
+    g.setColour(juce::Colour(0xff2a2a2a));
+    g.fillRoundedRectangle(infoBg.toFloat(), 8.0f);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds();
-    bounds.removeFromTop(70); // Skip header
 
-    auto area = bounds.reduced(10);
+    // Header section (100px)
+    auto headerArea = bounds.removeFromTop(100);
 
-    // Top section: load button and status
-    auto topSection = area.removeFromTop(80);
-    loadPresetButton.setBounds(topSection.removeFromTop(35).reduced(150, 0));
-    topSection.removeFromTop(5);
-    statusLabel.setBounds(topSection.removeFromTop(25));
+    // Preset browser and controls in header
+    auto browserArea = headerArea.withTrimmedTop(45).withTrimmedLeft(20).withTrimmedRight(20);
+    presetBrowserLabel.setBounds(browserArea.removeFromLeft(50));
+    browserArea.removeFromLeft(5);
+    presetBrowser.setBounds(browserArea.removeFromLeft(400));
+    browserArea.removeFromLeft(10);
+    loadPresetButton.setBounds(browserArea.removeFromLeft(100));
+    browserArea.removeFromLeft(20);
 
-    // Output mode selector
-    auto outputModeArea = topSection.removeFromTop(25);
-    outputModeLabel.setBounds(outputModeArea.removeFromLeft(60));
-    outputModeCombo.setBounds(outputModeArea.removeFromLeft(200));
+    // Output mode in header
+    outputModeLabel.setBounds(browserArea.removeFromLeft(50));
+    browserArea.removeFromLeft(5);
+    outputModeCombo.setBounds(browserArea.removeFromLeft(180));
 
-    area.removeFromTop(10);
+    // Main content area
+    auto contentArea = bounds.reduced(10);
 
-    // Left side: slot controls
-    auto leftPanel = area.removeFromLeft(600);
+    // Right panel for info (330px wide)
+    auto rightPanel = contentArea.removeFromRight(330);
+    rightPanel.removeFromLeft(10); // spacing
 
-    // Slot mixer section
-    const int slotWidth = 70;
-    const int slotSpacing = 5;
+    // Status at top of info panel
+    statusLabel.setBounds(rightPanel.removeFromTop(30).reduced(10, 5));
+    rightPanel.removeFromTop(5);
+
+    // Preset info
+    presetInfoLabel.setBounds(rightPanel.removeFromTop(180).reduced(10));
+
+    rightPanel.removeFromTop(10);
+
+    // Instructions at bottom
+    instructionsLabel.setBounds(rightPanel.reduced(10));
+
+    // Mixer section (left side)
+    auto mixerArea = contentArea.reduced(10);
+
+    mixerArea.removeFromTop(10);
+
+    // 8 channel strips
+    const int slotWidth = 65;
+    const int slotSpacing = 3;
 
     for (int i = 0; i < 8; ++i)
     {
         auto &slot = slotControls[i];
-        auto slotArea = leftPanel.removeFromLeft(slotWidth);
+        auto slotArea = mixerArea.removeFromLeft(slotWidth);
 
-        // Name label at top
-        slot.nameLabel.setBounds(slotArea.removeFromTop(20));
+        if (i < 7)
+            mixerArea.removeFromLeft(slotSpacing);
 
-        // Volume slider (most of the height)
-        slot.volumeSlider.setBounds(slotArea.removeFromTop(slotArea.getHeight() - 65));
+        // Slot label at top
+        slot.nameLabel.setBounds(slotArea.removeFromTop(25));
+
+        // Volume fader
+        slot.volumeSlider.setBounds(slotArea.removeFromTop(slotArea.getHeight() - 70));
 
         slotArea.removeFromTop(5);
 
-        // Mute and Solo buttons at bottom
-        slot.muteButton.setBounds(slotArea.removeFromTop(28));
+        // Mute and Solo buttons
+        slot.muteButton.setBounds(slotArea.removeFromTop(30));
         slotArea.removeFromTop(2);
-        slot.soloButton.setBounds(slotArea.removeFromTop(28));
-
-        leftPanel.removeFromLeft(slotSpacing);
+        slot.soloButton.setBounds(slotArea.removeFromTop(30));
     }
-
-    // Right side: preset info and instructions
-    area.removeFromLeft(10);
-    presetInfoLabel.setBounds(area.removeFromTop(area.getHeight() - 35));
-    area.removeFromTop(5);
-    instructionsLabel.setBounds(area);
 }
 
 void AudioPluginAudioProcessorEditor::timerCallback()
@@ -367,4 +413,114 @@ void AudioPluginAudioProcessorEditor::onOutputModeChanged()
         statusLabel.setText("Stereo mode: Mix on outputs 1-2", juce::dontSendNotification);
         statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightblue);
     }
+}
+
+void AudioPluginAudioProcessorEditor::scanPresetsFolder()
+{
+    presetList.clear();
+    presetBrowser.clear();
+
+    // For development, use absolute path
+    juce::File kitsFolder("/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits");
+
+    if (!kitsFolder.exists() || !kitsFolder.isDirectory())
+    {
+        presetBrowser.addItem("No kits folder found", 1);
+        presetBrowser.setEnabled(false);
+        return;
+    }
+
+    presetBrowser.addItem("-- Select Preset --", 1);
+    presetList.push_back({"-- Select Preset --", juce::File{}, 0, false});
+
+    int itemId = 2;
+
+    // Recursively scan folders
+    std::function<void(const juce::File &, int)> scanFolder = [&](const juce::File &folder, int depth)
+    {
+        juce::Array<juce::File> subFolders;
+        juce::Array<juce::File> jsonFiles;
+
+        // Use findChildFiles instead of RangedDirectoryIterator
+        auto allFiles = folder.findChildFiles(juce::File::findFilesAndDirectories, false, "*");
+
+        for (const auto &file : allFiles)
+        {
+            if (file.isDirectory() && !file.getFileName().startsWith("."))
+                subFolders.add(file);
+            else if (file.hasFileExtension(".json"))
+                jsonFiles.add(file);
+        }
+
+        // Sort folders and files alphabetically
+        subFolders.sort();
+        jsonFiles.sort();
+
+        // Add folders first
+        for (const auto &subFolder : subFolders)
+        {
+            juce::String indent = juce::String::repeatedString("  ", depth);
+            juce::String displayName = indent + "\u25b6 " + subFolder.getFileName();
+
+            presetBrowser.addItem(displayName, itemId);
+            presetList.push_back({displayName, juce::File{}, depth, true});
+            itemId++;
+
+            // Recursively scan subfolder
+            scanFolder(subFolder, depth + 1);
+        }
+
+        // Add JSON files in this folder
+        for (const auto &jsonFile : jsonFiles)
+        {
+            juce::String indent = juce::String::repeatedString("  ", depth + 1);
+            juce::String fileName = jsonFile.getFileNameWithoutExtension();
+            juce::String displayName = indent + "\u2022 " + fileName;
+
+            presetBrowser.addItem(displayName, itemId);
+            presetList.push_back({displayName, jsonFile, depth, false});
+            itemId++;
+        }
+    };
+
+    scanFolder(kitsFolder, 0);
+
+    presetBrowser.setSelectedId(1, juce::dontSendNotification);
+}
+
+void AudioPluginAudioProcessorEditor::onPresetSelected()
+{
+    int selectedId = presetBrowser.getSelectedId();
+    if (selectedId <= 1)
+        return; // "Select Preset" header selected
+
+    loadPresetByIndex(selectedId - 1);
+}
+
+void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
+{
+    if (index < 0 || index >= static_cast<int>(presetList.size()))
+        return;
+
+    const auto &entry = presetList[index];
+
+    if (entry.isSeparator || !entry.file.existsAsFile())
+        return; // Folder header, not a loadable preset
+
+    lastLoadedPreset = entry.file.getFullPathName();
+
+    auto result = processorRef.loadPresetFromFile(entry.file);
+
+    if (result.wasOk())
+    {
+        lastStatusMessage = "✓ Loaded: " + entry.file.getFileNameWithoutExtension();
+        statusIsError = false;
+    }
+    else
+    {
+        lastStatusMessage = "✗ Failed: " + result.getErrorMessage();
+        statusIsError = true;
+    }
+
+    updateStatusDisplay();
 }
