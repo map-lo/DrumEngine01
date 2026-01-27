@@ -90,6 +90,9 @@ public:
     bool getUseVelocityToVolume() const;
 
 private:
+    // Common preset loading logic
+    juce::Result loadPresetFromJsonInternal(const juce::String &jsonText,
+                                            const juce::String &presetName);
     //==============================================================================
     DrumEngine::Engine engine;
     OutputMode outputMode = OutputMode::Stereo;

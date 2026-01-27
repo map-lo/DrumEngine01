@@ -284,44 +284,18 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
 
         if (!presetJson.isEmpty())
         {
-            debugStream << "  Calling loadPresetFromJson...\n";
-            auto result = engine.loadPresetFromJson(presetJson, rootFolder);
+            debugStream << "  Calling loadPresetFromJsonInternal...\n";
+            auto result = loadPresetFromJsonInternal(presetJson, presetName);
 
             debugStream << "  Result: " << (result.wasOk() ? "OK" : result.getErrorMessage()) << "\n";
 
             if (result.wasOk())
             {
-                // Update preset info
-                juce::ScopedLock lock(presetInfoLock);
-
-                auto info = engine.getCurrentPresetInfo();
-                currentPresetInfo.isPresetLoaded = info.isValid;
-                currentPresetInfo.presetName = presetName;
-                currentPresetInfo.instrumentType = info.instrumentType;
-                currentPresetInfo.fixedMidiNote = info.fixedMidiNote;
-                currentPresetInfo.slotCount = info.slotCount;
-                currentPresetInfo.layerCount = info.layerCount;
-                currentPresetInfo.slotNames = info.slotNames;
-                currentPresetInfo.activeSlots = info.activeSlots;
-                currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
-
-                currentPresetJsonData = presetJson;
-                currentPresetRootFolder = rootFolder;
-
                 // Debug: log active slots
                 debugStream << "  Active slots: ";
                 for (int i = 0; i < 8; ++i)
-                    debugStream << (info.activeSlots[i] ? "1" : "0");
+                    debugStream << (currentPresetInfo.activeSlots[i] ? "1" : "0");
                 debugStream << "\n";
-
-                // Apply slot states to engine
-                for (int i = 0; i < 8; ++i)
-                {
-                    auto state = getSlotState(i);
-                    engine.setSlotGain(i, state.volume);
-                    engine.setSlotMuted(i, state.muted);
-                    engine.setSlotSoloed(i, state.soloed);
-                }
 
                 // Mark that state was successfully restored
                 stateRestored = true;
@@ -353,14 +327,25 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
 }
 
 //==============================================================================
-juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &presetFile)
+juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::String &jsonText,
+                                                                   const juce::String &presetName)
 {
-    // Read the JSON content
-    juce::String jsonText = presetFile.loadFileAsString();
     if (jsonText.isEmpty())
-        return juce::Result::fail("Preset file is empty or cannot be read");
+        return juce::Result::fail("Preset JSON is empty");
 
-    auto result = engine.loadPresetAsync(presetFile);
+    // Extract root folder from JSON to pass to engine
+    juce::var json;
+    auto parseResult = juce::JSON::parse(jsonText, json);
+    juce::String rootFolderFromJson;
+    if (parseResult.wasOk() && json.isObject())
+    {
+        auto *obj = json.getDynamicObject();
+        if (obj)
+            rootFolderFromJson = obj->getProperty("rootFolder").toString();
+    }
+
+    // Load preset in engine
+    auto result = engine.loadPresetFromJson(jsonText, rootFolderFromJson);
 
     if (result.wasOk())
     {
@@ -369,7 +354,7 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
 
         auto info = engine.getCurrentPresetInfo();
         currentPresetInfo.isPresetLoaded = info.isValid;
-        currentPresetInfo.presetName = presetFile.getFileNameWithoutExtension();
+        currentPresetInfo.presetName = presetName;
         currentPresetInfo.instrumentType = info.instrumentType;
         currentPresetInfo.fixedMidiNote = info.fixedMidiNote;
         currentPresetInfo.slotCount = info.slotCount;
@@ -378,9 +363,11 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
         currentPresetInfo.activeSlots = info.activeSlots;
         currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
 
-        // Store preset JSON data and root folder for state saving
+        // Store preset JSON data
         currentPresetJsonData = jsonText;
-        currentPresetRootFolder = presetFile.getParentDirectory().getFullPathName();
+        currentPresetRootFolder = rootFolderFromJson;
+
+        // Apply slot states to engine
         for (int i = 0; i < 8; ++i)
         {
             auto slotState = getSlotState(i);
@@ -391,6 +378,16 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
     }
 
     return result;
+}
+
+juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &presetFile)
+{
+    // Read the JSON content
+    juce::String jsonText = presetFile.loadFileAsString();
+    if (jsonText.isEmpty())
+        return juce::Result::fail("Preset file is empty or cannot be read");
+
+    return loadPresetFromJsonInternal(jsonText, presetFile.getFileNameWithoutExtension());
 }
 
 AudioPluginAudioProcessor::PresetInfo AudioPluginAudioProcessor::getPresetInfo() const
