@@ -62,9 +62,10 @@ class DrumEngineUI {
         this.nextPresetBtn.addEventListener('click', () => this.sendMessage('loadNextPreset'));
         this.loadPresetBtn.addEventListener('click', () => this.sendMessage('browseForPreset'));
 
-        // Output mode
+        // Output mode checkbox
         this.outputMode.addEventListener('change', () => {
-            this.sendMessage('setOutputMode', { mode: this.outputMode.value });
+            const mode = this.outputMode.checked ? 'multiout' : 'stereo';
+            this.sendMessage('setOutputMode', { mode: mode });
         });
 
         // Velocity to volume checkbox
@@ -245,9 +246,9 @@ class DrumEngineUI {
             });
         }
 
-        // Update output mode
+        // Update output mode checkbox
         if (state.outputMode && this.outputMode) {
-            this.outputMode.value = state.outputMode;
+            this.outputMode.checked = (state.outputMode === 'multiout');
         }
 
         // Update current preset index
