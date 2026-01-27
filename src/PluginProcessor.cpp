@@ -20,6 +20,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #endif
       )
 {
+    // Set up hit notification callback
+    engine.setHitCallback([this](int velocityLayer, int rrIndex)
+                          { hitListeners.call([velocityLayer, rrIndex](HitListener &l)
+                                              { l.onHit(velocityLayer, rrIndex); }); });
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()

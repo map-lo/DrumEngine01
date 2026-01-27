@@ -33,3 +33,12 @@
 }
 
 /* Custom styles can be added here */
+
+/* Hit flash animation for preset quality indicator */
+.preset-quality-indicator > div {
+  transition: background-color 0.2s ease-out;
+}
+
+.preset-quality-indicator > div.hit-flash {
+  background-color: white !important;
+}

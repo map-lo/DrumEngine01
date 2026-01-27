@@ -4,7 +4,8 @@
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor,
-                                              private juce::Timer
+                                              private juce::Timer,
+                                              private AudioPluginAudioProcessor::HitListener
 {
 public:
     explicit AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &);
@@ -16,6 +17,9 @@ public:
 
 private:
     void timerCallback() override;
+
+    // HitListener interface
+    void onHit(int velocityLayer, int rrIndex) override;
 
     // WebView communication handlers
     void handleMessageFromWebView(const juce::String &message);

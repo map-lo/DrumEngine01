@@ -300,6 +300,10 @@ namespace DrumEngine
         int rrIndex = rrCounters[layerIndex] % layer.rrCount;
         rrCounters[layerIndex]++;
 
+        // Notify hit callback (if set)
+        if (hitCallback)
+            hitCallback(layerIndex, rrIndex);
+
         // Calculate gain from velocity
         float gain = preset->velocityToGain(velocity);
 

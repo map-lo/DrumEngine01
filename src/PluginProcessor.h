@@ -92,6 +92,17 @@ public:
     // Engine access for editor
     const DrumEngine::Engine &getEngine() const { return engine; }
 
+    // Hit notification for UI visualization
+    class HitListener
+    {
+    public:
+        virtual ~HitListener() = default;
+        virtual void onHit(int velocityLayer, int rrIndex) = 0;
+    };
+
+    void addHitListener(HitListener *listener) { hitListeners.add(listener); }
+    void removeHitListener(HitListener *listener) { hitListeners.remove(listener); }
+
 private:
     // Common preset loading logic
     juce::Result loadPresetFromJsonInternal(const juce::String &jsonText,
@@ -110,6 +121,9 @@ private:
     // Slot states (volume, mute, solo per slot)
     mutable juce::CriticalSection slotStateLock;
     std::array<SlotState, 8> slotStates;
+
+    // Hit listeners
+    juce::ListenerList<HitListener> hitListeners;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)
 };

@@ -5,6 +5,7 @@
 #include <deque>
 #include <array>
 #include <atomic>
+#include <functional>
 
 namespace DrumEngine
 {
@@ -54,6 +55,10 @@ namespace DrumEngine
         // Access to active preset (thread-safe, read-only)
         const RuntimePreset *getActivePreset() const { return activePreset.load(); }
 
+        // Hit notification callback (velocity layer index 0-9, RR index 0-4)
+        using HitCallback = std::function<void(int velocityLayer, int rrIndex)>;
+        void setHitCallback(HitCallback callback) { hitCallback = std::move(callback); }
+
     private:
         static constexpr int kMaxHitGroups = 3;
         static constexpr int kMaxVelocityLayers = 10;
@@ -81,6 +86,9 @@ namespace DrumEngine
 
         // RR counters per velocity layer
         std::array<int, kMaxVelocityLayers> rrCounters = {};
+
+        // Hit notification
+        HitCallback hitCallback;
 
         // Internal methods
         void handleNoteOn(int note, int velocity);

@@ -327,6 +327,23 @@ class DrumEngineUI {
             this.sendMessage('loadPresetByIndex', { index: selectedIndex });
         }
     }
+    // Handle hit notification from C++ (real-time sample trigger visualization)
+    onHit(velocityLayer, rrIndex) {
+        if (!this.presetQualityIndicator) return;
+
+        const selector = `.velocity-${velocityLayer}.rr-${rrIndex}`;
+        const indicator = this.presetQualityIndicator.querySelector(selector);
+
+        if (indicator) {
+            // Flash the indicator by temporarily changing background to white
+            indicator.classList.add('hit-flash');
+
+            // Remove the flash class after animation completes
+            setTimeout(() => {
+                indicator.classList.remove('hit-flash');
+            }, 200); // Match the CSS transition duration
+        }
+    }
 }
 
 // Global function that C++ can call
@@ -362,7 +379,18 @@ window.updatePresetListFromCpp = function (presetsJson) {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.drumEngineUI = new DrumEngineUI();
+        window.ui = window.drumEngineUI; // Alias for easier access from C++
     });
 } else {
     window.drumEngineUI = new DrumEngineUI();
+    window.ui = window.drumEngineUI; // Alias for easier access from C++
+}
+
+// Listen for hit events from C++
+if (window.__JUCE__ && window.__JUCE__.backend) {
+    window.__JUCE__.backend.addEventListener('hit', (event) => {
+        if (window.ui && event && event.velocityLayer && event.rrIndex) {
+            window.ui.onHit(event.velocityLayer, event.rrIndex);
+        }
+    });
 }

@@ -30,6 +30,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     // Scan presets folder
     scanPresetsFolder();
 
+    // Register for hit notifications
+    processorRef.addHitListener(this);
+
     // Start timer to update UI
     startTimer(100); // Update every 100ms
 
@@ -157,6 +160,7 @@ void AudioPluginAudioProcessorEditor::setupWebViewForProduction()
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
+    processorRef.removeHitListener(this);
     stopTimer();
     webView.reset();
 }
@@ -172,6 +176,22 @@ void AudioPluginAudioProcessorEditor::resized()
 {
     if (webView)
         webView->setBounds(getLocalBounds());
+}
+
+//==============================================================================
+void AudioPluginAudioProcessorEditor::onHit(int velocityLayer, int rrIndex)
+{
+    // Send hit notification to WebView
+    if (webView)
+    {
+        juce::DynamicObject::Ptr message = new juce::DynamicObject();
+        message->setProperty("action", "hit");
+        message->setProperty("velocityLayer", velocityLayer + 1); // 1-indexed for CSS classes
+        message->setProperty("rrIndex", rrIndex + 1);             // 1-indexed for CSS classes
+
+        juce::var messageVar(message.get());
+        webView->emitEventIfBrowserIsVisible("hit", messageVar);
+    }
 }
 
 void AudioPluginAudioProcessorEditor::timerCallback()
