@@ -62,13 +62,18 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     addAndMakeVisible(outputModeCombo);
 
     // Velocity to volume toggle
-    velocityToggleLabel.setFont(juce::FontOptions(11.0f));
-    velocityToggleLabel.setJustificationType(juce::Justification::centredRight);
+    velocityToggleLabel.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+    velocityToggleLabel.setJustificationType(juce::Justification::centredLeft);
     velocityToggleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    velocityToggleLabel.setText("Vel->Vol:", juce::dontSendNotification);
+    velocityToggleLabel.setText("Velocity -> Volume:", juce::dontSendNotification);
     addAndMakeVisible(velocityToggleLabel);
 
+    velocityToggle.setButtonText("OFF");
     velocityToggle.setToggleState(false, juce::dontSendNotification);
+    velocityToggle.setClickingTogglesState(true);
+    velocityToggle.setColour(juce::TextButton::buttonOnColourId, juce::Colours::green);
+    velocityToggle.setColour(juce::TextButton::textColourOffId, juce::Colours::lightgrey);
+    velocityToggle.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     velocityToggle.onClick = [this]
     { onVelocityToggleClicked(); };
     addAndMakeVisible(velocityToggle);
@@ -184,12 +189,6 @@ void AudioPluginAudioProcessorEditor::resized()
     outputModeLabel.setBounds(browserArea.removeFromLeft(50));
     browserArea.removeFromLeft(5);
     outputModeCombo.setBounds(browserArea.removeFromLeft(180));
-    browserArea.removeFromLeft(15);
-
-    // Velocity to volume toggle in header
-    velocityToggleLabel.setBounds(browserArea.removeFromLeft(55));
-    browserArea.removeFromLeft(5);
-    velocityToggle.setBounds(browserArea.removeFromLeft(40));
 
     // Main content area
     auto contentArea = bounds.reduced(10);
@@ -202,8 +201,14 @@ void AudioPluginAudioProcessorEditor::resized()
     statusLabel.setBounds(rightPanel.removeFromTop(30).reduced(10, 5));
     rightPanel.removeFromTop(5);
 
+    // Velocity to volume toggle
+    auto velToggleArea = rightPanel.removeFromTop(40).reduced(10);
+    velocityToggleLabel.setBounds(velToggleArea.removeFromTop(16));
+    velocityToggle.setBounds(velToggleArea.withHeight(20));
+    rightPanel.removeFromTop(5);
+
     // Preset info
-    presetInfoLabel.setBounds(rightPanel.removeFromTop(180).reduced(10));
+    presetInfoLabel.setBounds(rightPanel.removeFromTop(140).reduced(10));
 
     rightPanel.removeFromTop(10);
 
@@ -290,6 +295,7 @@ void AudioPluginAudioProcessorEditor::updateStatusDisplay()
     {
         // Update velocity toggle state
         velocityToggle.setToggleState(info.useVelocityToVolume, juce::dontSendNotification);
+        velocityToggle.setButtonText(info.useVelocityToVolume ? "ON" : "OFF");
 
         // Update preset info
         juce::String infoText;
@@ -439,6 +445,9 @@ void AudioPluginAudioProcessorEditor::onVelocityToggleClicked()
 {
     bool enabled = velocityToggle.getToggleState();
     processorRef.setUseVelocityToVolume(enabled);
+
+    // Update button text
+    velocityToggle.setButtonText(enabled ? "ON" : "OFF");
 
     // Update status display
     updateStatusDisplay();

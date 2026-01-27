@@ -39,7 +39,7 @@ private:
     juce::Label instructionsLabel;
     juce::ComboBox outputModeCombo;
     juce::Label outputModeLabel;
-    juce::ToggleButton velocityToggle;
+    juce::TextButton velocityToggle;
     juce::Label velocityToggleLabel;
 
     // Preset management
