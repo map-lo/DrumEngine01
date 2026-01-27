@@ -88,6 +88,12 @@ namespace DrumEngine
                 return juce::Result::fail("fixedMidiNote must be 0..127");
         }
 
+        // useVelocityToVolume (optional, default is false)
+        if (obj->hasProperty("useVelocityToVolume"))
+        {
+            outSchema.useVelocityToVolume = obj->getProperty("useVelocityToVolume");
+        }
+
         // Validate the schema
         return outSchema.validate();
     }
@@ -161,8 +167,14 @@ namespace DrumEngine
             outVelToVol.amount = juce::jlimit(0.0f, 100.0f, outVelToVol.amount);
         }
 
-        // Curve (optional)
-        if (obj->hasProperty("curve"))
+        // Curve name - support both formats:
+        // 1. Simple: "curveName": "soft"
+        // 2. Nested: "curve": { "type": "builtin", "name": "soft" }
+        if (obj->hasProperty("curveName"))
+        {
+            outVelToVol.curveName = obj->getProperty("curveName").toString();
+        }
+        else if (obj->hasProperty("curve"))
         {
             auto curveVar = obj->getProperty("curve");
             if (curveVar.isObject())

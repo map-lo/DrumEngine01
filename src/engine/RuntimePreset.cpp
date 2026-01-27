@@ -3,6 +3,17 @@
 
 namespace DrumEngine
 {
+    // Helper function to log to file
+    static void logToFile(const juce::String &message)
+    {
+        static juce::File logFile = juce::File::getSpecialLocation(juce::File::userHomeDirectory)
+                                        .getChildFile("DrumEngine01_Debug.txt");
+
+        juce::String timeStamp = juce::Time::getCurrentTime().toString(true, true, true, true);
+        juce::String fullMessage = timeStamp + " - " + message + "\n";
+
+        logFile.appendText(fullMessage);
+    }
 
     juce::Result RuntimePreset::buildFromSchema(const PresetSchema &schema)
     {
@@ -14,6 +25,17 @@ namespace DrumEngine
         fixedMidiNote = schema.fixedMidiNote;
         velToVolAmount = schema.velToVol.amount;
         velToVolCurve = schema.velToVol.curveName;
+        useVelocityToVolume = schema.useVelocityToVolume;
+
+        logToFile("=== RuntimePreset::buildFromSchema ===");
+        logToFile("useVelocityToVolume: " + juce::String(useVelocityToVolume ? "TRUE" : "FALSE"));
+        logToFile("velToVolAmount: " + juce::String(velToVolAmount));
+        logToFile("velToVolCurve: " + velToVolCurve);
+
+        // Sort velocity layers by lo (ascending)
+        DBG("useVelocityToVolume: " + juce::String(useVelocityToVolume ? "TRUE" : "FALSE"));
+        DBG("velToVolAmount: " + juce::String(velToVolAmount));
+        DBG("velToVolCurve: " + velToVolCurve);
 
         // Sort velocity layers by lo (ascending)
         auto sortedLayers = schema.velocityLayers;
@@ -100,6 +122,15 @@ namespace DrumEngine
 
     float RuntimePreset::velocityToGain(int velocity) const
     {
+        // If velocity to volume is disabled, always return full gain
+        if (!useVelocityToVolume)
+        {
+            logToFile("Velocity to volume DISABLED - returning 1.0");
+            return 1.0f;
+        }
+
+        logToFile("Velocity to volume ENABLED - velocity: " + juce::String(velocity));
+
         float vel01 = juce::jlimit(0.0f, 1.0f, (velocity - 1) / 126.0f);
 
         // Apply curve
@@ -118,6 +149,8 @@ namespace DrumEngine
         // Apply amount (0..100 -> 0..1)
         float amount01 = velToVolAmount / 100.0f;
         float finalGain = juce::jlimit(0.0f, 1.0f, shaped * amount01 + (1.0f - amount01));
+
+        logToFile("Final gain: " + juce::String(finalGain) + " (vel01=" + juce::String(vel01) + ", amount=" + juce::String(velToVolAmount) + ")");
 
         return finalGain;
     }

@@ -46,6 +46,10 @@ namespace DrumEngine
         void setSlotSoloed(int slotIndex, bool soloed);
         float getEffectiveSlotGain(int slotIndex) const;
 
+        // Velocity to volume control
+        void setUseVelocityToVolume(bool enabled);
+        bool getUseVelocityToVolume() const;
+
     private:
         static constexpr int kMaxHitGroups = 3;
         static constexpr int kMaxVelocityLayers = 10;

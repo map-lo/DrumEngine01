@@ -41,11 +41,14 @@ namespace DrumEngine
         int getSlotCount() const { return slotCount; }
         int getFixedMidiNote() const { return fixedMidiNote; }
         const std::vector<RuntimeVelocityLayer> &getLayers() const { return layers; }
+        bool getUseVelocityToVolume() const { return useVelocityToVolume; }
+        void setUseVelocityToVolume(bool enabled) { useVelocityToVolume = enabled; }
 
     private:
         int slotCount = 0;
         int fixedMidiNote = 38;
         std::vector<RuntimeVelocityLayer> layers;
+        bool useVelocityToVolume = false;
 
         // Velocity-to-volume config
         float velToVolAmount = 100.0f;

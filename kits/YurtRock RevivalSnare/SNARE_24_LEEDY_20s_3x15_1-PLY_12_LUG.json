@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "useVelocityToVolume": true,
   "instrumentType": "snare",
   "slotNames": [
     "top",
@@ -60,10 +61,7 @@
     }
   ],
   "velToVol": {
-    "amount": 0,
-    "curve": {
-      "type": "builtin",
-      "name": "soft"
-    }
+    "amount": 100,
+    "curveName": "soft"
   }
 }

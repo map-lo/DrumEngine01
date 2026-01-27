@@ -173,6 +173,25 @@ namespace DrumEngine
         return slotGains[slotIndex];
     }
 
+    void Engine::setUseVelocityToVolume(bool enabled)
+    {
+        auto *preset = activePreset.load();
+        if (preset)
+        {
+            preset->setUseVelocityToVolume(enabled);
+        }
+    }
+
+    bool Engine::getUseVelocityToVolume() const
+    {
+        auto *preset = activePreset.load();
+        if (preset)
+        {
+            return preset->getUseVelocityToVolume();
+        }
+        return false;
+    }
+
     void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages,
                               bool multiOutEnabled)
     {

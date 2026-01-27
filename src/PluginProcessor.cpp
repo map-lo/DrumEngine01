@@ -210,6 +210,7 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
         currentPresetInfo.layerCount = info.layerCount;
         currentPresetInfo.slotNames = info.slotNames;
         currentPresetInfo.activeSlots = info.activeSlots;
+        currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
 
         // Update engine with current slot states
         for (int i = 0; i < 8; ++i)
@@ -285,6 +286,20 @@ void AudioPluginAudioProcessor::setOutputMode(OutputMode mode)
     // That's it! All buses are always enabled.
     // In Stereo mode, we just don't write to individual outputs (channels 2-17 stay silent).
     // In Multi-Out mode, voices write to both mix and individual outputs.
+}
+
+void AudioPluginAudioProcessor::setUseVelocityToVolume(bool enabled)
+{
+    engine.setUseVelocityToVolume(enabled);
+
+    // Update preset info
+    juce::ScopedLock lock(presetInfoLock);
+    currentPresetInfo.useVelocityToVolume = enabled;
+}
+
+bool AudioPluginAudioProcessor::getUseVelocityToVolume() const
+{
+    return engine.getUseVelocityToVolume();
 }
 
 //==============================================================================

@@ -24,6 +24,7 @@ private:
     void onSlotSoloClicked(int slotIndex);
     void onOutputModeChanged();
     void onPresetSelected();
+    void onVelocityToggleClicked();
     void scanPresetsFolder();
     void loadPresetByIndex(int index);
 
@@ -38,6 +39,8 @@ private:
     juce::Label instructionsLabel;
     juce::ComboBox outputModeCombo;
     juce::Label outputModeLabel;
+    juce::ToggleButton velocityToggle;
+    juce::Label velocityToggleLabel;
 
     // Preset management
     struct PresetEntry

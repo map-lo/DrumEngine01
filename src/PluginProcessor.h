@@ -57,6 +57,7 @@ public:
         int layerCount = 0;
         juce::StringArray slotNames;
         std::array<bool, 8> activeSlots = {}; // Which slots have samples
+        bool useVelocityToVolume = false;
     };
 
     PresetInfo getPresetInfo() const;
@@ -83,6 +84,10 @@ public:
 
     void setOutputMode(OutputMode mode);
     OutputMode getOutputMode() const { return outputMode; }
+
+    // Velocity to volume control
+    void setUseVelocityToVolume(bool enabled);
+    bool getUseVelocityToVolume() const;
 
 private:
     //==============================================================================

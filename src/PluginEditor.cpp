@@ -61,6 +61,18 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     { onOutputModeChanged(); };
     addAndMakeVisible(outputModeCombo);
 
+    // Velocity to volume toggle
+    velocityToggleLabel.setFont(juce::FontOptions(11.0f));
+    velocityToggleLabel.setJustificationType(juce::Justification::centredRight);
+    velocityToggleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    velocityToggleLabel.setText("Vel->Vol:", juce::dontSendNotification);
+    addAndMakeVisible(velocityToggleLabel);
+
+    velocityToggle.setToggleState(false, juce::dontSendNotification);
+    velocityToggle.onClick = [this]
+    { onVelocityToggleClicked(); };
+    addAndMakeVisible(velocityToggle);
+
     // Setup slot controls
     for (int i = 0; i < 8; ++i)
     {
@@ -172,6 +184,12 @@ void AudioPluginAudioProcessorEditor::resized()
     outputModeLabel.setBounds(browserArea.removeFromLeft(50));
     browserArea.removeFromLeft(5);
     outputModeCombo.setBounds(browserArea.removeFromLeft(180));
+    browserArea.removeFromLeft(15);
+
+    // Velocity to volume toggle in header
+    velocityToggleLabel.setBounds(browserArea.removeFromLeft(55));
+    browserArea.removeFromLeft(5);
+    velocityToggle.setBounds(browserArea.removeFromLeft(40));
 
     // Main content area
     auto contentArea = bounds.reduced(10);
@@ -270,6 +288,9 @@ void AudioPluginAudioProcessorEditor::updateStatusDisplay()
 
     if (info.isPresetLoaded)
     {
+        // Update velocity toggle state
+        velocityToggle.setToggleState(info.useVelocityToVolume, juce::dontSendNotification);
+
         // Update preset info
         juce::String infoText;
         infoText << "Preset: " << info.presetName << "\n";
@@ -277,6 +298,7 @@ void AudioPluginAudioProcessorEditor::updateStatusDisplay()
         infoText << "Fixed MIDI Note: " << juce::String(info.fixedMidiNote) << "\n";
         infoText << "Slots: " << juce::String(info.slotCount) << "\n";
         infoText << "Velocity Layers: " << juce::String(info.layerCount) << "\n";
+        infoText << "Vel->Vol: " << (info.useVelocityToVolume ? "On" : "Off") << "\n";
 
         if (info.slotNames.size() > 0)
         {
@@ -406,13 +428,20 @@ void AudioPluginAudioProcessorEditor::onOutputModeChanged()
     if (newMode == AudioPluginAudioProcessor::OutputMode::MultiOut)
     {
         statusLabel.setText("Multi-Out: Mix\u21921-2, Slot1\u21923-4, Slot2\u21925-6, etc.", juce::dontSendNotification);
-        statusLabel.setColour(juce::Label::textColourId, juce::Colours::orange);
     }
     else
     {
-        statusLabel.setText("Stereo mode: Mix on outputs 1-2", juce::dontSendNotification);
-        statusLabel.setColour(juce::Label::textColourId, juce::Colours::lightblue);
+        statusLabel.setText("Stereo: Mix output on channels 1-2", juce::dontSendNotification);
     }
+}
+
+void AudioPluginAudioProcessorEditor::onVelocityToggleClicked()
+{
+    bool enabled = velocityToggle.getToggleState();
+    processorRef.setUseVelocityToVolume(enabled);
+
+    // Update status display
+    updateStatusDisplay();
 }
 
 void AudioPluginAudioProcessorEditor::scanPresetsFolder()
