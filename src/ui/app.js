@@ -47,6 +47,7 @@ class DrumEngineUI {
                 element: strip,
                 label: strip.querySelector('.slot-label'),
                 fader: strip.querySelector('.volume-fader'),
+                volumeIndicator: strip.querySelector('.volume-indicator'),
                 volumeValue: strip.querySelector('.volume-value'),
                 muteBtn: strip.querySelector('.mute-button'),
                 soloBtn: strip.querySelector('.solo-button')
@@ -76,7 +77,9 @@ class DrumEngineUI {
             // Volume fader
             strip.fader.addEventListener('input', (e) => {
                 const value = parseFloat(e.target.value) / 100.0;
-                strip.volumeValue.textContent = e.target.value + '%';
+                const percent = e.target.value;
+                strip.volumeValue.textContent = percent + '%';
+                strip.volumeIndicator.style.height = percent + '%';
                 this.sendMessage('setSlotVolume', { slot: index, volume: value });
             });
 
@@ -184,6 +187,7 @@ class DrumEngineUI {
                     const volumePercent = Math.round(slot.volume * 100);
                     strip.fader.value = volumePercent;
                     strip.volumeValue.textContent = volumePercent + '%';
+                    strip.volumeIndicator.style.height = volumePercent + '%';
 
                     // Mute button - update for new white/black styling
                     if (slot.muted) {
