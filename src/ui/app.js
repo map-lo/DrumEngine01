@@ -11,8 +11,15 @@ class DrumEngineUI {
         this.attachEventListeners();
 
         // Notify C++ that page is ready - send as separate event
-        if (window.juce && window.juce.emitEvent) {
-            window.juce.emitEvent('pageReady', {});
+        console.log('DrumEngineUI: Checking for JUCE backend...');
+        console.log('window.__JUCE__:', window.__JUCE__);
+        console.log('window.juce:', window.juce);
+
+        if (window.__JUCE__ && window.__JUCE__.backend && window.__JUCE__.backend.emitEvent) {
+            console.log('DrumEngineUI: Emitting pageReady event');
+            window.__JUCE__.backend.emitEvent('pageReady', {});
+        } else {
+            console.error('DrumEngineUI: JUCE backend not available!');
         }
     }
 
@@ -24,10 +31,14 @@ class DrumEngineUI {
         this.loadPresetBtn = document.getElementById('loadPresetBtn');
         this.outputMode = document.getElementById('outputMode');
 
-        // Info panel
-        this.status = document.getElementById('status');
-        this.velocityToggle = document.getElementById('velocityToggle');
-        this.presetInfo = document.getElementById('presetInfo');
+        // Info panel elements
+        this.statusMessage = document.getElementById('statusMessage');
+        this.presetName = document.getElementById('presetName');
+        this.instrumentType = document.getElementById('instrumentType');
+        this.midiNote = document.getElementById('midiNote');
+        this.layerCount = document.getElementById('layerCount');
+        this.slotCount = document.getElementById('slotCount');
+        this.velocityToVolume = document.getElementById('velocityToVolume');
 
         // Channel strips
         const strips = document.querySelectorAll('.channel-strip');
@@ -55,10 +66,9 @@ class DrumEngineUI {
             this.sendMessage('setOutputMode', { mode: this.outputMode.value });
         });
 
-        // Velocity toggle
-        this.velocityToggle.addEventListener('click', () => {
-            const isActive = this.velocityToggle.classList.contains('active');
-            this.sendMessage('setVelocityToVolume', { enabled: !isActive });
+        // Velocity to volume checkbox
+        this.velocityToVolume.addEventListener('change', () => {
+            this.sendMessage('setVelocityToVolume', { enabled: this.velocityToVolume.checked });
         });
 
         // Channel strip controls
@@ -72,13 +82,13 @@ class DrumEngineUI {
 
             // Mute button
             strip.muteBtn.addEventListener('click', () => {
-                const isMuted = strip.muteBtn.classList.contains('active');
+                const isMuted = strip.muteBtn.classList.contains('bg-red-600');
                 this.sendMessage('setSlotMuted', { slot: index, muted: !isMuted });
             });
 
             // Solo button
             strip.soloBtn.addEventListener('click', () => {
-                const isSoloed = strip.soloBtn.classList.contains('active');
+                const isSoloed = strip.soloBtn.classList.contains('bg-yellow-600');
                 this.sendMessage('setSlotSoloed', { slot: index, soloed: !isSoloed });
             });
         });
@@ -88,10 +98,11 @@ class DrumEngineUI {
         const message = { action, ...data };
 
         // Check if we're running in JUCE WebBrowserComponent
-        if (window.juce && window.juce.emitEvent) {
-            window.juce.emitEvent('fromWebView', message);
+        if (window.__JUCE__ && window.__JUCE__.backend && window.__JUCE__.backend.emitEvent) {
+            console.log('Sending to C++:', action, data);
+            window.__JUCE__.backend.emitEvent('fromWebView', message);
         } else {
-            console.log('Message to C++:', message);
+            console.log('Message to C++ (not available):', message);
         }
     }
 
@@ -117,47 +128,37 @@ class DrumEngineUI {
 
     // Called from C++ with current state
     updateState(state) {
-        // Update status
-        if (state.statusMessage) {
-            this.status.textContent = state.statusMessage;
-            this.status.className = 'status';
-            if (state.statusIsError) {
-                this.status.classList.add('error');
-            } else if (state.statusIsWarning) {
-                this.status.classList.add('warning');
-            }
+        console.log('updateState called with:', state);
+
+        // Update status message
+        if (state.statusMessage && this.statusMessage) {
+            this.statusMessage.textContent = state.statusMessage;
+            // You can add color classes based on error/warning status here
         }
 
-        // Update preset info
+        // Update preset info panel
         if (state.presetInfo) {
             const info = state.presetInfo;
 
-            if (info.isPresetLoaded) {
-                let infoText = `Preset: ${info.presetName}\n`;
-                infoText += `Type: ${info.instrumentType}\n`;
-                infoText += `Fixed MIDI Note: ${info.fixedMidiNote}\n`;
-                infoText += `Slots: ${info.slotCount}\n`;
-                infoText += `Velocity Layers: ${info.layerCount}\n`;
-                infoText += `Vel->Vol: ${info.useVelocityToVolume ? 'On' : 'Off'}\n`;
+            if (this.presetName) {
+                this.presetName.textContent = info.isPresetLoaded ? info.presetName : 'None';
+            }
+            if (this.instrumentType) {
+                this.instrumentType.textContent = info.isPresetLoaded ? info.instrumentType : '-';
+            }
+            if (this.midiNote) {
+                this.midiNote.textContent = info.isPresetLoaded ? info.fixedMidiNote.toString() : '-';
+            }
+            if (this.layerCount) {
+                this.layerCount.textContent = info.layerCount.toString();
+            }
+            if (this.slotCount) {
+                this.slotCount.textContent = info.slotCount.toString();
+            }
 
-                if (info.slotNames && info.slotNames.length > 0) {
-                    infoText += '\nMic Slots:\n';
-                    info.slotNames.forEach((name, i) => {
-                        infoText += `  ${i + 1}: ${name}\n`;
-                    });
-                }
-
-                this.presetInfo.textContent = infoText;
-
-                // Update velocity toggle
-                this.velocityToggle.textContent = info.useVelocityToVolume ? 'ON' : 'OFF';
-                if (info.useVelocityToVolume) {
-                    this.velocityToggle.classList.add('active');
-                } else {
-                    this.velocityToggle.classList.remove('active');
-                }
-            } else {
-                this.presetInfo.textContent = 'No preset loaded\n\nClick \'Load Preset...\' or select from dropdown to load a JSON preset file';
+            // Update velocity checkbox
+            if (this.velocityToVolume) {
+                this.velocityToVolume.checked = info.useVelocityToVolume;
             }
         }
 
@@ -167,11 +168,13 @@ class DrumEngineUI {
                 if (index < this.channelStrips.length) {
                     const strip = this.channelStrips[index];
 
-                    // Active state
+                    // Active/inactive state
                     if (slot.isActive) {
-                        strip.element.classList.add('active');
+                        strip.element.classList.remove('opacity-50');
+                        strip.element.classList.add('opacity-100');
                     } else {
-                        strip.element.classList.remove('active');
+                        strip.element.classList.add('opacity-50');
+                        strip.element.classList.remove('opacity-100');
                     }
 
                     // Label
@@ -182,41 +185,77 @@ class DrumEngineUI {
                     strip.fader.value = volumePercent;
                     strip.volumeValue.textContent = volumePercent + '%';
 
-                    // Mute
+                    // Mute button
                     if (slot.muted) {
-                        strip.muteBtn.classList.add('active');
+                        strip.muteBtn.classList.add('bg-red-600');
+                        strip.muteBtn.classList.remove('bg-drum-darker');
                     } else {
-                        strip.muteBtn.classList.remove('active');
+                        strip.muteBtn.classList.remove('bg-red-600');
+                        strip.muteBtn.classList.add('bg-drum-darker');
                     }
 
-                    // Solo
+                    // Solo button
                     if (slot.soloed) {
-                        strip.soloBtn.classList.add('active');
+                        strip.soloBtn.classList.add('bg-yellow-600');
+                        strip.soloBtn.classList.remove('bg-drum-darker');
                     } else {
-                        strip.soloBtn.classList.remove('active');
+                        strip.soloBtn.classList.remove('bg-yellow-600');
+                        strip.soloBtn.classList.add('bg-drum-darker');
                     }
                 }
             });
         }
 
         // Update output mode
-        if (state.outputMode) {
+        if (state.outputMode && this.outputMode) {
             this.outputMode.value = state.outputMode;
         }
 
-        // Update preset browser selection
-        if (state.currentPresetIndex !== undefined && state.currentPresetIndex >= 0) {
-            this.presetBrowser.selectedIndex = state.currentPresetIndex + 1;
+        // Update current preset index
+        if (typeof state.currentPresetIndex !== 'undefined') {
+            this.currentPresetIndex = state.currentPresetIndex;
+            if (this.presetBrowser && state.currentPresetIndex >= 0) {
+                this.presetBrowser.selectedIndex = state.currentPresetIndex + 1; // +1 for header option
+            }
+        }
+    }
+
+    updatePresetList(presets) {
+        console.log('updatePresetList called with', presets.length, 'presets');
+
+        this.presetList = presets;
+
+        // Clear existing options except the first one
+        while (this.presetBrowser.options.length > 1) {
+            this.presetBrowser.remove(1);
+        }
+
+        // Add new options
+        presets.forEach((preset, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = preset.displayName;
+            this.presetBrowser.appendChild(option);
+        });
+    }
+
+    onPresetSelected() {
+        const selectedIndex = this.presetBrowser.selectedIndex - 1; // Subtract 1 for header option
+        if (selectedIndex >= 0) {
+            this.sendMessage('loadPresetByIndex', { index: selectedIndex });
         }
     }
 }
 
 // Global function that C++ can call
 window.updateStateFromCpp = function (stateJson) {
+    console.log('updateStateFromCpp called');
     try {
         const state = typeof stateJson === 'string' ? JSON.parse(stateJson) : stateJson;
         if (window.drumEngineUI) {
             window.drumEngineUI.updateState(state);
+        } else {
+            console.error('drumEngineUI not initialized yet');
         }
     } catch (e) {
         console.error('Error parsing state from C++:', e);
@@ -224,10 +263,13 @@ window.updateStateFromCpp = function (stateJson) {
 };
 
 window.updatePresetListFromCpp = function (presetsJson) {
+    console.log('updatePresetListFromCpp called');
     try {
         const presets = typeof presetsJson === 'string' ? JSON.parse(presetsJson) : presetsJson;
         if (window.drumEngineUI) {
             window.drumEngineUI.updatePresetList(presets);
+        } else {
+            console.error('drumEngineUI not initialized yet');
         }
     } catch (e) {
         console.error('Error parsing preset list from C++:', e);

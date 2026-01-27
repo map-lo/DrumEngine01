@@ -22,6 +22,11 @@ private:
     void sendStateUpdateToWebView();
     void sendPresetListToWebView();
 
+    // Development helpers
+    void setupWebViewForDevelopment();
+    void setupWebViewForProduction();
+    juce::File getUIDirectory();
+
     // Preset management
     void scanPresetsFolder();
     void loadPresetByIndex(int index);
@@ -55,6 +60,12 @@ private:
 
     // Cache last sent state to avoid unnecessary updates
     juce::String lastSentState;
+
+#if JUCE_DEBUG
+    bool useLiveReload = true; // Enable hot reload in debug builds
+#else
+    bool useLiveReload = false; // Use embedded resources in release
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
 };

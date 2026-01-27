@@ -1,0 +1,12 @@
+{
+    "name": "drumengine01-ui",
+    "version": "1.0.0",
+    "description": "DrumEngine01 WebView UI with Tailwind CSS",
+    "scripts": {
+        "build:css": "tailwindcss -i ./input.css -o ./styles.css --minify",
+        "watch:css": "tailwindcss -i ./input.css -o ./styles.css --watch"
+    },
+    "devDependencies": {
+        "tailwindcss": "^3.4.1"
+    }
+}

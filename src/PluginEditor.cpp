@@ -2,9 +2,102 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
 
+// Debug logging helper
+static void logToFile(const juce::String &message)
+{
+    juce::File logFile = juce::File::getSpecialLocation(juce::File::userHomeDirectory)
+                             .getChildFile("DrumEngine01_debug.log");
+
+    juce::String timestamp = juce::Time::getCurrentTime().toString(true, true, true, true);
+    juce::String logLine = timestamp + " - " + message + "\n";
+
+    logFile.appendText(logLine);
+}
+
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
+{
+    logToFile("=== DrumEngine01 Editor Constructor ===");
+    logToFile("useLiveReload: " + juce::String(useLiveReload ? "true" : "false"));
+
+    // Choose setup based on build mode
+    if (useLiveReload)
+        setupWebViewForDevelopment();
+    else
+        setupWebViewForProduction();
+
+    // Scan presets folder
+    scanPresetsFolder();
+
+    // Start timer to update UI
+    startTimer(100); // Update every 100ms
+
+    setSize(900, 550);
+    setResizable(false, false);
+}
+
+//==============================================================================
+juce::File AudioPluginAudioProcessorEditor::getUIDirectory()
+{
+    // For development, use hardcoded absolute path
+    // This is only used in debug builds with hot reloading
+    juce::File uiDir("/Users/marian/Development/JUCE-Plugins/DrumEngine01/src/ui");
+
+    logToFile("UI Directory: " + uiDir.getFullPathName());
+    logToFile("UI Directory exists: " + juce::String(uiDir.exists() ? "YES" : "NO"));
+
+    return uiDir;
+}
+
+void AudioPluginAudioProcessorEditor::setupWebViewForDevelopment()
+{
+    logToFile("setupWebViewForDevelopment() called");
+
+    // Load files from disk for hot reloading
+    juce::File uiDir = getUIDirectory();
+    juce::File indexHtml = uiDir.getChildFile("index.html");
+
+    logToFile("Looking for index.html at: " + indexHtml.getFullPathName());
+    logToFile("File exists: " + juce::String(indexHtml.existsAsFile() ? "YES" : "NO"));
+
+    if (!indexHtml.existsAsFile())
+    {
+        logToFile("ERROR: UI files not found!");
+        jassertfalse; // UI files not found!
+        return;
+    }
+
+    // Create WebBrowserComponent with native integration
+    webView = std::make_unique<juce::WebBrowserComponent>(
+        juce::WebBrowserComponent::Options{}
+            .withBackend(juce::WebBrowserComponent::Options::Backend::defaultBackend)
+            .withNativeIntegrationEnabled()
+            .withUserScript(
+                "console.log('JUCE WebView initialized - DEVELOPMENT MODE');"
+                "window.juce = window.__JUCE__.backend;")
+            .withEventListener("fromWebView", [this](const juce::var &message)
+                               { 
+                                   logToFile("C++ received fromWebView event: " + juce::JSON::toString(message));
+                                   handleMessageFromWebView(juce::JSON::toString(message)); })
+            .withEventListener("pageReady", [this](const juce::var &)
+                               { 
+                                   logToFile("C++ received pageReady event");
+                                   pageLoaded = true;
+                                   sendPresetListToWebView();
+                                   sendStateUpdateToWebView(); }));
+
+    addAndMakeVisible(webView.get());
+
+    // Navigate directly to the HTML file on disk
+    juce::String fileUrl = "file://" + indexHtml.getFullPathName();
+    logToFile("Loading URL: " + fileUrl);
+    webView->goToURL(fileUrl);
+
+    logToFile("setupWebViewForDevelopment() completed");
+}
+
+void AudioPluginAudioProcessorEditor::setupWebViewForProduction()
 {
     // Load HTML content from binary resources
     juce::String html(BinaryData::index_html, static_cast<size_t>(BinaryData::index_htmlSize));
@@ -36,7 +129,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
             .withBackend(juce::WebBrowserComponent::Options::Backend::defaultBackend)
             .withNativeIntegrationEnabled()
             .withUserScript(
-                "console.log('JUCE WebView initialized');"
+                "console.log('JUCE WebView initialized - PRODUCTION MODE');"
                 "window.juce = window.__JUCE__.backend;")
             .withEventListener("fromWebView", [this](const juce::var &message)
                                { handleMessageFromWebView(juce::JSON::toString(message)); })
@@ -60,15 +153,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 
     // Navigate to the root which will trigger the resource provider
     webView->goToURL(juce::WebBrowserComponent::getResourceProviderRoot());
-
-    // Scan presets folder
-    scanPresetsFolder();
-
-    // Start timer to update UI
-    startTimer(100); // Update every 100ms
-
-    setSize(900, 550);
-    setResizable(false, false);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()

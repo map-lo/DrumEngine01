@@ -6,171 +6,93 @@
     <title>DrumEngine01</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
-    <div class="container">
-      <!-- Header Section -->
-      <header class="header">
-        <h1 class="title">DrumEngine01</h1>
-        <div class="header-controls">
-          <label class="preset-label">Preset:</label>
-          <button class="nav-button" id="prevPresetBtn">&lt;</button>
-          <select class="preset-browser" id="presetBrowser">
-            <option value="">-- Select Preset --</option>
-          </select>
-          <button class="nav-button" id="nextPresetBtn">&gt;</button>
-          <button class="load-button" id="loadPresetBtn">
-            Browse Files...
-          </button>
-          <label class="output-label">Output:</label>
-          <select class="output-mode" id="outputMode">
-            <option value="stereo">Stereo</option>
-            <option value="multiout">Multi-Out (8x Stereo)</option>
-          </select>
-        </div>
-      </header>
-
-      <!-- Main Content -->
-      <div class="content">
-        <!-- Mixer Section -->
-        <div class="mixer">
-          <div class="channel-strip" data-slot="0">
-            <div class="slot-label">1</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
+  <body class="bg-white text-black font-bold">
+    <div class="m-[2px]">
+      <!-- Toolbar -->
+      <div class="text-white text-xs grid grid-cols-12 gap-[2px]">
+        <div class="bg-black col-span-10 flex">
+          <div class="font-semibold grow flex items-center mx-2">
+            <span
+              >YurtRock/RevivalSnares/SNARE_01_LUDWIG_20s_5x15_BRASS_8_LUG</span
+            >
           </div>
-          <div class="channel-strip" data-slot="1">
-            <div class="slot-label">2</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
-          </div>
-          <div class="channel-strip" data-slot="2">
-            <div class="slot-label">3</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
-          </div>
-          <div class="channel-strip" data-slot="3">
-            <div class="slot-label">4</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
-          </div>
-          <div class="channel-strip" data-slot="4">
-            <div class="slot-label">5</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
-          </div>
-          <div class="channel-strip" data-slot="5">
-            <div class="slot-label">6</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
-          </div>
-          <div class="channel-strip" data-slot="6">
-            <div class="slot-label">7</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
-          </div>
-          <div class="channel-strip" data-slot="7">
-            <div class="slot-label">8</div>
-            <input
-              type="range"
-              class="volume-fader"
-              orient="vertical"
-              min="0"
-              max="100"
-              value="100"
-            />
-            <div class="volume-value">100%</div>
-            <button class="mute-button">M</button>
-            <button class="solo-button">S</button>
+          <div class="mr-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              class="size-6"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+                clip-rule="evenodd"
+              />
+            </svg>
           </div>
         </div>
+        <div class="bg-black col-span-1 flex justify-center items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="size-6"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M14 8a.75.75 0 0 1-.75.75H4.56l1.22 1.22a.75.75 0 1 1-1.06 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06l2.5-2.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <div class="bg-black col-span-1 flex justify-center items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="size-6"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 8c0 .414.336.75.75.75h8.69l-1.22 1.22a.75.75 0 1 0 1.06 1.06l2.5-2.5a.75.75 0 0 0 0-1.06l-2.5-2.5a.75.75 0 1 0-1.06 1.06l1.22 1.22H2.75A.75.75 0 0 0 2 8Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
 
-        <!-- Info Panel -->
-        <aside class="info-panel">
-          <div class="status" id="status">No Preset - Click Load Button</div>
+      <!-- Header -->
+      <div class="h-28 border-b-2 border-black mt-[2px] flex items-center">
+        <div class="ml-10">
+          <span class="text-4xl">DrumEngine01</span>
+        </div>
+      </div>
 
-          <div class="velocity-control">
-            <label class="velocity-label">Velocity → Volume:</label>
-            <button class="velocity-toggle" id="velocityToggle">OFF</button>
+      <!-- Mixer Strips -->
+      <div class="p-12">
+        <div class="w-16">
+          <!-- Drum Mic Name -->
+          <div class="text-center truncate text-xs uppercase font-black">
+            Top
           </div>
 
-          <div class="preset-info" id="presetInfo">
-            <p>No preset loaded</p>
-            <p>
-              Click 'Load Preset...' or select from dropdown to load a JSON
-              preset file
-            </p>
+          <!-- Fader -->
+          <div
+            class="h-[180px] w-8 border-2 border-black mx-auto my-1 flex items-end"
+          >
+            <div class="m-[2px] h-1/2 w-full bg-black"></div>
           </div>
 
-          <div class="instructions">
-            Trigger with MIDI Note (default: 38/D1) | Solo: only that slot plays
+          <!-- Mute and Solo Buttons -->
+          <div class="text-center truncate text-xs uppercase font-black">
+            Mute
           </div>
-        </aside>
+          <div class="text-center truncate text-xs uppercase font-black">
+            Solo
+          </div>
+        </div>
       </div>
     </div>
-
     <script src="app.js"></script>
   </body>
 </html>
