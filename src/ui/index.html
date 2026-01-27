@@ -1,13 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DrumEngine01</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body class="bg-white text-black font-bold select-none">
-    <div class="m-[2px]">
+  <body
+    class="bg-white text-black font-bold select-none cursor-pointer! h-full"
+  >
+    <div class="m-[2px] h-full flex flex-col justify-end">
       <!-- Toolbar -->
       <div class="text-white text-xs flex space-x-[2px]">
         <div class="bg-black grow flex items-center">
@@ -68,7 +70,62 @@
         class="h-28 border-b-2 border-black mt-[2px] flex items-center justify-between px-10"
       >
         <div>
-          <span class="text-4xl">DrumEngine01</span>
+          <span class="text-4xl tracking-wide">DrumEngine01</span>
+        </div>
+
+        <div>
+          <div class="grid grid-cols-10 gap-y-[5px] gap-x-[3px]">
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+            <div class="w-[10px] h-[4px] bg-black"></div>
+          </div>
         </div>
       </div>
 
@@ -105,11 +162,11 @@
       -->
 
       <!-- Mixer Strips -->
-      <div class="p-12 flex gap-6 justify-center">
+      <div class="p-12 flex gap-6 justify-center grow">
         <!-- Mixer Strip 1 -->
         <div class="channel-strip w-16 opacity-50" data-slot="0">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             1
           </div>
@@ -145,7 +202,7 @@
         <!-- Mixer Strip 2 -->
         <div class="channel-strip w-16 opacity-50" data-slot="1">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             2
           </div>
@@ -181,7 +238,7 @@
         <!-- Mixer Strip 3 -->
         <div class="channel-strip w-16 opacity-50" data-slot="2">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             3
           </div>
@@ -217,7 +274,7 @@
         <!-- Mixer Strip 4 -->
         <div class="channel-strip w-16 opacity-50" data-slot="3">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             4
           </div>
@@ -253,7 +310,7 @@
         <!-- Mixer Strip 5 -->
         <div class="channel-strip w-16 opacity-50" data-slot="4">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             5
           </div>
@@ -289,7 +346,7 @@
         <!-- Mixer Strip 6 -->
         <div class="channel-strip w-16 opacity-50" data-slot="5">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             6
           </div>
@@ -325,7 +382,7 @@
         <!-- Mixer Strip 7 -->
         <div class="channel-strip w-16 opacity-50" data-slot="6">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             7
           </div>
@@ -361,7 +418,7 @@
         <!-- Mixer Strip 8 -->
         <div class="channel-strip w-16 opacity-50" data-slot="7">
           <div
-            class="slot-label text-center truncate text-xs uppercase font-black mb-1"
+            class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
           >
             8
           </div>
@@ -395,14 +452,23 @@
         </div>
       </div>
 
-      <div class="flex gap-4 items-center">
+      <div class="flex gap-6 items-center justify-end mr-4 mb-2">
         <label class="cursor-pointer">
-          <input type="checkbox" id="outputMode" class="mr-1" />
-          <span>Multi-Out (8x Stereo)</span>
+          <span class="text-sm">Midi Note</span>
+          <input
+            type="text"
+            id="midiNoteInput"
+            value="D1"
+            class="w-8 text-sm text-center ml-1 bg-black !text-white"
+          />
         </label>
         <label class="cursor-pointer">
-          <input type="checkbox" id="velocityToVolume" class="mr-1" />
-          <span>Velocity→Volume</span>
+          <span class="text-sm">Multi-Out (8x Stereo)</span>
+          <input type="checkbox" id="outputMode" class="ml-1" />
+        </label>
+        <label class="cursor-pointer">
+          <span class="text-sm">Velocity→Volume</span>
+          <input type="checkbox" id="velocityToVolume" class="ml-1" />
         </label>
       </div>
     </div>

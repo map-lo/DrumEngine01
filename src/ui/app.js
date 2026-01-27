@@ -23,6 +23,14 @@ class DrumEngineUI {
         }
     }
 
+    // Convert percentage (0-100) to decibels
+    percentToDb(percent) {
+        if (percent <= 0) return '-∞';
+        const linear = percent / 100.0;
+        const db = 20 * Math.log10(linear);
+        return db.toFixed(1);
+    }
+
     initializeElements() {
         // Header controls
         this.presetBrowser = document.getElementById('presetBrowser');
@@ -79,7 +87,7 @@ class DrumEngineUI {
             strip.fader.addEventListener('input', (e) => {
                 const value = parseFloat(e.target.value) / 100.0;
                 const percent = e.target.value;
-                strip.volumeValue.textContent = percent + '%';
+                strip.volumeValue.textContent = this.percentToDb(percent) + ' dB';
                 strip.volumeIndicator.style.height = percent + '%';
                 this.sendMessage('setSlotVolume', { slot: index, volume: value });
             });
@@ -98,7 +106,7 @@ class DrumEngineUI {
 
                 const value = percent / 100.0;
                 strip.fader.value = percent;
-                strip.volumeValue.textContent = percent + '%';
+                strip.volumeValue.textContent = this.percentToDb(percent) + ' dB';
                 strip.volumeIndicator.style.height = percent + '%';
                 this.sendMessage('setSlotVolume', { slot: index, volume: value });
             };
@@ -222,7 +230,7 @@ class DrumEngineUI {
                     // Volume
                     const volumePercent = Math.round(slot.volume * 100);
                     strip.fader.value = volumePercent;
-                    strip.volumeValue.textContent = volumePercent + '%';
+                    strip.volumeValue.textContent = this.percentToDb(volumePercent) + ' dB';
                     strip.volumeIndicator.style.height = volumePercent + '%';
 
                     // Mute button - update for new white/black styling
