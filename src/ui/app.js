@@ -278,15 +278,73 @@ class DrumEngineUI {
         }
 
         // Pitch shift control
-        this.pitchShift = document.getElementById('pitchShift');
+        this.pitchSliderContainer = document.getElementById('pitchSliderContainer');
         this.pitchValue = document.getElementById('pitchValue');
-        if (this.pitchShift) {
-            this.pitchShift.addEventListener('input', () => {
-                const value = parseFloat(this.pitchShift.value);
-                this.sendMessage('setPitchShift', { semitones: value });
+        this.pitchIndicator = document.getElementById('pitchIndicator');
+        this.pitchShiftValue = 0.0; // Current pitch value in semitones
+
+        if (this.pitchSliderContainer) {
+            let isDragging = false;
+
+            const updatePitchFromPosition = (clientX) => {
+                const rect = this.pitchSliderContainer.getBoundingClientRect();
+                const x = clientX - rect.left;
+                const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+
+                // Map 0-100% to -6 to +6 semitones
+                const semitones = (percentage / 100) * 12 - 6;
+                // Round to 0.1 step
+                const rounded = Math.round(semitones * 10) / 10;
+
+                this.pitchShiftValue = rounded;
+                this.sendMessage('setPitchShift', { semitones: rounded });
+
                 if (this.pitchValue) {
-                    const sign = value >= 0 ? '+' : '';
-                    this.pitchValue.textContent = sign + value.toFixed(1) + 'st';
+                    const sign = rounded >= 0 ? '+' : '';
+                    this.pitchValue.textContent = sign + rounded.toFixed(1) + 'st';
+                }
+                if (this.pitchIndicator) {
+                    this.pitchIndicator.style.width = percentage + '%';
+                }
+            };
+
+            this.pitchSliderContainer.addEventListener('pointerdown', (e) => {
+                // Alt+click to reset
+                if (e.altKey) {
+                    e.preventDefault();
+                    this.pitchShiftValue = 0.0;
+                    this.sendMessage('setPitchShift', { semitones: 0 });
+                    if (this.pitchValue) {
+                        this.pitchValue.textContent = '+0.0st';
+                    }
+                    if (this.pitchIndicator) {
+                        this.pitchIndicator.style.width = '50%';
+                    }
+                    return;
+                }
+
+                isDragging = true;
+                this.pitchSliderContainer.setPointerCapture(e.pointerId);
+                updatePitchFromPosition(e.clientX);
+            });
+
+            this.pitchSliderContainer.addEventListener('pointermove', (e) => {
+                if (isDragging) {
+                    updatePitchFromPosition(e.clientX);
+                }
+            });
+
+            this.pitchSliderContainer.addEventListener('pointerup', (e) => {
+                if (isDragging) {
+                    isDragging = false;
+                    this.pitchSliderContainer.releasePointerCapture(e.pointerId);
+                }
+            });
+
+            this.pitchSliderContainer.addEventListener('pointercancel', (e) => {
+                if (isDragging) {
+                    isDragging = false;
+                    this.pitchSliderContainer.releasePointerCapture(e.pointerId);
                 }
             });
         }
@@ -490,11 +548,16 @@ class DrumEngineUI {
             }
 
             // Update pitch shift
-            if (this.pitchShift && info.pitchShift !== undefined) {
-                this.pitchShift.value = info.pitchShift;
+            if (info.pitchShift !== undefined) {
+                this.pitchShiftValue = info.pitchShift;
                 if (this.pitchValue) {
                     const sign = info.pitchShift >= 0 ? '+' : '';
                     this.pitchValue.textContent = sign + info.pitchShift.toFixed(1) + 'st';
+                }
+                if (this.pitchIndicator) {
+                    // Map -6 to +6 range to 0% to 100% (0 semitones = 50%)
+                    const percentage = ((info.pitchShift + 6) / 12) * 100;
+                    this.pitchIndicator.style.width = percentage + '%';
                 }
             }
 
