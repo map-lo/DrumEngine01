@@ -270,6 +270,14 @@ class DrumEngineUI {
             this.sendMessage('setVelocityToVolume', { enabled: this.velocityToVolume.checked });
         });
 
+        // MIDI note lock checkbox
+        this.midiNoteLock = document.getElementById('midiNoteLock');
+        if (this.midiNoteLock) {
+            this.midiNoteLock.addEventListener('change', () => {
+                this.sendMessage('setMidiNoteLocked', { locked: this.midiNoteLock.checked });
+            });
+        }
+
         // MIDI note input - handle changes (Enter key or blur)
         this.midiNoteInput.addEventListener('input', (e) => {
             // Sanitize input in real-time: only allow alphanumeric, #, and - characters
@@ -456,6 +464,11 @@ class DrumEngineUI {
             // Update velocity checkbox
             if (this.velocityToVolume) {
                 this.velocityToVolume.checked = info.useVelocityToVolume;
+            }
+
+            // Update MIDI note lock checkbox
+            if (this.midiNoteLock) {
+                this.midiNoteLock.checked = info.midiNoteLocked || false;
             }
 
             // Update preset quality indicator

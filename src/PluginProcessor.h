@@ -93,6 +93,10 @@ public:
     void setFixedMidiNote(int note);
     int getFixedMidiNote() const;
 
+    // MIDI note lock (prevents preset changes from overriding custom note)
+    void setMidiNoteLocked(bool locked);
+    bool getMidiNoteLocked() const;
+
     // Engine access for editor
     const DrumEngine::Engine &getEngine() const { return engine; }
 
@@ -125,6 +129,10 @@ private:
     // Slot states (volume, mute, solo per slot)
     mutable juce::CriticalSection slotStateLock;
     std::array<SlotState, 8> slotStates;
+
+    // MIDI note lock and custom note
+    bool midiNoteLocked = false;
+    int customMidiNote = -1; // -1 means use preset default
 
     // Hit listeners
     juce::ListenerList<HitListener> hitListeners;

@@ -271,6 +271,13 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
             statusIsError = true;
         }
     }
+    else if (action == "setMidiNoteLocked")
+    {
+        bool locked = obj->getProperty("locked");
+        processorRef.setMidiNoteLocked(locked);
+        lastStatusMessage = locked ? "MIDI note locked" : "MIDI note unlocked";
+        statusIsError = false;
+    }
     else if (action == "setSlotVolume")
     {
         int slot = obj->getProperty("slot");
@@ -327,6 +334,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("slotCount", info.slotCount);
     presetInfoObj->setProperty("layerCount", info.layerCount);
     presetInfoObj->setProperty("useVelocityToVolume", info.useVelocityToVolume);
+    presetInfoObj->setProperty("midiNoteLocked", processorRef.getMidiNoteLocked());
 
     juce::Array<juce::var> slotNamesArray;
     for (const auto &name : info.slotNames)

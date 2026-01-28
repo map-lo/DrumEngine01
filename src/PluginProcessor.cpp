@@ -208,6 +208,13 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
     // Save velocity to volume setting
     xml.setAttribute("useVelocityToVolume", getUseVelocityToVolume());
 
+    // Save MIDI note lock state and custom note
+    xml.setAttribute("midiNoteLocked", midiNoteLocked);
+    if (customMidiNote >= 0)
+    {
+        xml.setAttribute("customMidiNote", customMidiNote);
+    }
+
     // Save slot states
     auto *slotsXml = xml.createNewChildElement("SlotStates");
     for (int i = 0; i < 8; ++i)
@@ -295,6 +302,19 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
 
             if (result.wasOk())
             {
+                // Restore MIDI note lock state and custom note
+                midiNoteLocked = xml->getBoolAttribute("midiNoteLocked", false);
+                if (xml->hasAttribute("customMidiNote"))
+                {
+                    customMidiNote = xml->getIntAttribute("customMidiNote", -1);
+                    // If we have a locked custom note, apply it now (overriding preset default)
+                    if (midiNoteLocked && customMidiNote >= 0 && customMidiNote <= 127)
+                    {
+                        setFixedMidiNote(customMidiNote);
+                        debugStream << "  Restored locked custom MIDI note: " << customMidiNote << "\n";
+                    }
+                }
+
                 // Debug: log active slots
                 debugStream << "  Active slots: ";
                 for (int i = 0; i < 8; ++i)
@@ -378,6 +398,13 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
             engine.setSlotGain(i, slotState.volume);
             engine.setSlotMuted(i, slotState.muted);
             engine.setSlotSoloed(i, slotState.soloed);
+        }
+
+        // If MIDI note is locked, reapply the custom note (don't let preset override it)
+        if (midiNoteLocked && customMidiNote >= 0 && customMidiNote <= 127)
+        {
+            engine.setFixedMidiNote(customMidiNote);
+            currentPresetInfo.fixedMidiNote = customMidiNote;
         }
     }
 
@@ -475,6 +502,7 @@ void AudioPluginAudioProcessor::setFixedMidiNote(int note)
 {
     if (note >= 0 && note <= 127)
     {
+        customMidiNote = note;
         engine.setFixedMidiNote(note);
 
         // Update preset info
@@ -486,6 +514,16 @@ void AudioPluginAudioProcessor::setFixedMidiNote(int note)
 int AudioPluginAudioProcessor::getFixedMidiNote() const
 {
     return engine.getFixedMidiNote();
+}
+
+void AudioPluginAudioProcessor::setMidiNoteLocked(bool locked)
+{
+    midiNoteLocked = locked;
+}
+
+bool AudioPluginAudioProcessor::getMidiNoteLocked() const
+{
+    return midiNoteLocked;
 }
 
 //==============================================================================
