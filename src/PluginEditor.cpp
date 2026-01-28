@@ -36,7 +36,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     // Start timer to update UI
     startTimer(100); // Update every 100ms
 
-    setSize(900, 550);
+    setSize(660, 440);
     setResizable(false, false);
 }
 
