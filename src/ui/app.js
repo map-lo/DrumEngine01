@@ -6,6 +6,7 @@ class DrumEngineUI {
         this.channelStrips = [];
         this.currentPresetIndex = -1;
         this.presetList = [];
+        this.dawOctaveOffset = -2; // Default to Yamaha convention, will be updated from backend
 
         this.initializeElements();
         this.attachEventListeners();
@@ -114,9 +115,9 @@ class DrumEngineUI {
         const octave = parseInt(octaveStr);
         if (isNaN(octave)) return null;
 
-        // Use +2 offset (reverse of -2 used in display) for Ableton/Logic convention
-        // The C++ backend handles actual host detection and conversion
-        const midiNote = (octave + 2) * 12 + noteValue;
+        // Convert using DAW-specific offset (provided by backend)
+        // offset -2: Yamaha (Ableton/Logic), offset -1: Roland (others)
+        const midiNote = (octave - this.dawOctaveOffset) * 12 + noteValue;
 
         return (midiNote >= 0 && midiNote <= 127) ? midiNote : null;
     }
@@ -125,9 +126,8 @@ class DrumEngineUI {
         if (noteNumber < 0 || noteNumber > 127) return 'Invalid';
 
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        // Use -2 offset (Ableton/Logic convention: C3 = MIDI 60)
-        // Note: The C++ backend will detect the actual host and use the correct convention
-        const octave = Math.floor(noteNumber / 12) - 2;
+        // Use DAW-specific offset from backend
+        const octave = Math.floor(noteNumber / 12) + this.dawOctaveOffset;
         const note = noteNumber % 12;
 
         return noteNames[note] + octave;
@@ -469,6 +469,11 @@ class DrumEngineUI {
             // Update MIDI note lock checkbox
             if (this.midiNoteLock) {
                 this.midiNoteLock.checked = info.midiNoteLocked || false;
+            }
+
+            // Update DAW octave offset if provided
+            if (info.dawOctaveOffset !== undefined) {
+                this.dawOctaveOffset = info.dawOctaveOffset;
             }
 
             // Update preset quality indicator

@@ -1,5 +1,6 @@
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "PluginProcessor.h"
+#include "engine/MidiNoteUtils.h"
 #include "BinaryData.h"
 
 // Debug logging helper
@@ -335,6 +336,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("layerCount", info.layerCount);
     presetInfoObj->setProperty("useVelocityToVolume", info.useVelocityToVolume);
     presetInfoObj->setProperty("midiNoteLocked", processorRef.getMidiNoteLocked());
+    presetInfoObj->setProperty("dawOctaveOffset", DrumEngine::MidiNoteUtils::getHostOctaveOffset());
 
     juce::Array<juce::var> slotNamesArray;
     for (const auto &name : info.slotNames)
