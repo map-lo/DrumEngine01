@@ -67,7 +67,8 @@ class DrumEngineUI {
     // Format dB value for display
     formatDb(db) {
         if (db <= -80) return '-∞';
-        return (db >= 0 ? '+' : '') + db.toFixed(1);
+        if (Math.abs(db) < 0.05) return '0.0'; // Show 0.0 with no sign
+        return (db > 0 ? '+' : '') + db.toFixed(1);
     }
 
     // Update preset quality indicator based on available samples
