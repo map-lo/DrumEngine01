@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_core/juce_core.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 #include <unordered_map>
 
 namespace DrumEngine
@@ -9,10 +10,43 @@ namespace DrumEngine
      * Utility functions for MIDI note handling, including:
      * - Default MIDI notes per instrument type (General MIDI standard)
      * - Conversion between MIDI note numbers and note names (e.g., 36 <-> "C1")
+     * - DAW-specific octave offset detection for consistent note naming
      */
     class MidiNoteUtils
     {
     public:
+        /**
+         * Get the octave offset for the current host DAW.
+         * Different DAWs use different octave numbering conventions:
+         * - Ableton Live, Logic Pro: C3 = MIDI 60 (offset = -2)
+         * - Pro Tools, Cubase, FL Studio, Reaper, most others: C4 = MIDI 60 (offset = -1)
+         * @return The octave offset to use for note name conversion
+         */
+        static int getHostOctaveOffset()
+        {
+            static int cachedOffset = -1;
+            static bool offsetCached = false;
+
+            if (offsetCached)
+                return cachedOffset;
+
+            juce::PluginHostType hostType;
+
+            // Ableton Live and Logic Pro use C3 = MIDI 60 (Yamaha convention)
+            if (hostType.isAbletonLive() || hostType.isLogic())
+            {
+                cachedOffset = -2;
+            }
+            // Most other DAWs use C4 = MIDI 60 (Roland convention)
+            else
+            {
+                cachedOffset = -1;
+            }
+
+            offsetCached = true;
+            return cachedOffset;
+        }
+
         /**
          * Get the default MIDI note for an instrument type.
          * Based on General MIDI drum mapping standard.
@@ -49,6 +83,7 @@ namespace DrumEngine
 
         /**
          * Convert a MIDI note number to a note name (e.g., 36 -> "C1")
+         * Uses the host DAW's octave convention automatically.
          * @param noteNumber MIDI note number (0-127)
          * @return Note name string (e.g., "C1", "D#2")
          */
@@ -59,7 +94,7 @@ namespace DrumEngine
 
             static const char *noteNames[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
-            int octave = (noteNumber / 12) - 1;
+            int octave = (noteNumber / 12) + getHostOctaveOffset();
             int note = noteNumber % 12;
 
             return juce::String(noteNames[note]) + juce::String(octave);
@@ -67,6 +102,7 @@ namespace DrumEngine
 
         /**
          * Convert a note name to a MIDI note number (e.g., "C1" -> 36)
+         * Uses the host DAW's octave convention automatically.
          * @param noteName Note name string (e.g., "C1", "D#2")
          * @return MIDI note number (0-127), or -1 if invalid
          */
@@ -105,7 +141,8 @@ namespace DrumEngine
             int noteValue = it->second;
             int octave = octaveStr.getIntValue();
 
-            int midiNote = (octave + 1) * 12 + noteValue;
+            // Apply host-specific octave offset
+            int midiNote = (octave - getHostOctaveOffset()) * 12 + noteValue;
 
             if (midiNote < 0 || midiNote > 127)
                 return -1;

@@ -114,7 +114,9 @@ class DrumEngineUI {
         const octave = parseInt(octaveStr);
         if (isNaN(octave)) return null;
 
-        const midiNote = (octave + 1) * 12 + noteValue;
+        // Use +2 offset (reverse of -2 used in display) for Ableton/Logic convention
+        // The C++ backend handles actual host detection and conversion
+        const midiNote = (octave + 2) * 12 + noteValue;
 
         return (midiNote >= 0 && midiNote <= 127) ? midiNote : null;
     }
@@ -123,7 +125,9 @@ class DrumEngineUI {
         if (noteNumber < 0 || noteNumber > 127) return 'Invalid';
 
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        const octave = Math.floor(noteNumber / 12) - 1;
+        // Use -2 offset (Ableton/Logic convention: C3 = MIDI 60)
+        // Note: The C++ backend will detect the actual host and use the correct convention
+        const octave = Math.floor(noteNumber / 12) - 2;
         const note = noteNumber % 12;
 
         return noteNames[note] + octave;
