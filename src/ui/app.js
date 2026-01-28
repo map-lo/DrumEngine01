@@ -23,12 +23,51 @@ class DrumEngineUI {
         }
     }
 
-    // Convert percentage (0-100) to decibels
-    percentToDb(percent) {
-        if (percent <= 0) return '-∞';
-        const linear = percent / 100.0;
-        const db = 20 * Math.log10(linear);
-        return db.toFixed(1);
+    // Convert fader position (0-100) to decibels using logarithmic curve
+    // Similar to professional analog mixing console faders:
+    // - 100% = +10 dB
+    // - 75% = 0 dB (unity gain)
+    // - 65% = -6 dB
+    // - 50% = -12 dB
+    // - 0% = -∞ dB
+    faderPositionToDb(position) {
+        if (position <= 0) return -80; // Effective -∞
+
+        // Analog-style logarithmic curve
+        // Maps 0-100% fader position to -80dB to +10dB
+        // Unity gain (0dB) at 75% position
+        const minDb = -80;
+        const maxDb = 10;
+        const unityPosition = 75; // 0dB at 75%
+
+        if (position >= unityPosition) {
+            // Above unity: linear scale from 0dB to +10dB
+            const ratio = (position - unityPosition) / (100 - unityPosition);
+            return ratio * maxDb;
+        } else {
+            // Below unity: logarithmic scale from -80dB to 0dB
+            const ratio = position / unityPosition;
+            // Use exponential curve: dB = minDb * (1 - ratio^4)
+            return minDb * Math.pow(1 - ratio, 3);
+        }
+    }
+
+    // Convert decibels to linear gain
+    dbToLinear(db) {
+        if (db <= -80) return 0;
+        return Math.pow(10, db / 20);
+    }
+
+    // Convert fader position to linear gain (for sending to backend)
+    faderPositionToLinear(position) {
+        const db = this.faderPositionToDb(position);
+        return this.dbToLinear(db);
+    }
+
+    // Format dB value for display
+    formatDb(db) {
+        if (db <= -80) return '-∞';
+        return (db >= 0 ? '+' : '') + db.toFixed(1);
     }
 
     // Update preset quality indicator based on available samples
@@ -114,11 +153,12 @@ class DrumEngineUI {
         this.channelStrips.forEach((strip, index) => {
             // Volume fader (invisible range input)
             strip.fader.addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value) / 100.0;
-                const percent = e.target.value;
-                strip.volumeValue.textContent = this.percentToDb(percent) + ' dB';
-                strip.volumeIndicator.style.height = percent + '%';
-                this.sendMessage('setSlotVolume', { slot: index, volume: value });
+                const position = parseFloat(e.target.value);
+                const linear = this.faderPositionToLinear(position);
+                const db = this.faderPositionToDb(position);
+                strip.volumeValue.textContent = this.formatDb(db) + ' dB';
+                strip.volumeIndicator.style.height = position + '%';
+                this.sendMessage('setSlotVolume', { slot: index, volume: linear });
             });
 
             // Make volume indicator interactive (click and drag)
@@ -130,14 +170,15 @@ class DrumEngineUI {
                 const y = e.clientY - rect.top;
                 const height = rect.height;
                 // Invert because bottom = 0, top = 100
-                let percent = Math.round(((height - y) / height) * 100);
-                percent = Math.max(0, Math.min(100, percent));
+                let position = Math.round(((height - y) / height) * 100);
+                position = Math.max(0, Math.min(100, position));
 
-                const value = percent / 100.0;
-                strip.fader.value = percent;
-                strip.volumeValue.textContent = this.percentToDb(percent) + ' dB';
-                strip.volumeIndicator.style.height = percent + '%';
-                this.sendMessage('setSlotVolume', { slot: index, volume: value });
+                const linear = this.faderPositionToLinear(position);
+                const db = this.faderPositionToDb(position);
+                strip.fader.value = position;
+                strip.volumeValue.textContent = this.formatDb(db) + ' dB';
+                strip.volumeIndicator.style.height = position + '%';
+                this.sendMessage('setSlotVolume', { slot: index, volume: linear });
             };
 
             faderContainer.addEventListener('mousedown', (e) => {
@@ -261,11 +302,26 @@ class DrumEngineUI {
                     // Label
                     strip.label.textContent = slot.name || (index + 1);
 
-                    // Volume
-                    const volumePercent = Math.round(slot.volume * 100);
-                    strip.fader.value = volumePercent;
-                    strip.volumeValue.textContent = this.percentToDb(volumePercent) + ' dB';
-                    strip.volumeIndicator.style.height = volumePercent + '%';
+                    // Volume - convert from linear to fader position using inverse curve
+                    const db = 20 * Math.log10(Math.max(0.00001, slot.volume));
+
+                    // Inverse calculation to get fader position from dB
+                    let position;
+                    if (db >= 0) {
+                        // Above unity
+                        position = 75 + (db / 10) * 25;
+                    } else if (db <= -80) {
+                        position = 0;
+                    } else {
+                        // Below unity: solve for position from our exponential curve
+                        // db = -80 * (1 - (position/75))^3
+                        position = 75 * (1 - Math.pow(-db / 80, 1 / 3));
+                    }
+                    position = Math.round(Math.max(0, Math.min(100, position)));
+
+                    strip.fader.value = position;
+                    strip.volumeValue.textContent = this.formatDb(db) + ' dB';
+                    strip.volumeIndicator.style.height = position + '%';
 
                     // Mute button - update for new white/black styling
                     if (slot.muted) {
