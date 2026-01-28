@@ -162,6 +162,30 @@ class DrumEngineUI {
                 this.sendMessage('setSlotVolume', { slot: index, volume: linear });
             });
 
+            // Alt+click to reset fader to 0.0 dB (unity)
+            strip.fader.addEventListener('pointerdown', (e) => {
+                if (e.altKey) {
+                    e.preventDefault();
+                    const unityPosition = 75;
+                    strip.fader.value = unityPosition;
+                    strip.volumeValue.textContent = this.formatDb(0) + ' dB';
+                    strip.volumeIndicator.style.height = unityPosition + '%';
+                    const linear = this.faderPositionToLinear(unityPosition);
+                    this.sendMessage('setSlotVolume', { slot: index, volume: linear });
+                }
+            });
+
+            // Double-click to reset fader to 0.0 dB (unity)
+            strip.fader.addEventListener('dblclick', (e) => {
+                // 0.0 dB is at 75% position
+                const unityPosition = 75;
+                strip.fader.value = unityPosition;
+                strip.volumeValue.textContent = this.formatDb(0) + ' dB';
+                strip.volumeIndicator.style.height = unityPosition + '%';
+                const linear = this.faderPositionToLinear(unityPosition);
+                this.sendMessage('setSlotVolume', { slot: index, volume: linear });
+            });
+
             // Make volume indicator interactive (click and drag)
             const faderContainer = strip.volumeIndicator.parentElement;
             let isDragging = false;
