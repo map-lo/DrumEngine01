@@ -1,4 +1,5 @@
 #include "PresetSchema.h"
+#include "MidiNoteUtils.h"
 
 namespace DrumEngine
 {
@@ -80,12 +81,17 @@ namespace DrumEngine
                 return result;
         }
 
-        // fixedMidiNote (optional, default is 38)
+        // fixedMidiNote (optional, defaults based on instrumentType)
         if (obj->hasProperty("fixedMidiNote"))
         {
             outSchema.fixedMidiNote = obj->getProperty("fixedMidiNote");
             if (outSchema.fixedMidiNote < 0 || outSchema.fixedMidiNote > 127)
                 return juce::Result::fail("fixedMidiNote must be 0..127");
+        }
+        else
+        {
+            // Use default MIDI note based on instrument type
+            outSchema.fixedMidiNote = MidiNoteUtils::getDefaultMidiNoteForInstrument(outSchema.instrumentType);
         }
 
         // useVelocityToVolume (optional, default is false)

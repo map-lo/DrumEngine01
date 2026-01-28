@@ -89,6 +89,10 @@ public:
     void setUseVelocityToVolume(bool enabled);
     bool getUseVelocityToVolume() const;
 
+    // MIDI note override
+    void setFixedMidiNote(int note);
+    int getFixedMidiNote() const;
+
     // Engine access for editor
     const DrumEngine::Engine &getEngine() const { return engine; }
 

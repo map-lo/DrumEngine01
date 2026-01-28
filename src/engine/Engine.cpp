@@ -242,6 +242,29 @@ namespace DrumEngine
         return false;
     }
 
+    void Engine::setFixedMidiNote(int note)
+    {
+        auto *preset = activePreset.load();
+        if (preset && note >= 0 && note <= 127)
+        {
+            preset->setFixedMidiNote(note);
+
+            // Update the cached schema as well
+            juce::ScopedLock lock(schemaLock);
+            currentSchema.fixedMidiNote = note;
+        }
+    }
+
+    int Engine::getFixedMidiNote() const
+    {
+        auto *preset = activePreset.load();
+        if (preset)
+        {
+            return preset->getFixedMidiNote();
+        }
+        return 38; // Default snare
+    }
+
     void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages,
                               bool multiOutEnabled)
     {

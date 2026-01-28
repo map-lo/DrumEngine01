@@ -40,6 +40,11 @@ namespace DrumEngine
         // Accessors
         int getSlotCount() const { return slotCount; }
         int getFixedMidiNote() const { return fixedMidiNote; }
+        void setFixedMidiNote(int note)
+        {
+            if (note >= 0 && note <= 127)
+                fixedMidiNote = note;
+        }
         const std::vector<RuntimeVelocityLayer> &getLayers() const { return layers; }
         bool getUseVelocityToVolume() const { return useVelocityToVolume; }
         void setUseVelocityToVolume(bool enabled) { useVelocityToVolume = enabled; }

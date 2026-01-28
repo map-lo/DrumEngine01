@@ -71,6 +71,121 @@ class DrumEngineUI {
         return (db > 0 ? '+' : '') + db.toFixed(1);
     }
 
+    // MIDI note utilities
+    noteNameToMidiNumber(noteName) {
+        if (!noteName || noteName === '-' || noteName === '') return null;
+
+        const noteMap = {
+            'C': 0, 'C#': 1, 'DB': 1, 'CS': 1,
+            'D': 2, 'D#': 3, 'EB': 3, 'DS': 3,
+            'E': 4,
+            'F': 5, 'F#': 6, 'GB': 6, 'FS': 6,
+            'G': 7, 'G#': 8, 'AB': 8, 'GS': 8,
+            'A': 9, 'A#': 10, 'BB': 10, 'AS': 10,
+            'B': 11
+        };
+
+        const upper = noteName.toUpperCase().trim();
+
+        // Empty or just special chars
+        if (!upper || upper.length === 0) return null;
+
+        // Find where octave number starts
+        let octaveStart = -1;
+        for (let i = 0; i < upper.length; i++) {
+            if ((upper[i] >= '0' && upper[i] <= '9') || upper[i] === '-') {
+                octaveStart = i;
+                break;
+            }
+        }
+
+        // No octave found
+        if (octaveStart === -1) return null;
+
+        // No note name found
+        if (octaveStart === 0) return null;
+
+        const noteStr = upper.substring(0, octaveStart);
+        const octaveStr = upper.substring(octaveStart);
+
+        const noteValue = noteMap[noteStr];
+        if (noteValue === undefined) return null;
+
+        const octave = parseInt(octaveStr);
+        if (isNaN(octave)) return null;
+
+        const midiNote = (octave + 1) * 12 + noteValue;
+
+        return (midiNote >= 0 && midiNote <= 127) ? midiNote : null;
+    }
+
+    midiNumberToNoteName(noteNumber) {
+        if (noteNumber < 0 || noteNumber > 127) return 'Invalid';
+
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const octave = Math.floor(noteNumber / 12) - 1;
+        const note = noteNumber % 12;
+
+        return noteNames[note] + octave;
+    }
+
+    handleMidiNoteChange() {
+        // Null checks for DOM elements
+        if (!this.midiNoteInput) return;
+
+        // Sanitize input: remove any invalid characters, only allow alphanumeric, #, and -
+        let input = this.midiNoteInput.value.trim();
+        input = input.replace(/[^A-Za-z0-9#\-]/g, '');
+
+        // Empty input - don't do anything
+        if (!input || input === '' || input === '-') {
+            // Restore previous value if available
+            if (this.midiNote && this.midiNote.textContent !== '-') {
+                const currentNote = parseInt(this.midiNote.textContent);
+                if (!isNaN(currentNote)) {
+                    this.midiNoteInput.value = this.midiNumberToNoteName(currentNote);
+                }
+            }
+            return;
+        }
+
+        // Try to parse as note name (e.g., "C1", "D#2")
+        let midiNote = this.noteNameToMidiNumber(input);
+
+        // If that didn't work, try parsing as a number
+        if (midiNote === null) {
+            const num = parseInt(input);
+            if (!isNaN(num) && num >= 0 && num <= 127) {
+                midiNote = num;
+            }
+        }
+
+        if (midiNote !== null) {
+            this.sendMessage('setFixedMidiNote', { note: midiNote });
+
+            // Update display to show canonical note name
+            const noteName = this.midiNumberToNoteName(midiNote);
+            this.midiNoteInput.value = noteName;
+
+            // Update the display note number if element exists
+            if (this.midiNote) {
+                this.midiNote.textContent = midiNote.toString();
+            }
+        } else {
+            // Invalid input - restore previous value
+            if (this.midiNote && this.midiNote.textContent !== '-') {
+                const currentNote = parseInt(this.midiNote.textContent);
+                if (!isNaN(currentNote)) {
+                    this.midiNoteInput.value = this.midiNumberToNoteName(currentNote);
+                } else {
+                    this.midiNoteInput.value = '-';
+                }
+            } else {
+                this.midiNoteInput.value = '-';
+            }
+        }
+    }
+
     // Update preset quality indicator based on available samples
     updatePresetQualityIndicator(sampleMap) {
         if (!this.presetQualityIndicator || !sampleMap) return;
@@ -113,6 +228,7 @@ class DrumEngineUI {
         this.presetName = document.getElementById('presetName');
         this.instrumentType = document.getElementById('instrumentType');
         this.midiNote = document.getElementById('midiNote');
+        this.midiNoteInput = document.getElementById('midiNoteInput');
         this.layerCount = document.getElementById('layerCount');
         this.slotCount = document.getElementById('slotCount');
         this.velocityToVolume = document.getElementById('velocityToVolume');
@@ -148,6 +264,38 @@ class DrumEngineUI {
         // Velocity to volume checkbox
         this.velocityToVolume.addEventListener('change', () => {
             this.sendMessage('setVelocityToVolume', { enabled: this.velocityToVolume.checked });
+        });
+
+        // MIDI note input - handle changes (Enter key or blur)
+        this.midiNoteInput.addEventListener('input', (e) => {
+            // Sanitize input in real-time: only allow alphanumeric, #, and - characters
+            const sanitized = e.target.value.replace(/[^A-Za-z0-9#\-]/g, '');
+            if (e.target.value !== sanitized) {
+                e.target.value = sanitized;
+            }
+        });
+
+        this.midiNoteInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.handleMidiNoteChange();
+                this.midiNoteInput.blur(); // Remove focus after enter
+            }
+            // Allow Escape to cancel and restore previous value
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (this.midiNote && this.midiNote.textContent !== '-') {
+                    const currentNote = parseInt(this.midiNote.textContent);
+                    if (!isNaN(currentNote)) {
+                        this.midiNoteInput.value = this.midiNumberToNoteName(currentNote);
+                    }
+                }
+                this.midiNoteInput.blur();
+            }
+        });
+
+        this.midiNoteInput.addEventListener('blur', () => {
+            this.handleMidiNoteChange();
         });
 
         // Channel strip controls
@@ -290,6 +438,9 @@ class DrumEngineUI {
             }
             if (this.midiNote) {
                 this.midiNote.textContent = info.isPresetLoaded ? info.fixedMidiNote.toString() : '-';
+            }
+            if (this.midiNoteInput) {
+                this.midiNoteInput.value = info.isPresetLoaded ? this.midiNumberToNoteName(info.fixedMidiNote) : '-';
             }
             if (this.layerCount) {
                 this.layerCount.textContent = info.layerCount.toString();

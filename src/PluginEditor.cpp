@@ -256,6 +256,21 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
         bool enabled = obj->getProperty("enabled");
         processorRef.setUseVelocityToVolume(enabled);
     }
+    else if (action == "setFixedMidiNote")
+    {
+        int note = obj->getProperty("note");
+        if (note >= 0 && note <= 127)
+        {
+            processorRef.setFixedMidiNote(note);
+            lastStatusMessage = "MIDI note set to " + juce::String(note);
+            statusIsError = false;
+        }
+        else
+        {
+            lastStatusMessage = "Invalid MIDI note: must be 0-127";
+            statusIsError = true;
+        }
+    }
     else if (action == "setSlotVolume")
     {
         int slot = obj->getProperty("slot");

@@ -52,6 +52,10 @@ namespace DrumEngine
         void setUseVelocityToVolume(bool enabled);
         bool getUseVelocityToVolume() const;
 
+        // MIDI note override
+        void setFixedMidiNote(int note);
+        int getFixedMidiNote() const;
+
         // Access to active preset (thread-safe, read-only)
         const RuntimePreset *getActivePreset() const { return activePreset.load(); }
 

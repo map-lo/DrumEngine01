@@ -471,6 +471,23 @@ bool AudioPluginAudioProcessor::getUseVelocityToVolume() const
     return engine.getUseVelocityToVolume();
 }
 
+void AudioPluginAudioProcessor::setFixedMidiNote(int note)
+{
+    if (note >= 0 && note <= 127)
+    {
+        engine.setFixedMidiNote(note);
+
+        // Update preset info
+        juce::ScopedLock lock(presetInfoLock);
+        currentPresetInfo.fixedMidiNote = note;
+    }
+}
+
+int AudioPluginAudioProcessor::getFixedMidiNote() const
+{
+    return engine.getFixedMidiNote();
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()
