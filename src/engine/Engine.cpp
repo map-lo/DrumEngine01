@@ -265,6 +265,13 @@ namespace DrumEngine
         return 38; // Default snare
     }
 
+    void Engine::setPitchShift(float semitones)
+    {
+        // Clamp to -6 to +6
+        semitones = juce::jlimit(-6.0f, 6.0f, semitones);
+        pitchShiftSemitones.store(semitones);
+    }
+
     void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages,
                               bool multiOutEnabled)
     {
@@ -367,9 +374,12 @@ namespace DrumEngine
             // Set slot index for routing
             voice->slotIndex = slotIdx;
 
+            // Calculate playback rate from pitch shift
+            float playbackRate = std::pow(2.0f, pitchShiftSemitones.load() / 12.0f);
+
             // Start voice with just velocity gain (not slot gain)
             // Slot gain (volume/mute/solo) will be applied only to mix during render
-            voice->start(sample, gain, fadeLenSamples);
+            voice->start(sample, gain, fadeLenSamples, playbackRate);
             newGroup.voices[slotIdx] = voice;
         }
 

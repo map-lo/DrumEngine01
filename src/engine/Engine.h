@@ -56,6 +56,10 @@ namespace DrumEngine
         void setFixedMidiNote(int note);
         int getFixedMidiNote() const;
 
+        // Pitch shift (semitones, -6 to +6)
+        void setPitchShift(float semitones);
+        float getPitchShift() const { return pitchShiftSemitones.load(); }
+
         // Access to active preset (thread-safe, read-only)
         const RuntimePreset *getActivePreset() const { return activePreset.load(); }
 
@@ -83,6 +87,9 @@ namespace DrumEngine
         std::array<bool, 8> slotMuted = {};
         std::array<bool, 8> slotSoloed = {};
         bool anySoloed = false;
+
+        // Pitch shift
+        std::atomic<float> pitchShiftSemitones{0.0f};
 
         // Voice management
         VoicePool voicePool;

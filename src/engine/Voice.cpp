@@ -6,12 +6,13 @@ namespace DrumEngine
     //==============================================================================
     // MicVoice
 
-    void MicVoice::start(std::shared_ptr<SampleRef> sample, float startGain, int fadeLenSamps)
+    void MicVoice::start(std::shared_ptr<SampleRef> sample, float startGain, int fadeLenSamps, float rate)
     {
         currentSample = sample;
         gain = startGain;
         fadeLenSamples = fadeLenSamps;
-        playbackFrame = 0;
+        playbackPosition = 0.0;
+        playbackRate = rate;
         fadePosition = 0;
         state = State::Playing;
     }
@@ -29,7 +30,8 @@ namespace DrumEngine
     {
         state = State::Inactive;
         currentSample = nullptr;
-        playbackFrame = 0;
+        playbackPosition = 0.0;
+        playbackRate = 1.0f;
         fadePosition = 0;
     }
 
@@ -75,14 +77,38 @@ namespace DrumEngine
 
             if (state == State::Playing)
             {
-                // Read from sample
-                if (playbackFrame < currentSample->getTotalFrames())
+                // Read from sample with cubic interpolation
+                if (playbackPosition < currentSample->getTotalFrames() - 1)
                 {
-                    currentSample->getFrame(playbackFrame, sampleLeft, sampleRight);
-                    playbackFrame++;
+                    int idx = static_cast<int>(playbackPosition);
+                    float frac = static_cast<float>(playbackPosition - idx);
+
+                    // Get 4 samples for cubic interpolation (handle boundaries)
+                    float L[4], R[4];
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        int sampleIdx = idx + j - 1;
+                        sampleIdx = juce::jlimit(0, static_cast<int>(currentSample->getTotalFrames() - 1), sampleIdx);
+                        currentSample->getFrame(sampleIdx, L[j], R[j]);
+                    }
+
+                    // Cubic interpolation (Catmull-Rom)
+                    auto cubicInterp = [](float y0, float y1, float y2, float y3, float mu)
+                    {
+                        float a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
+                        float a1 = y0 - 2.5f * y1 + 2.0f * y2 - 0.5f * y3;
+                        float a2 = -0.5f * y0 + 0.5f * y2;
+                        float a3 = y1;
+                        return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
+                    };
+
+                    sampleLeft = cubicInterp(L[0], L[1], L[2], L[3], frac);
+                    sampleRight = cubicInterp(R[0], R[1], R[2], R[3], frac);
+
+                    playbackPosition += playbackRate;
 
                     // Check if reached EOF
-                    if (playbackFrame >= currentSample->getTotalFrames())
+                    if (playbackPosition >= currentSample->getTotalFrames())
                     {
                         beginRelease();
                     }

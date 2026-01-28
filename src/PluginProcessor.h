@@ -93,6 +93,10 @@ public:
     void setFixedMidiNote(int note);
     int getFixedMidiNote() const;
 
+    // Pitch shift
+    void setPitchShift(float semitones);
+    float getPitchShift() const { return pitchShift; }
+
     // MIDI note lock (prevents preset changes from overriding custom note)
     void setMidiNoteLocked(bool locked);
     bool getMidiNoteLocked() const;
@@ -133,6 +137,9 @@ private:
     // MIDI note lock and custom note
     bool midiNoteLocked = false;
     int customMidiNote = -1; // -1 means use preset default
+
+    // Pitch shift
+    float pitchShift = 0.0f;
 
     // Hit listeners
     juce::ListenerList<HitListener> hitListeners;

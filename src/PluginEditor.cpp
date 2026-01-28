@@ -279,6 +279,11 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
         lastStatusMessage = locked ? "MIDI note locked" : "MIDI note unlocked";
         statusIsError = false;
     }
+    else if (action == "setPitchShift")
+    {
+        float semitones = obj->getProperty("semitones");
+        processorRef.setPitchShift(semitones);
+    }
     else if (action == "setSlotVolume")
     {
         int slot = obj->getProperty("slot");
@@ -337,6 +342,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("useVelocityToVolume", info.useVelocityToVolume);
     presetInfoObj->setProperty("midiNoteLocked", processorRef.getMidiNoteLocked());
     presetInfoObj->setProperty("dawOctaveOffset", DrumEngine::MidiNoteUtils::getHostOctaveOffset());
+    presetInfoObj->setProperty("pitchShift", processorRef.getPitchShift());
 
     juce::Array<juce::var> slotNamesArray;
     for (const auto &name : info.slotNames)

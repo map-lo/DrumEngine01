@@ -281,6 +281,20 @@ class DrumEngineUI {
             });
         }
 
+        // Pitch shift control
+        this.pitchShift = document.getElementById('pitchShift');
+        this.pitchValue = document.getElementById('pitchValue');
+        if (this.pitchShift) {
+            this.pitchShift.addEventListener('input', () => {
+                const value = parseFloat(this.pitchShift.value);
+                this.sendMessage('setPitchShift', { semitones: value });
+                if (this.pitchValue) {
+                    const sign = value >= 0 ? '+' : '';
+                    this.pitchValue.textContent = sign + value.toFixed(1) + 'st';
+                }
+            });
+        }
+
         // MIDI note input - handle changes (Enter key or blur)
         this.midiNoteInput.addEventListener('input', (e) => {
             // Sanitize input in real-time: only allow alphanumeric, #, and - characters
@@ -489,6 +503,15 @@ class DrumEngineUI {
             // Update DAW octave offset if provided
             if (info.dawOctaveOffset !== undefined) {
                 this.dawOctaveOffset = info.dawOctaveOffset;
+            }
+
+            // Update pitch shift
+            if (this.pitchShift && info.pitchShift !== undefined) {
+                this.pitchShift.value = info.pitchShift;
+                if (this.pitchValue) {
+                    const sign = info.pitchShift >= 0 ? '+' : '';
+                    this.pitchValue.textContent = sign + info.pitchShift.toFixed(1) + 'st';
+                }
             }
 
             // Update preset quality indicator

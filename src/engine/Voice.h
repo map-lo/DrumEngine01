@@ -21,7 +21,7 @@ namespace DrumEngine
 
         MicVoice() = default;
 
-        void start(std::shared_ptr<SampleRef> sample, float gain, int fadeLenSamples);
+        void start(std::shared_ptr<SampleRef> sample, float gain, int fadeLenSamples, float rate = 1.0f);
         void beginRelease();
         void reset();
 
@@ -36,7 +36,8 @@ namespace DrumEngine
     private:
         State state = State::Inactive;
         std::shared_ptr<SampleRef> currentSample;
-        juce::int64 playbackFrame = 0;
+        double playbackPosition = 0.0;
+        float playbackRate = 1.0f;
         float gain = 1.0f;
 
         // Fade-out state

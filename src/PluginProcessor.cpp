@@ -215,6 +215,9 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
         xml.setAttribute("customMidiNote", customMidiNote);
     }
 
+    // Save pitch shift
+    xml.setAttribute("pitchShift", pitchShift);
+
     // Save slot states
     auto *slotsXml = xml.createNewChildElement("SlotStates");
     for (int i = 0; i < 8; ++i)
@@ -315,6 +318,14 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
                     }
                 }
 
+                // Restore pitch shift
+                if (xml->hasAttribute("pitchShift"))
+                {
+                    float pitch = static_cast<float>(xml->getDoubleAttribute("pitchShift", 0.0));
+                    setPitchShift(pitch);
+                    debugStream << "  Restored pitch shift: " << pitch << "\n";
+                }
+
                 // Debug: log active slots
                 debugStream << "  Active slots: ";
                 for (int i = 0; i < 8; ++i)
@@ -406,6 +417,9 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
             engine.setFixedMidiNote(customMidiNote);
             currentPresetInfo.fixedMidiNote = customMidiNote;
         }
+
+        // Reset pitch shift when loading preset
+        setPitchShift(0.0f);
     }
 
     return result;
@@ -534,6 +548,12 @@ void AudioPluginAudioProcessor::setMidiNoteLocked(bool locked)
 bool AudioPluginAudioProcessor::getMidiNoteLocked() const
 {
     return midiNoteLocked;
+}
+
+void AudioPluginAudioProcessor::setPitchShift(float semitones)
+{
+    pitchShift = juce::jlimit(-6.0f, 6.0f, semitones);
+    engine.setPitchShift(pitchShift);
 }
 
 //==============================================================================

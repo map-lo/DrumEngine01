@@ -529,20 +529,33 @@
             type="text"
             id="midiNoteInput"
             value="D1"
-            class="w-8 text-[10px] text-center ml-1 bg-black !text-white"
+            class="w-8 text-[10px] text-center ml-1 py-0.5 bg-black !text-white"
           />
         </label>
         <span id="midiNoteLock" class="text-[10px] px-2 py-0.5 text-gray-400">
           Lock MIDI
         </span>
-        <span id="outputMode" class="text-[10px] px-2 py-0.5 text-gray-400">
-          Multi-Out (8x Stereo)
-        </span>
+        <label class="flex items-center gap-1 mb-[2px]">
+          <span class="text-[10px]">Pitch</span>
+          <input
+            type="range"
+            id="pitchShift"
+            min="-6"
+            max="6"
+            step="0.1"
+            value="0"
+            class="w-16 h-1"
+          />
+          <span id="pitchValue" class="text-[10px] w-8 text-right">0.0st</span>
+        </label>
         <span
           id="velocityToVolume"
           class="text-[10px] px-2 py-0.5 text-gray-400"
         >
           Velocity→Volume
+        </span>
+        <span id="outputMode" class="text-[10px] px-2 py-0.5 text-gray-400">
+          Multi-Out
         </span>
       </div>
     </div>
