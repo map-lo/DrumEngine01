@@ -223,6 +223,9 @@ class DrumEngineUI {
         this.nextPresetBtn = document.getElementById('nextPresetBtn');
         this.loadPresetBtn = document.getElementById('loadPresetBtn');
         this.outputMode = document.getElementById('outputMode');
+        this.pluginTitle = document.getElementById('pluginTitle');
+        this.presetInfo = document.getElementById('presetInfo');
+        this.presetDisplay = document.getElementById('presetDisplay');
 
         // Preset quality indicator
         this.presetQualityIndicator = document.querySelector('.preset-quality-indicator');
@@ -300,7 +303,7 @@ class DrumEngineUI {
                 this.sendMessage('setPitchShift', { semitones: rounded });
 
                 if (this.pitchValue) {
-                    const sign = rounded >= 0 ? '+' : '';
+                    const sign = rounded === 0 ? '' : (rounded > 0 ? '+' : '');
                     this.pitchValue.textContent = sign + rounded.toFixed(1) + 'st';
                 }
                 if (this.pitchIndicator) {
@@ -315,7 +318,7 @@ class DrumEngineUI {
                     this.pitchShiftValue = 0.0;
                     this.sendMessage('setPitchShift', { semitones: 0 });
                     if (this.pitchValue) {
-                        this.pitchValue.textContent = '+0.0st';
+                        this.pitchValue.textContent = '0.0st';
                     }
                     if (this.pitchIndicator) {
                         this.pitchIndicator.style.width = '50%';
@@ -345,6 +348,19 @@ class DrumEngineUI {
                 if (isDragging) {
                     isDragging = false;
                     this.pitchSliderContainer.releasePointerCapture(e.pointerId);
+                }
+            });
+
+            // Double-click to reset pitch to 0
+            this.pitchSliderContainer.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                this.pitchShiftValue = 0.0;
+                this.sendMessage('setPitchShift', { semitones: 0 });
+                if (this.pitchValue) {
+                    this.pitchValue.textContent = '0.0st';
+                }
+                if (this.pitchIndicator) {
+                    this.pitchIndicator.style.width = '50%';
                 }
             });
         }
@@ -513,6 +529,22 @@ class DrumEngineUI {
         if (state.presetInfo) {
             const info = state.presetInfo;
 
+            // Toggle between plugin title and preset info display
+            if (this.pluginTitle && this.presetInfo) {
+                if (info.isPresetLoaded) {
+                    this.pluginTitle.classList.add('hidden');
+                    this.presetInfo.classList.remove('hidden');
+                } else {
+                    this.pluginTitle.classList.remove('hidden');
+                    this.presetInfo.classList.add('hidden');
+                }
+            }
+
+            if (this.presetDisplay) {
+                this.presetDisplay.textContent = info.isPresetLoaded
+                    ? `[${info.instrumentType}] ${info.presetName}`
+                    : '[Empty]';
+            }
             if (this.presetName) {
                 this.presetName.textContent = info.isPresetLoaded ? info.presetName : 'None';
             }
@@ -551,7 +583,7 @@ class DrumEngineUI {
             if (info.pitchShift !== undefined) {
                 this.pitchShiftValue = info.pitchShift;
                 if (this.pitchValue) {
-                    const sign = info.pitchShift >= 0 ? '+' : '';
+                    const sign = info.pitchShift === 0 ? '' : (info.pitchShift > 0 ? '+' : '');
                     this.pitchValue.textContent = sign + info.pitchShift.toFixed(1) + 'st';
                 }
                 if (this.pitchIndicator) {
