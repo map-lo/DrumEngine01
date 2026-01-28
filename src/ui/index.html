@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body
-    class="bg-white text-black font-bold select-none cursor-pointer! h-full overflow-hidden"
+    class="bg-white text-black font-bold select-none !cursor-default h-full overflow-hidden"
   >
     <div class="m-[2px] h-full flex flex-col justify-end">
       <!-- Toolbar -->
@@ -15,7 +15,7 @@
         <div class="bg-black shrink overflow-hidden flex items-center">
           <select
             id="presetBrowser"
-            class="font-semibold grow mx-2 bg-black text-white border-none outline-none cursor-pointer"
+            class="font-semibold grow mx-2 bg-black text-white border-none outline-none"
           >
             <option value="">-- Select Preset --</option>
           </select>
@@ -23,7 +23,7 @@
 
         <button
           id="prevPresetBtn"
-          class="px-2 py-1 hover:bg-gray-700 cursor-pointer bg-black text-white"
+          class="px-2 py-1 hover:bg-gray-700 bg-black text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +41,7 @@
 
         <button
           id="nextPresetBtn"
-          class="px-2 py-1 hover:bg-gray-700 cursor-pointer bg-black text-white"
+          class="px-2 py-1 hover:bg-gray-700 bg-black text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -59,7 +59,7 @@
 
         <button
           id="loadPresetBtn"
-          class="bg-black flex justify-center items-center hover:bg-gray-700 cursor-pointer px-2"
+          class="bg-black flex justify-center items-center hover:bg-gray-700 px-2"
         >
           <span class="font-semibold">LOAD</span>
         </button>
@@ -255,7 +255,7 @@
             <span id="slotCount">0</span>
           </div>
           <div>
-            <label class="cursor-pointer">
+            <label class="">
               <input type="checkbox" id="velocityToVolume" class="mr-1" />
               <span>Velocity→Volume</span>
             </label>
@@ -277,7 +277,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -309,7 +309,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -341,7 +341,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -373,7 +373,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -405,7 +405,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -437,7 +437,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -469,7 +469,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -501,7 +501,7 @@
           >
             <input
               type="range"
-              class="volume-fader absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              class="volume-fader absolute inset-0 w-full h-full opacity-0"
               orient="vertical"
               min="0"
               max="100"
@@ -522,8 +522,8 @@
         </div>
       </div>
 
-      <div class="flex gap-6 items-center justify-end mr-4 mb-2">
-        <label class="cursor-pointer">
+      <div class="flex gap-3 items-end justify-end mr-4 mb-2">
+        <label class="">
           <span class="text-[10px]">Midi Note</span>
           <input
             type="text"
@@ -532,18 +532,18 @@
             class="w-8 text-[10px] text-center ml-1 bg-black !text-white"
           />
         </label>
-        <label class="cursor-pointer">
-          <span class="text-[10px]">Lock MIDI</span>
-          <input type="checkbox" id="midiNoteLock" class="ml-1" />
-        </label>
-        <label class="cursor-pointer">
-          <span class="text-[10px]">Multi-Out (8x Stereo)</span>
-          <input type="checkbox" id="outputMode" class="ml-1" />
-        </label>
-        <label class="cursor-pointer">
-          <span class="text-[10px]">Velocity→Volume</span>
-          <input type="checkbox" id="velocityToVolume" class="ml-1" />
-        </label>
+        <span id="midiNoteLock" class="text-[10px] px-2 py-0.5 text-gray-400">
+          Lock MIDI
+        </span>
+        <span id="outputMode" class="text-[10px] px-2 py-0.5 text-gray-400">
+          Multi-Out (8x Stereo)
+        </span>
+        <span
+          id="velocityToVolume"
+          class="text-[10px] px-2 py-0.5 text-gray-400"
+        >
+          Velocity→Volume
+        </span>
       </div>
     </div>
     <script src="app.js"></script>

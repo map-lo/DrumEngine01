@@ -519,6 +519,16 @@ int AudioPluginAudioProcessor::getFixedMidiNote() const
 void AudioPluginAudioProcessor::setMidiNoteLocked(bool locked)
 {
     midiNoteLocked = locked;
+
+    // If locking and we don't have a custom note yet, capture the current preset's note
+    if (locked && customMidiNote < 0)
+    {
+        int currentNote = engine.getFixedMidiNote();
+        if (currentNote >= 0 && currentNote <= 127)
+        {
+            customMidiNote = currentNote;
+        }
+    }
 }
 
 bool AudioPluginAudioProcessor::getMidiNoteLocked() const

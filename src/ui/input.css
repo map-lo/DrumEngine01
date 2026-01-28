@@ -42,3 +42,10 @@
 .preset-quality-indicator > div.hit-flash {
   background-color: white !important;
 }
+
+button,
+input,
+select,
+textarea {
+  cursor: default;
+}
