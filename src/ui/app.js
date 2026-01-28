@@ -259,25 +259,21 @@ class DrumEngineUI {
         this.nextPresetBtn.addEventListener('click', () => this.sendMessage('loadNextPreset'));
         this.loadPresetBtn.addEventListener('click', () => this.sendMessage('browseForPreset'));
 
-        // Output mode toggle
-        this.outputMode.addEventListener('click', () => {
-            const isMultiOut = this.outputMode.classList.contains('bg-black');
-            const mode = isMultiOut ? 'stereo' : 'multiout';
-            this.sendMessage('setOutputMode', { mode: mode });
+        // Output mode checkbox
+        this.outputMode.addEventListener('change', () => {
+            this.sendMessage('setOutputMode', { mode: this.outputMode.checked ? 'multiout' : 'stereo' });
         });
 
-        // Velocity to volume toggle
-        this.velocityToVolume.addEventListener('click', () => {
-            const isEnabled = this.velocityToVolume.classList.contains('bg-black');
-            this.sendMessage('setVelocityToVolume', { enabled: !isEnabled });
+        // Velocity to volume checkbox
+        this.velocityToVolume.addEventListener('change', () => {
+            this.sendMessage('setVelocityToVolume', { enabled: this.velocityToVolume.checked });
         });
 
-        // MIDI note lock toggle
+        // MIDI note lock checkbox
         this.midiNoteLock = document.getElementById('midiNoteLock');
         if (this.midiNoteLock) {
-            this.midiNoteLock.addEventListener('click', () => {
-                const isLocked = this.midiNoteLock.classList.contains('bg-black');
-                this.sendMessage('setMidiNoteLocked', { locked: !isLocked });
+            this.midiNoteLock.addEventListener('change', () => {
+                this.sendMessage('setMidiNoteLocked', { locked: this.midiNoteLock.checked });
             });
         }
 
@@ -478,26 +474,14 @@ class DrumEngineUI {
                 this.slotCount.textContent = info.slotCount.toString();
             }
 
-            // Update velocity toggle
+            // Update velocity checkbox
             if (this.velocityToVolume) {
-                if (info.useVelocityToVolume) {
-                    this.velocityToVolume.classList.add('bg-black', 'text-white');
-                    this.velocityToVolume.classList.remove('text-gray-400');
-                } else {
-                    this.velocityToVolume.classList.remove('bg-black', 'text-white');
-                    this.velocityToVolume.classList.add('text-gray-400');
-                }
+                this.velocityToVolume.checked = info.useVelocityToVolume;
             }
 
-            // Update MIDI note lock toggle
+            // Update MIDI note lock checkbox
             if (this.midiNoteLock) {
-                if (info.midiNoteLocked) {
-                    this.midiNoteLock.classList.add('bg-black', 'text-white');
-                    this.midiNoteLock.classList.remove('text-gray-400');
-                } else {
-                    this.midiNoteLock.classList.remove('bg-black', 'text-white');
-                    this.midiNoteLock.classList.add('text-gray-400');
-                }
+                this.midiNoteLock.checked = info.midiNoteLocked || false;
             }
 
             // Update DAW octave offset if provided
@@ -580,15 +564,9 @@ class DrumEngineUI {
             });
         }
 
-        // Update output mode toggle
+        // Update output mode checkbox
         if (state.outputMode && this.outputMode) {
-            if (state.outputMode === 'multiout') {
-                this.outputMode.classList.add('bg-black', 'text-white');
-                this.outputMode.classList.remove('text-gray-400');
-            } else {
-                this.outputMode.classList.remove('bg-black', 'text-white');
-                this.outputMode.classList.add('text-gray-400');
-            }
+            this.outputMode.checked = (state.outputMode === 'multiout');
         }
 
         // Update current preset index
