@@ -61,8 +61,28 @@ class PresetBrowserUI {
     updateState(state) {
         if (typeof state.currentPresetIndex !== 'undefined') {
             this.currentPresetIndex = state.currentPresetIndex;
-            this.renderPresetList();
+            this.updateSelection();
         }
+    }
+
+    updateSelection() {
+        // Update only the selected styling without re-rendering the entire list
+        if (!this.listContainer) return;
+
+        const buttons = this.listContainer.querySelectorAll('button');
+        buttons.forEach((button, index) => {
+            const preset = this.filteredPresets[index];
+            if (!preset) return;
+
+            const isSelected = preset.index === this.currentPresetIndex;
+            if (isSelected) {
+                button.classList.add('bg-white', '!bg-opacity-30');
+                button.classList.remove('bg-black');
+            } else {
+                button.classList.remove('bg-white', '!bg-opacity-30');
+                button.classList.add('bg-black');
+            }
+        });
     }
 
     render() {
@@ -151,6 +171,11 @@ class PresetBrowserUI {
         const filtered = this.getTagFilteredPresets();
         this.filteredPresets = filtered;
 
+        // Track which button should be focused after render
+        const focusedIndex = this.listContainer.querySelector('button:focus')
+            ? Array.from(this.listContainer.querySelectorAll('button')).indexOf(this.listContainer.querySelector('button:focus'))
+            : -1;
+
         this.listContainer.innerHTML = '';
 
         if (filtered.length === 0) {
@@ -161,7 +186,7 @@ class PresetBrowserUI {
             return;
         }
 
-        filtered.forEach((preset) => {
+        filtered.forEach((preset, arrayIndex) => {
             const item = document.createElement('button');
             const isSelected = preset.index === this.currentPresetIndex;
             item.className = [
@@ -176,8 +201,15 @@ class PresetBrowserUI {
                 'hover:bg-white',
                 'hover:bg-opacity-20',
                 'hover:text-white',
+                'focus:outline-none',
+                'focus:ring-2',
+                'focus:ring-white',
+                'focus:ring-opacity-50',
                 isSelected ? 'bg-white !bg-opacity-30' : 'bg-black'
             ].join(' ');
+
+            // Make button keyboard focusable
+            item.tabIndex = 0;
 
             // Split displayName for prefix and main name
             const displayName = preset.displayName || '';
@@ -203,10 +235,52 @@ class PresetBrowserUI {
             item.addEventListener('click', () => {
                 this.currentPresetIndex = preset.index;
                 this.sendMessage('loadPresetByIndex', { index: preset.index });
-                this.renderPresetList();
+                this.updateSelection();
             });
+
+            // Keyboard navigation for arrow keys
+            item.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (arrayIndex < this.filteredPresets.length - 1) {
+                        const nextPreset = this.filteredPresets[arrayIndex + 1];
+                        this.currentPresetIndex = nextPreset.index;
+                        this.sendMessage('loadPresetByIndex', { index: nextPreset.index });
+                        this.updateSelection();
+                        // Focus the next button
+                        const buttons = this.listContainer.querySelectorAll('button');
+                        if (buttons[arrayIndex + 1]) {
+                            buttons[arrayIndex + 1].focus();
+                        }
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (arrayIndex > 0) {
+                        const prevPreset = this.filteredPresets[arrayIndex - 1];
+                        this.currentPresetIndex = prevPreset.index;
+                        this.sendMessage('loadPresetByIndex', { index: prevPreset.index });
+                        this.updateSelection();
+                        // Focus the previous button
+                        const buttons = this.listContainer.querySelectorAll('button');
+                        if (buttons[arrayIndex - 1]) {
+                            buttons[arrayIndex - 1].focus();
+                        }
+                    }
+                }
+            });
+
             this.listContainer.appendChild(item);
         });
+
+        // Restore focus if a button was focused before
+        if (focusedIndex >= 0 && focusedIndex < this.listContainer.children.length) {
+            setTimeout(() => {
+                const buttons = this.listContainer.querySelectorAll('button');
+                if (buttons[focusedIndex]) {
+                    buttons[focusedIndex].focus();
+                }
+            }, 0);
+        }
     }
 }
 
