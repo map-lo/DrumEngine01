@@ -203,7 +203,28 @@ class PresetBrowserUI {
                 'hover:text-white',
                 isSelected ? 'bg-white !bg-opacity-30' : 'bg-black'
             ].join(' ');
-            item.textContent = preset.displayName;
+
+            // Split displayName for prefix and main name
+            const displayName = preset.displayName || '';
+            const lastSlash = displayName.lastIndexOf('/');
+            let prefix = '';
+            let mainName = displayName;
+            if (lastSlash !== -1) {
+                prefix = displayName.substring(0, lastSlash).replace('kits/', '');
+                mainName = displayName.substring(lastSlash + 1);
+            }
+
+            // Prefix div
+            const prefixDiv = document.createElement('div');
+            prefixDiv.className = 'text-[8px] font-semibold text-white text-opacity-70';
+            prefixDiv.textContent = prefix;
+            // Main name div (only after last slash)
+            const nameDiv = document.createElement('div');
+            nameDiv.textContent = mainName;
+
+            item.appendChild(prefixDiv);
+            item.appendChild(nameDiv);
+
             item.addEventListener('click', () => {
                 this.currentPresetIndex = preset.index;
                 this.sendMessage('loadPresetByIndex', { index: preset.index });
