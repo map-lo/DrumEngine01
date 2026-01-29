@@ -40,7 +40,7 @@
 }
 
 .preset-quality-indicator > div.hit-flash {
-  background-color: white !important;
+  background-color: transparent !important;
 }
 
 button,

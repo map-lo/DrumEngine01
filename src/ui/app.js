@@ -641,19 +641,19 @@ class DrumEngineUI {
                     // Mute button - update for new white/black styling
                     if (slot.muted) {
                         strip.muteBtn.classList.add('bg-red-600', 'text-white');
-                        strip.muteBtn.classList.remove('bg-white', 'text-black');
+                        strip.muteBtn.classList.remove('text-black');
                     } else {
                         strip.muteBtn.classList.remove('bg-red-600', 'text-white');
-                        strip.muteBtn.classList.add('bg-white', 'text-black');
+                        strip.muteBtn.classList.add('text-black');
                     }
 
                     // Solo button - update for new white/yellow styling
                     if (slot.soloed) {
                         strip.soloBtn.classList.add('bg-yellow-400');
-                        strip.soloBtn.classList.remove('bg-white');
+                        strip.soloBtn.classList.remove();
                     } else {
                         strip.soloBtn.classList.remove('bg-yellow-400');
-                        strip.soloBtn.classList.add('bg-white');
+                        strip.soloBtn.classList.add();
                     }
                 }
             });
