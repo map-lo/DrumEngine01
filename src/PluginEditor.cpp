@@ -2,7 +2,6 @@
 #include "PluginProcessor.h"
 #include "engine/MidiNoteUtils.h"
 #include "BinaryData.h"
-#include <functional>
 
 // Debug logging helper
 static void logToFile(const juce::String &message)
@@ -15,78 +14,6 @@ static void logToFile(const juce::String &message)
 
     logFile.appendText(logLine);
 }
-
-static juce::String extractInstrumentTypeFromPreset(const juce::File &presetFile,
-                                                    const juce::String &fallback)
-{
-    auto jsonText = presetFile.loadFileAsString();
-    if (jsonText.isEmpty())
-        return fallback;
-
-    juce::var json;
-    auto result = juce::JSON::parse(jsonText, json);
-    if (!result.wasOk() || !json.isObject())
-        return fallback;
-
-    if (auto *obj = json.getDynamicObject())
-    {
-        if (obj->hasProperty("instrumentType"))
-            return obj->getProperty("instrumentType").toString();
-        if (obj->hasProperty("instrument_type"))
-            return obj->getProperty("instrument_type").toString();
-    }
-
-    return fallback;
-}
-
-class PresetBrowserContent final : public juce::Component
-{
-public:
-    explicit PresetBrowserContent(juce::WebBrowserComponent &webViewIn)
-        : webView(webViewIn)
-    {
-        addAndMakeVisible(webView);
-    }
-
-    void resized() override
-    {
-        webView.setBounds(getLocalBounds());
-    }
-
-private:
-    juce::WebBrowserComponent &webView;
-};
-
-class PresetBrowserWindow final : public juce::DocumentWindow
-{
-public:
-    PresetBrowserWindow(const juce::String &name,
-                        std::unique_ptr<juce::WebBrowserComponent> webViewIn,
-                        std::function<void()> onCloseIn)
-        : DocumentWindow(name, juce::Colours::black, juce::DocumentWindow::closeButton),
-          webView(std::move(webViewIn)),
-          onClose(std::move(onCloseIn))
-    {
-        setUsingNativeTitleBar(true);
-        setResizable(true, false);
-        setContentOwned(new PresetBrowserContent(*webView), true);
-    }
-
-    void closeButtonPressed() override
-    {
-        if (onClose)
-            onClose();
-    }
-
-    juce::WebBrowserComponent *getWebView() const
-    {
-        return webView.get();
-    }
-
-private:
-    std::unique_ptr<juce::WebBrowserComponent> webView;
-    std::function<void()> onClose;
-};
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p)
@@ -125,22 +52,6 @@ juce::File AudioPluginAudioProcessorEditor::getUIDirectory()
     logToFile("UI Directory exists: " + juce::String(uiDir.exists() ? "YES" : "NO"));
 
     return uiDir;
-}
-
-juce::String AudioPluginAudioProcessorEditor::buildInlineHtml(const juce::String &html,
-                                                              const juce::String &css,
-                                                              const juce::String &js) const
-{
-    juce::String fullHtml = html;
-    fullHtml = fullHtml.replace("</head>", "<style>" + css + "</style></head>");
-    fullHtml = fullHtml.replace("</body>", "<script>" + js + "</script></body>");
-
-    fullHtml = fullHtml.replace("<link rel=\"stylesheet\" href=\"styles.css\" />", "");
-    fullHtml = fullHtml.replace("<link rel=\"stylesheet\" href=\"styles.css\">", "");
-    fullHtml = fullHtml.replace("<script src=\"app.js\"></script>", "");
-    fullHtml = fullHtml.replace("<script src=\"preset-browser.js\"></script>", "");
-
-    return fullHtml;
 }
 
 void AudioPluginAudioProcessorEditor::setupWebViewForDevelopment()
@@ -196,19 +107,25 @@ void AudioPluginAudioProcessorEditor::setupWebViewForProduction()
     juce::String html(BinaryData::index_html, static_cast<size_t>(BinaryData::index_htmlSize));
     juce::String css(BinaryData::styles_css, static_cast<size_t>(BinaryData::styles_cssSize));
     juce::String js(BinaryData::app_js, static_cast<size_t>(BinaryData::app_jsSize));
-    juce::String presetBrowserHtml(BinaryData::presetbrowser_html,
-                                   static_cast<size_t>(BinaryData::presetbrowser_htmlSize));
-    juce::String presetBrowserJs(BinaryData::presetbrowser_js,
-                                 static_cast<size_t>(BinaryData::presetbrowser_jsSize));
 
     // Modify JavaScript to use JUCE event listener instead of postMessage
     js = js.replace(
         "window.juce.postMessage(JSON.stringify(message));",
         "window.__JUCE__.backend.emitEvent('fromWebView', message);");
 
-    // Store HTML content for resource providers
-    htmlContent = buildInlineHtml(html, css, js);
-    presetBrowserHtmlContent = buildInlineHtml(presetBrowserHtml, css, presetBrowserJs);
+    // Create complete HTML with inline CSS and JS
+    juce::String fullHtml = html;
+    fullHtml = fullHtml.replace("</head>",
+                                "<style>" + css + "</style></head>");
+    fullHtml = fullHtml.replace("</body>",
+                                "<script>" + js + "</script></body>");
+
+    // Remove external references
+    fullHtml = fullHtml.replace("<link rel=\"stylesheet\" href=\"styles.css\">", "");
+    fullHtml = fullHtml.replace("<script src=\"app.js\"></script>", "");
+
+    // Store the HTML content for the resource provider
+    htmlContent = fullHtml;
 
     // Create WebBrowserComponent with native integration and resource provider
     webView = std::make_unique<juce::WebBrowserComponent>(
@@ -242,134 +159,10 @@ void AudioPluginAudioProcessorEditor::setupWebViewForProduction()
     webView->goToURL(juce::WebBrowserComponent::getResourceProviderRoot());
 }
 
-std::unique_ptr<juce::WebBrowserComponent> AudioPluginAudioProcessorEditor::createPresetBrowserWebViewForDevelopment()
-{
-    logToFile("createPresetBrowserWebViewForDevelopment() called");
-
-    juce::File uiDir = getUIDirectory();
-    juce::File presetHtml = uiDir.getChildFile("preset-browser.html");
-
-    logToFile("Looking for preset-browser.html at: " + presetHtml.getFullPathName());
-    logToFile("File exists: " + juce::String(presetHtml.existsAsFile() ? "YES" : "NO"));
-
-    if (!presetHtml.existsAsFile())
-    {
-        logToFile("ERROR: preset-browser.html not found!");
-        jassertfalse;
-        return nullptr;
-    }
-
-    auto browser = std::make_unique<juce::WebBrowserComponent>(
-        juce::WebBrowserComponent::Options{}
-            .withBackend(juce::WebBrowserComponent::Options::Backend::defaultBackend)
-            .withNativeIntegrationEnabled()
-            .withUserScript(
-                "console.log('JUCE Preset Browser initialized - DEVELOPMENT MODE');"
-                "window.juce = window.__JUCE__.backend;")
-            .withEventListener("fromWebView", [this](const juce::var &message)
-                               {
-                                   logToFile("C++ received fromWebView (preset browser): " + juce::JSON::toString(message));
-                                   handleMessageFromWebView(juce::JSON::toString(message)); })
-            .withEventListener("pageReady", [this](const juce::var &)
-                               {
-                                   logToFile("C++ received preset browser pageReady event");
-                                   presetBrowserPageLoaded = true;
-                                   sendPresetListToWebView();
-                                   sendStateUpdateToWebView(); }));
-
-    juce::String fileUrl = "file://" + presetHtml.getFullPathName();
-    logToFile("Loading preset browser URL: " + fileUrl);
-    browser->goToURL(fileUrl);
-
-    return browser;
-}
-
-std::unique_ptr<juce::WebBrowserComponent> AudioPluginAudioProcessorEditor::createPresetBrowserWebViewForProduction()
-{
-    auto browser = std::make_unique<juce::WebBrowserComponent>(
-        juce::WebBrowserComponent::Options{}
-            .withBackend(juce::WebBrowserComponent::Options::Backend::defaultBackend)
-            .withNativeIntegrationEnabled()
-            .withUserScript(
-                "console.log('JUCE Preset Browser initialized - PRODUCTION MODE');"
-                "window.juce = window.__JUCE__.backend;")
-            .withEventListener("fromWebView", [this](const juce::var &message)
-                               { handleMessageFromWebView(juce::JSON::toString(message)); })
-            .withEventListener("pageReady", [this](const juce::var &)
-                               {
-                                   presetBrowserPageLoaded = true;
-                                   sendPresetListToWebView();
-                                   sendStateUpdateToWebView(); })
-            .withResourceProvider([this](const juce::String &url) -> std::optional<juce::WebBrowserComponent::Resource>
-                                  {
-                                      if (url == "/" || url == "/preset-browser.html")
-                                      {
-                                          std::vector<std::byte> data;
-                                          data.resize(this->presetBrowserHtmlContent.length());
-                                          std::memcpy(data.data(), this->presetBrowserHtmlContent.toRawUTF8(), this->presetBrowserHtmlContent.length());
-                                          return juce::WebBrowserComponent::Resource{data, "text/html"};
-                                      }
-                                      return std::nullopt; }));
-
-    browser->goToURL(juce::WebBrowserComponent::getResourceProviderRoot());
-    return browser;
-}
-
-void AudioPluginAudioProcessorEditor::openPresetBrowserWindow()
-{
-    if (presetBrowserWindow)
-    {
-        presetBrowserWindow->setVisible(true);
-        presetBrowserWindow->toFront(true);
-        return;
-    }
-
-    presetBrowserPageLoaded = false;
-
-    auto browser = useLiveReload ? createPresetBrowserWebViewForDevelopment()
-                                 : createPresetBrowserWebViewForProduction();
-
-    if (!browser)
-        return;
-
-    presetBrowserWindow = std::make_unique<PresetBrowserWindow>(
-        "Preset Browser",
-        std::move(browser),
-        [this]()
-        {
-            closePresetBrowserWindow();
-        });
-
-    presetBrowserWebView = presetBrowserWindow->getWebView();
-    presetBrowserWindow->centreAroundComponent(this, 520, 640);
-    presetBrowserWindow->setVisible(true);
-}
-
-void AudioPluginAudioProcessorEditor::closePresetBrowserWindow()
-{
-    if (!presetBrowserWindow)
-        return;
-
-    presetBrowserPageLoaded = false;
-    lastSentStatePresetBrowser.clear();
-    presetBrowserWebView = nullptr;
-    presetBrowserWindow->setVisible(false);
-    presetBrowserWindow.reset();
-}
-
-void AudioPluginAudioProcessorEditor::togglePresetBrowserWindow()
-{
-    if (presetBrowserWindow)
-        closePresetBrowserWindow();
-    else
-        openPresetBrowserWindow();
-}
-
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
     processorRef.removeHitListener(this);
     stopTimer();
-    closePresetBrowserWindow();
     webView.reset();
 }
 
@@ -404,7 +197,7 @@ void AudioPluginAudioProcessorEditor::onHit(int velocityLayer, int rrIndex)
 
 void AudioPluginAudioProcessorEditor::timerCallback()
 {
-    if (pageLoaded || presetBrowserPageLoaded)
+    if (pageLoaded)
         sendStateUpdateToWebView();
 }
 
@@ -445,14 +238,6 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
     else if (action == "browseForPreset")
     {
         browseForPreset();
-    }
-    else if (action == "togglePresetBrowser")
-    {
-        togglePresetBrowserWindow();
-    }
-    else if (action == "closePresetBrowser")
-    {
-        closePresetBrowserWindow();
     }
     else if (action == "setOutputMode")
     {
@@ -521,6 +306,9 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
 
 void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
 {
+    if (!webView)
+        return;
+
     auto info = processorRef.getPresetInfo();
 
     juce::DynamicObject::Ptr state = new juce::DynamicObject();
@@ -648,48 +436,31 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     // Convert to JSON and send to WebView
     juce::String jsonState = juce::JSON::toString(juce::var(state.get()));
 
-    auto sendStateToBrowser = [&](juce::WebBrowserComponent *target,
-                                  juce::String &lastSent,
-                                  bool targetLoaded)
+    // Only send if state has changed to avoid overwriting user input
+    if (jsonState != lastSentState)
     {
-        if (!target || !targetLoaded)
-            return;
-
-        if (jsonState != lastSent)
-        {
-            lastSent = jsonState;
-            target->evaluateJavascript("window.updateStateFromCpp(" + jsonState + ");");
-        }
-    };
-
-    sendStateToBrowser(webView.get(), lastSentState, pageLoaded);
-    sendStateToBrowser(presetBrowserWebView, lastSentStatePresetBrowser, presetBrowserPageLoaded);
+        lastSentState = jsonState;
+        if (webView)
+            webView->evaluateJavascript("window.updateStateFromCpp(" + jsonState + ");");
+    }
 }
 
 void AudioPluginAudioProcessorEditor::sendPresetListToWebView()
 {
+    if (!webView)
+        return;
+
     juce::Array<juce::var> presetsArray;
     for (const auto &preset : presetList)
     {
         juce::DynamicObject::Ptr presetObj = new juce::DynamicObject();
         presetObj->setProperty("displayName", preset.displayName);
         presetObj->setProperty("category", preset.category);
-        presetObj->setProperty("instrumentType", preset.instrumentType);
         presetsArray.add(juce::var(presetObj.get()));
     }
 
     juce::String jsonPresets = juce::JSON::toString(presetsArray);
-
-    auto sendPresetList = [&](juce::WebBrowserComponent *target, bool targetLoaded)
-    {
-        if (!target || !targetLoaded)
-            return;
-
-        target->evaluateJavascript("window.updatePresetListFromCpp(" + jsonPresets + ");");
-    };
-
-    sendPresetList(webView.get(), pageLoaded);
-    sendPresetList(presetBrowserWebView, presetBrowserPageLoaded);
+    webView->evaluateJavascript("window.updatePresetListFromCpp(" + jsonPresets + ");");
 }
 
 //==============================================================================
@@ -734,11 +505,7 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
             // Add category prefix for better organization
             juce::String fullDisplayName = category + " / " + displayName;
 
-            juce::String instrumentType = extractInstrumentTypeFromPreset(jsonFile, "Unknown");
-            if (instrumentType.isEmpty())
-                instrumentType = "Unknown";
-
-            presetList.push_back({fullDisplayName, category, instrumentType, jsonFile});
+            presetList.push_back({fullDisplayName, category, jsonFile});
             itemId++;
         }
 
