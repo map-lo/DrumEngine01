@@ -191,7 +191,7 @@ class PresetBrowserUI {
 
             // Prefix div
             const prefixDiv = document.createElement('div');
-            prefixDiv.className = 'text-[8px] font-medium text-white tracking-wide text-opacity-70';
+            prefixDiv.className = 'text-[8px] -mb-0.5 font-medium text-white tracking-wide text-opacity-70';
             prefixDiv.textContent = prefix;
             // Main name div (only after last slash)
             const nameDiv = document.createElement('div');
