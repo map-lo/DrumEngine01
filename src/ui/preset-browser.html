@@ -7,19 +7,28 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body
-    class="bg-white text-black font-bold select-none !cursor-default h-full overflow-hidden"
+    class="bg-neutral-800 text-white font-bold select-none !cursor-default h-full overflow-hidden"
   >
     <div class="m-[2px] h-full flex flex-col">
       <div
-        class="bg-black text-white text-xs flex items-center justify-between px-2 py-1"
+        class="text-white text-xs flex items-center justify-between px-2 py-1"
       >
         <div class="font-semibold tracking-wide">Preset Browser</div>
         <button
           id="closePresetBrowser"
-          class="px-2 py-1 hover:bg-gray-700"
+          class="py-1"
           aria-label="Close preset browser"
         >
-          ✕
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="size-4"
+          >
+            <path
+              d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z"
+            />
+          </svg>
         </button>
       </div>
 
@@ -28,18 +37,26 @@
           id="presetSearch"
           type="text"
           placeholder="Search presets..."
-          class="h-7 px-2 text-xs border-2 border-black bg-white text-black outline-none"
+          autocomplete="off"
+          class="shrink-0 h-10 px-2 text-xs border-2 border-black bg-black text-white outline-none"
         />
 
         <div
           id="presetTags"
           class="flex flex-wrap gap-1"
           aria-label="Preset tags"
-        ></div>
+        >
+          <div
+            id="noTagsMessage"
+            class="text-[10px] text-white text-opacity-50"
+          >
+            No tags available
+          </div>
+        </div>
 
         <div
           id="presetList"
-          class="border-2 border-black bg-white grow overflow-y-auto text-xs"
+          class="bg-black text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
           aria-label="Preset list"
         ></div>
       </div>

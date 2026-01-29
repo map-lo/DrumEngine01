@@ -121,18 +121,27 @@ class PresetBrowserUI {
 
         const availableTags = new Set();
         tagFiltered.forEach((preset) => availableTags.add(preset.instrumentType));
-
         this.selectedTags.forEach((tag) => availableTags.add(tag));
-
         const tags = Array.from(availableTags).filter(Boolean).sort();
 
-        this.tagsContainer.innerHTML = '';
+        // Toggle visibility of the noTagsMessage element
+        const noTagsMessage = document.getElementById('noTagsMessage');
+        if (noTagsMessage) {
+            if (tags.length === 0) {
+                noTagsMessage.classList.remove('hidden');
+            } else {
+                noTagsMessage.classList.add('hidden');
+            }
+        }
+
+        // Remove all tag buttons (but not the noTagsMessage element)
+        Array.from(this.tagsContainer.children).forEach(child => {
+            if (child.id !== 'noTagsMessage') {
+                this.tagsContainer.removeChild(child);
+            }
+        });
 
         if (tags.length === 0) {
-            const emptyTag = document.createElement('div');
-            emptyTag.className = 'text-[10px] text-black text-opacity-50';
-            emptyTag.textContent = 'No tags available';
-            this.tagsContainer.appendChild(emptyTag);
             return;
         }
 
@@ -143,13 +152,11 @@ class PresetBrowserUI {
                 'px-2',
                 'py-1',
                 'text-[10px]',
-                'border-2',
-                'border-black',
                 'uppercase',
                 'tracking-widest',
-                'hover:bg-black',
-                'hover:text-white',
-                isActive ? 'bg-black text-white' : 'bg-white text-black'
+                'hover:bg-white',
+                'hover:bg-opacity-20',
+                isActive ? 'bg-white text-black' : 'bg-black text-white'
             ].join(' ');
             button.textContent = tag;
             button.addEventListener('click', () => {
@@ -184,13 +191,17 @@ class PresetBrowserUI {
             const item = document.createElement('button');
             const isSelected = preset.index === this.currentPresetIndex;
             item.className = [
-                'w-full',
+                'mx-1',
                 'text-left',
-                'px-2',
+                'break-all',
+                'text-white',
+                'text-[10px]',
+                'px-0.5',
                 'py-1',
-                'hover:bg-black',
+                'hover:bg-white',
+                'hover:bg-opacity-20',
                 'hover:text-white',
-                isSelected ? 'bg-black text-white' : 'bg-white text-black'
+                isSelected ? 'bg-white !bg-opacity-30' : 'bg-black'
             ].join(' ');
             item.textContent = preset.displayName;
             item.addEventListener('click', () => {
