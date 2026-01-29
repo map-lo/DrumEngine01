@@ -1,3 +1,9 @@
+// Import CSS for Vite to process
+import './styles.css'
+
+// Import preset browser functionality
+import './preset-browser.js'
+
 // DrumEngine01 WebView UI
 // This JavaScript handles all UI interactions and communicates with the C++ backend
 
