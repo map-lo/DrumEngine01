@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" class="h-full overflow-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Preset Browser</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body
+    class="bg-white text-black font-bold select-none !cursor-default h-full overflow-hidden"
+  >
+    <div class="m-[2px] h-full flex flex-col">
+      <div
+        class="bg-black text-white text-xs flex items-center justify-between px-2 py-1"
+      >
+        <div class="font-semibold tracking-wide">Preset Browser</div>
+        <button
+          id="closePresetBrowser"
+          class="px-2 py-1 hover:bg-gray-700"
+          aria-label="Close preset browser"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="p-2 flex flex-col gap-2 grow overflow-hidden">
+        <input
+          id="presetSearch"
+          type="text"
+          placeholder="Search presets..."
+          class="h-7 px-2 text-xs border-2 border-black bg-white text-black outline-none"
+        />
+
+        <div
+          id="presetTags"
+          class="flex flex-wrap gap-1"
+          aria-label="Preset tags"
+        ></div>
+
+        <div
+          id="presetList"
+          class="border-2 border-black bg-white grow overflow-y-auto text-xs"
+          aria-label="Preset list"
+        ></div>
+      </div>
+    </div>
+    <script src="preset-browser.js"></script>
+  </body>
+</html>

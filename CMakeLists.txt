@@ -110,7 +110,9 @@ juce_add_binary_data(AudioPluginData
     SOURCES
         src/ui/index.html
         src/ui/styles.css
-        src/ui/app.js)
+        src/ui/app.js
+        src/ui/preset-browser.html
+        src/ui/preset-browser.js)
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
 # we're linking our executable target to the `juce::juce_audio_utils` module. Inter-module

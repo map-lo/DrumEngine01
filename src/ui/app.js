@@ -257,7 +257,11 @@ class DrumEngineUI {
 
     attachEventListeners() {
         // Preset controls
-        this.presetBrowser.addEventListener('change', () => this.onPresetSelected());
+        if (this.presetBrowser) {
+            this.presetBrowser.addEventListener('click', () => {
+                this.sendMessage('togglePresetBrowser');
+            });
+        }
         this.prevPresetBtn.addEventListener('click', () => this.sendMessage('loadPrevPreset'));
         this.nextPresetBtn.addEventListener('click', () => this.sendMessage('loadNextPreset'));
         this.loadPresetBtn.addEventListener('click', () => this.sendMessage('browseForPreset'));
@@ -505,14 +509,7 @@ class DrumEngineUI {
     // Called from C++ with preset list
     updatePresetList(presets) {
         this.presetList = presets;
-        this.presetBrowser.innerHTML = '<option value="">-- Select Preset --</option>';
-
-        presets.forEach((preset, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = preset.displayName;
-            this.presetBrowser.appendChild(option);
-        });
+        this.updatePresetButtonLabel();
     }
 
     // Called from C++ with current state
@@ -545,6 +542,7 @@ class DrumEngineUI {
                     ? `[${info.instrumentType}] ${info.presetName}`
                     : '[Empty]';
             }
+            this.lastPresetName = info.isPresetLoaded ? info.presetName : null;
             if (this.presetName) {
                 this.presetName.textContent = info.isPresetLoaded ? info.presetName : 'None';
             }
@@ -667,36 +665,33 @@ class DrumEngineUI {
         // Update current preset index
         if (typeof state.currentPresetIndex !== 'undefined') {
             this.currentPresetIndex = state.currentPresetIndex;
-            if (this.presetBrowser && state.currentPresetIndex >= 0) {
-                this.presetBrowser.selectedIndex = state.currentPresetIndex + 1; // +1 for header option
-            }
+            this.updatePresetButtonLabel();
         }
+    }
+
+    updatePresetButtonLabel() {
+        if (!this.presetBrowser) return;
+
+        let label = '-- Select Preset --';
+
+        if (this.currentPresetIndex >= 0 && this.presetList[this.currentPresetIndex]) {
+            label = this.presetList[this.currentPresetIndex].displayName;
+        } else if (this.lastPresetName) {
+            label = this.lastPresetName;
+        }
+
+        this.presetBrowser.textContent = label;
     }
 
     updatePresetList(presets) {
         console.log('updatePresetList called with', presets.length, 'presets');
 
         this.presetList = presets;
-
-        // Clear existing options except the first one
-        while (this.presetBrowser.options.length > 1) {
-            this.presetBrowser.remove(1);
-        }
-
-        // Add new options
-        presets.forEach((preset, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = preset.displayName;
-            this.presetBrowser.appendChild(option);
-        });
+        this.updatePresetButtonLabel();
     }
 
     onPresetSelected() {
-        const selectedIndex = this.presetBrowser.selectedIndex - 1; // Subtract 1 for header option
-        if (selectedIndex >= 0) {
-            this.sendMessage('loadPresetByIndex', { index: selectedIndex });
-        }
+        this.sendMessage('togglePresetBrowser');
     }
     // Handle hit notification from C++ (real-time sample trigger visualization)
     onHit(velocityLayer, rrIndex) {

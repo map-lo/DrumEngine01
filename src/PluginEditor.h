@@ -3,6 +3,8 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
+class PresetBrowserWindow;
+
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor,
                                               private juce::Timer,
                                               private AudioPluginAudioProcessor::HitListener
@@ -31,6 +33,15 @@ private:
     void setupWebViewForProduction();
     juce::File getUIDirectory();
 
+    void openPresetBrowserWindow();
+    void closePresetBrowserWindow();
+    void togglePresetBrowserWindow();
+    std::unique_ptr<juce::WebBrowserComponent> createPresetBrowserWebViewForDevelopment();
+    std::unique_ptr<juce::WebBrowserComponent> createPresetBrowserWebViewForProduction();
+    juce::String buildInlineHtml(const juce::String &html,
+                                 const juce::String &css,
+                                 const juce::String &js) const;
+
     // Preset management
     void scanPresetsFolder();
     void loadPresetByIndex(int index);
@@ -42,13 +53,17 @@ private:
 
     // WebView component
     std::unique_ptr<juce::WebBrowserComponent> webView;
+    juce::WebBrowserComponent *presetBrowserWebView = nullptr;
+    std::unique_ptr<PresetBrowserWindow> presetBrowserWindow;
     juce::String htmlContent; // Store HTML for resource provider
+    juce::String presetBrowserHtmlContent;
 
     // Preset management
     struct PresetEntry
     {
         juce::String displayName;
         juce::String category;
+        juce::String instrumentType;
         juce::File file;
     };
     std::vector<PresetEntry> presetList;
@@ -61,9 +76,11 @@ private:
     juce::String lastStatusMessage;
     bool statusIsError = false;
     bool pageLoaded = false;
+    bool presetBrowserPageLoaded = false;
 
     // Cache last sent state to avoid unnecessary updates
     juce::String lastSentState;
+    juce::String lastSentStatePresetBrowser;
 
 #if JUCE_DEBUG
     bool useLiveReload = true; // Enable hot reload in debug builds
