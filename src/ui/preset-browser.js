@@ -11,10 +11,6 @@ class PresetBrowserUI {
         this.initializeElements();
         this.attachEventListeners();
 
-        if (window.__JUCE__ && window.__JUCE__.backend && window.__JUCE__.backend.emitEvent) {
-            window.__JUCE__.backend.emitEvent('pageReady', {});
-        }
-
         this.sendMessage('requestPresetList');
         this.sendMessage('requestUpdate');
     }
@@ -36,33 +32,11 @@ class PresetBrowserUI {
 
         if (this.closeButton) {
             this.closeButton.addEventListener('click', () => {
-                // Send message to parent window to close browser
-                if (window.parent !== window) {
-                    window.parent.postMessage({ action: 'closePresetBrowser' }, '*');
-                } else {
-                    this.sendMessage('closePresetBrowser');
+                if (window.drumEngineUI) {
+                    window.drumEngineUI.togglePresetBrowser();
                 }
             });
         }
-
-        // Listen for messages from parent window
-        window.addEventListener('message', (event) => {
-            console.log('PresetBrowserUI received message:', event.data);
-            if (event.data && event.data.action) {
-                switch (event.data.action) {
-                    case 'updatePresetList':
-                        if (event.data.presets) {
-                            this.updatePresetList(event.data.presets);
-                        }
-                        break;
-                    case 'updateState':
-                        if (event.data.state) {
-                            this.updateState(event.data.state);
-                        }
-                        break;
-                }
-            }
-        });
     }
 
     sendMessage(action, data = {}) {
@@ -235,32 +209,11 @@ class PresetBrowserUI {
     }
 }
 
-window.updateStateFromCpp = function (stateJson) {
-    try {
-        const state = typeof stateJson === 'string' ? JSON.parse(stateJson) : stateJson;
-        if (window.presetBrowserUI) {
-            window.presetBrowserUI.updateState(state);
-        }
-    } catch (e) {
-        console.error('Error parsing state from C++:', e);
-    }
-};
-
-window.updatePresetListFromCpp = function (presetsJson) {
-    try {
-        const presets = typeof presetsJson === 'string' ? JSON.parse(presetsJson) : presetsJson;
-        if (window.presetBrowserUI) {
-            window.presetBrowserUI.updatePresetList(presets);
-        }
-    } catch (e) {
-        console.error('Error parsing preset list from C++:', e);
-    }
-};
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+// Initialize after DrumEngineUI is ready
+if (window.drumEngineUI) {
+    window.presetBrowserUI = new PresetBrowserUI();
+} else {
+    window.addEventListener('drumEngineUIReady', () => {
         window.presetBrowserUI = new PresetBrowserUI();
     });
-} else {
-    window.presetBrowserUI = new PresetBrowserUI();
 }

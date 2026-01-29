@@ -9,32 +9,20 @@
   <body
     class="bg-white bg-[ghostwhite] text-black font-bold select-none !cursor-default h-full overflow-hidden"
   >
-    <div class="h-full flex flex-row items-stretch">
-      <!-- Preset Browser Overlay -->
-      <div class="w-[300px]">
-        <div id="presetBrowserContainer" class="h-full">
-          <iframe
-            id="presetBrowserFrame"
-            src="preset-browser.html"
-            class="w-full h-full border-none"
-          ></iframe>
-        </div>
-      </div>
+    <div class="h-full flex flex-row-reverse items-stretch">
       <div class="w-[660px]">
         <div id="mainContent" class="m-[2px] flex flex-col overflow-hidden">
           <!-- Toolbar -->
           <div class="text-white text-xs grow flex space-x-[2px]">
-            <div class="bg-black grow overflow-hidden flex items-center">
-              <button
-                id="presetBrowserBtn"
-                class="font-semibold mx-2 bg-black text-white border-none outline-none text-left truncate"
-              >
-                <span id="presetBrowserLabel">-- Select Preset --</span>
-              </button>
-            </div>
+            <button
+              id="presetBrowserBtn"
+              class="grow overflow-hidden font-semibold px-2 bg-black text-white border-none outline-none text-left truncate"
+            >
+              <span id="presetBrowserLabel">-- Select Preset --</span>
+            </button>
             <button
               id="prevPresetBtn"
-              class="px-2 py-1 hover:bg-gray-700 bg-black text-white"
+              class="px-2 py-1 hover:bg-neutral-700 bg-black text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -51,7 +39,7 @@
             </button>
             <button
               id="nextPresetBtn"
-              class="px-2 py-1 hover:bg-gray-700 bg-black text-white"
+              class="px-2 py-1 hover:bg-neutral-700 bg-black text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +56,7 @@
             </button>
             <button
               id="loadPresetBtn"
-              class="bg-black flex justify-center items-center hover:bg-gray-700 px-2"
+              class="bg-black flex justify-center items-center hover:bg-neutral-700 px-2"
             >
               <span class="font-semibold">LOAD</span>
             </button>
@@ -592,7 +580,67 @@
           </div>
         </div>
       </div>
+
+      <div id="presetBrowserContainer" class="h-full w-[300px] shrink-0">
+        <div
+          class="bg-neutral-700 text-white font-bold select-none !cursor-default h-full overflow-hidden"
+        >
+          <div class="m-[2px] h-full flex flex-col">
+            <div
+              class="text-white text-xs flex items-center justify-between px-2 py-1"
+            >
+              <div class="font-semibold tracking-wide uppercase">Presets</div>
+              <button
+                id="closePresetBrowser"
+                class="py-1"
+                aria-label="Close preset browser"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  class="size-4"
+                >
+                  <path
+                    d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div class="p-2 flex flex-col gap-2 grow overflow-hidden">
+              <input
+                id="presetSearch"
+                type="text"
+                placeholder="Search presets..."
+                autocomplete="off"
+                class="shrink-0 h-10 font-semibold px-2 text-xs border-2 border-black bg-black text-white outline-none"
+              />
+
+              <div
+                id="presetTags"
+                class="flex flex-wrap gap-1"
+                aria-label="Preset tags"
+              >
+                <div
+                  id="noTagsMessage"
+                  class="text-[10px] text-white text-opacity-50"
+                >
+                  No tags available
+                </div>
+              </div>
+
+              <div
+                id="presetList"
+                class="bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
+                aria-label="Preset list"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="app.js"></script>
+    <script src="preset-browser.js"></script>
   </body>
 </html>

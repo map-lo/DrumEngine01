@@ -10,7 +10,6 @@ class DrumEngineUI {
 
         this.initializeElements();
         this.attachEventListeners();
-        this.setupMessageListener();
 
         // Notify C++ that page is ready - send as separate event
         console.log('DrumEngineUI: Checking for JUCE backend...');
@@ -23,15 +22,9 @@ class DrumEngineUI {
         } else {
             console.error('DrumEngineUI: JUCE backend not available!');
         }
-    }
 
-    setupMessageListener() {
-        // Listen for messages from preset browser iframe
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.action === 'closePresetBrowser') {
-                this.togglePresetBrowser();
-            }
-        });
+        // Notify that DrumEngineUI is ready
+        window.dispatchEvent(new Event('drumEngineUIReady'));
     }
 
     // Convert fader position (0-100) to decibels using logarithmic curve
@@ -515,29 +508,14 @@ class DrumEngineUI {
         if (this.isPresetBrowserOpen) {
             // Request window to expand
             this.sendMessage('openPresetBrowser');
-            // Show preset browser overlay
-            this.presetBrowserContainer.classList.remove('hidden');
-
-            // Forward current preset list to iframe immediately
-            const iframe = document.getElementById('presetBrowserFrame');
-            if (iframe && iframe.contentWindow && this.presetList.length > 0) {
-                // Give iframe a moment to load
-                setTimeout(() => {
-                    iframe.contentWindow.postMessage({
-                        action: 'updatePresetList',
-                        presets: this.presetList
-                    }, '*');
-                    iframe.contentWindow.postMessage({
-                        action: 'updateState',
-                        state: { currentPresetIndex: this.currentPresetIndex }
-                    }, '*');
-                }, 100);
+            // Forward current state directly to preset browser
+            if (window.presetBrowserUI && this.presetList.length > 0) {
+                window.presetBrowserUI.updatePresetList(this.presetList);
+                window.presetBrowserUI.updateState({ currentPresetIndex: this.currentPresetIndex });
             }
         } else {
             // Request window to shrink
             this.sendMessage('closePresetBrowser');
-            // Hide preset browser overlay after transition
-            this.presetBrowserContainer.classList.add('hidden');
         }
     }
 
@@ -553,13 +531,9 @@ class DrumEngineUI {
             this.presetBrowserLabel.textContent = '-- Select Preset --';
         }
 
-        // Always forward to preset browser iframe (it will handle it when ready)
-        const iframe = document.getElementById('presetBrowserFrame');
-        if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage({
-                action: 'updatePresetList',
-                presets: presets
-            }, '*');
+        // Forward to preset browser if it exists
+        if (window.presetBrowserUI) {
+            window.presetBrowserUI.updatePresetList(presets);
         }
     }
 
@@ -725,15 +699,9 @@ class DrumEngineUI {
             }
         }
 
-        // Forward state to preset browser iframe if open
-        if (this.isPresetBrowserOpen) {
-            const iframe = document.getElementById('presetBrowserFrame');
-            if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({
-                    action: 'updateState',
-                    state: state
-                }, '*');
-            }
+        // Forward state to preset browser if it exists
+        if (window.presetBrowserUI) {
+            window.presetBrowserUI.updateState(state);
         }
     }
 
@@ -763,8 +731,9 @@ window.updateStateFromCpp = function (stateJson) {
         const state = typeof stateJson === 'string' ? JSON.parse(stateJson) : stateJson;
         if (window.drumEngineUI) {
             window.drumEngineUI.updateState(state);
-        } else {
-            console.error('drumEngineUI not initialized yet');
+        }
+        if (window.presetBrowserUI) {
+            window.presetBrowserUI.updateState(state);
         }
     } catch (e) {
         console.error('Error parsing state from C++:', e);
@@ -777,8 +746,9 @@ window.updatePresetListFromCpp = function (presetsJson) {
         const presets = typeof presetsJson === 'string' ? JSON.parse(presetsJson) : presetsJson;
         if (window.drumEngineUI) {
             window.drumEngineUI.updatePresetList(presets);
-        } else {
-            console.error('drumEngineUI not initialized yet');
+        }
+        if (window.presetBrowserUI) {
+            window.presetBrowserUI.updatePresetList(presets);
         }
     } catch (e) {
         console.error('Error parsing preset list from C++:', e);
