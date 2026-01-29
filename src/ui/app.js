@@ -10,6 +10,7 @@ class DrumEngineUI {
 
         this.initializeElements();
         this.attachEventListeners();
+        this.setupMessageListener();
 
         // Notify C++ that page is ready - send as separate event
         console.log('DrumEngineUI: Checking for JUCE backend...');
@@ -22,6 +23,15 @@ class DrumEngineUI {
         } else {
             console.error('DrumEngineUI: JUCE backend not available!');
         }
+    }
+
+    setupMessageListener() {
+        // Listen for messages from preset browser iframe
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.action === 'closePresetBrowser') {
+                this.togglePresetBrowser();
+            }
+        });
     }
 
     // Convert fader position (0-100) to decibels using logarithmic curve
@@ -218,7 +228,10 @@ class DrumEngineUI {
 
     initializeElements() {
         // Header controls
-        this.presetBrowser = document.getElementById('presetBrowser');
+        this.presetBrowserBtn = document.getElementById('presetBrowserBtn');
+        this.presetBrowserLabel = document.getElementById('presetBrowserLabel');
+        this.presetBrowserContainer = document.getElementById('presetBrowserContainer');
+        this.mainContent = document.getElementById('mainContent');
         this.prevPresetBtn = document.getElementById('prevPresetBtn');
         this.nextPresetBtn = document.getElementById('nextPresetBtn');
         this.loadPresetBtn = document.getElementById('loadPresetBtn');
@@ -226,6 +239,7 @@ class DrumEngineUI {
         this.pluginTitle = document.getElementById('pluginTitle');
         this.presetInfo = document.getElementById('presetInfo');
         this.presetDisplay = document.getElementById('presetDisplay');
+        this.isPresetBrowserOpen = false;
 
         // Preset quality indicator
         this.presetQualityIndicator = document.querySelector('.preset-quality-indicator');
@@ -257,7 +271,7 @@ class DrumEngineUI {
 
     attachEventListeners() {
         // Preset controls
-        this.presetBrowser.addEventListener('change', () => this.onPresetSelected());
+        this.presetBrowserBtn.addEventListener('click', () => this.togglePresetBrowser());
         this.prevPresetBtn.addEventListener('click', () => this.sendMessage('loadPrevPreset'));
         this.nextPresetBtn.addEventListener('click', () => this.sendMessage('loadNextPreset'));
         this.loadPresetBtn.addEventListener('click', () => this.sendMessage('browseForPreset'));
@@ -495,24 +509,58 @@ class DrumEngineUI {
         }
     }
 
-    onPresetSelected() {
-        const selectedIndex = this.presetBrowser.selectedIndex - 1; // Subtract 1 for header option
-        if (selectedIndex >= 0) {
-            this.sendMessage('loadPresetByIndex', { index: selectedIndex });
+    togglePresetBrowser() {
+        this.isPresetBrowserOpen = !this.isPresetBrowserOpen;
+
+        if (this.isPresetBrowserOpen) {
+            // Request window to expand
+            this.sendMessage('openPresetBrowser');
+            // Show preset browser overlay
+            this.presetBrowserContainer.classList.remove('hidden');
+
+            // Forward current preset list to iframe immediately
+            const iframe = document.getElementById('presetBrowserFrame');
+            if (iframe && iframe.contentWindow && this.presetList.length > 0) {
+                // Give iframe a moment to load
+                setTimeout(() => {
+                    iframe.contentWindow.postMessage({
+                        action: 'updatePresetList',
+                        presets: this.presetList
+                    }, '*');
+                    iframe.contentWindow.postMessage({
+                        action: 'updateState',
+                        state: { currentPresetIndex: this.currentPresetIndex }
+                    }, '*');
+                }, 100);
+            }
+        } else {
+            // Request window to shrink
+            this.sendMessage('closePresetBrowser');
+            // Hide preset browser overlay after transition
+            this.presetBrowserContainer.classList.add('hidden');
         }
     }
 
     // Called from C++ with preset list
     updatePresetList(presets) {
         this.presetList = presets;
-        this.presetBrowser.innerHTML = '<option value="">-- Select Preset --</option>';
 
-        presets.forEach((preset, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = preset.displayName;
-            this.presetBrowser.appendChild(option);
-        });
+        // Update button label if a preset is loaded
+        if (this.currentPresetIndex >= 0 && this.currentPresetIndex < presets.length) {
+            const preset = presets[this.currentPresetIndex];
+            this.presetBrowserLabel.textContent = preset.displayName;
+        } else {
+            this.presetBrowserLabel.textContent = '-- Select Preset --';
+        }
+
+        // Always forward to preset browser iframe (it will handle it when ready)
+        const iframe = document.getElementById('presetBrowserFrame');
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({
+                action: 'updatePresetList',
+                presets: presets
+            }, '*');
+        }
     }
 
     // Called from C++ with current state
@@ -667,37 +715,28 @@ class DrumEngineUI {
         // Update current preset index
         if (typeof state.currentPresetIndex !== 'undefined') {
             this.currentPresetIndex = state.currentPresetIndex;
-            if (this.presetBrowser && state.currentPresetIndex >= 0) {
-                this.presetBrowser.selectedIndex = state.currentPresetIndex + 1; // +1 for header option
+
+            // Update preset browser button label
+            if (this.currentPresetIndex >= 0 && this.currentPresetIndex < this.presetList.length) {
+                const preset = this.presetList[this.currentPresetIndex];
+                this.presetBrowserLabel.textContent = preset.displayName;
+            } else {
+                this.presetBrowserLabel.textContent = '-- Select Preset --';
+            }
+        }
+
+        // Forward state to preset browser iframe if open
+        if (this.isPresetBrowserOpen) {
+            const iframe = document.getElementById('presetBrowserFrame');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    action: 'updateState',
+                    state: state
+                }, '*');
             }
         }
     }
 
-    updatePresetList(presets) {
-        console.log('updatePresetList called with', presets.length, 'presets');
-
-        this.presetList = presets;
-
-        // Clear existing options except the first one
-        while (this.presetBrowser.options.length > 1) {
-            this.presetBrowser.remove(1);
-        }
-
-        // Add new options
-        presets.forEach((preset, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = preset.displayName;
-            this.presetBrowser.appendChild(option);
-        });
-    }
-
-    onPresetSelected() {
-        const selectedIndex = this.presetBrowser.selectedIndex - 1; // Subtract 1 for header option
-        if (selectedIndex >= 0) {
-            this.sendMessage('loadPresetByIndex', { index: selectedIndex });
-        }
-    }
     // Handle hit notification from C++ (real-time sample trigger visualization)
     onHit(velocityLayer, rrIndex) {
         if (!this.presetQualityIndicator) return;

@@ -239,6 +239,16 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
     {
         browseForPreset();
     }
+    else if (action == "openPresetBrowser")
+    {
+        // Expand window width by 300px
+        setSize(660 + 300, 440);
+    }
+    else if (action == "closePresetBrowser")
+    {
+        // Restore original window size
+        setSize(660, 440);
+    }
     else if (action == "setOutputMode")
     {
         juce::String mode = obj->getProperty("mode").toString();
@@ -456,6 +466,7 @@ void AudioPluginAudioProcessorEditor::sendPresetListToWebView()
         juce::DynamicObject::Ptr presetObj = new juce::DynamicObject();
         presetObj->setProperty("displayName", preset.displayName);
         presetObj->setProperty("category", preset.category);
+        presetObj->setProperty("instrumentType", preset.instrumentType);
         presetsArray.add(juce::var(presetObj.get()));
     }
 
@@ -505,7 +516,26 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
             // Add category prefix for better organization
             juce::String fullDisplayName = category + " / " + displayName;
 
-            presetList.push_back({fullDisplayName, category, jsonFile});
+            // Extract instrumentType from JSON file
+            juce::String instrumentType = "Unknown";
+            auto jsonText = jsonFile.loadFileAsString();
+            if (!jsonText.isEmpty())
+            {
+                juce::var json;
+                auto result = juce::JSON::parse(jsonText, json);
+                if (result.wasOk() && json.isObject())
+                {
+                    if (auto *obj = json.getDynamicObject())
+                    {
+                        if (obj->hasProperty("instrumentType"))
+                            instrumentType = obj->getProperty("instrumentType").toString();
+                        else if (obj->hasProperty("instrument_type"))
+                            instrumentType = obj->getProperty("instrument_type").toString();
+                    }
+                }
+            }
+
+            presetList.push_back({fullDisplayName, category, instrumentType, jsonFile});
             itemId++;
         }
 

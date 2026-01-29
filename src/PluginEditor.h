@@ -49,6 +49,7 @@ private:
     {
         juce::String displayName;
         juce::String category;
+        juce::String instrumentType;
         juce::File file;
     };
     std::vector<PresetEntry> presetList;

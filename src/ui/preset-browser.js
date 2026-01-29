@@ -36,9 +36,33 @@ class PresetBrowserUI {
 
         if (this.closeButton) {
             this.closeButton.addEventListener('click', () => {
-                this.sendMessage('closePresetBrowser');
+                // Send message to parent window to close browser
+                if (window.parent !== window) {
+                    window.parent.postMessage({ action: 'closePresetBrowser' }, '*');
+                } else {
+                    this.sendMessage('closePresetBrowser');
+                }
             });
         }
+
+        // Listen for messages from parent window
+        window.addEventListener('message', (event) => {
+            console.log('PresetBrowserUI received message:', event.data);
+            if (event.data && event.data.action) {
+                switch (event.data.action) {
+                    case 'updatePresetList':
+                        if (event.data.presets) {
+                            this.updatePresetList(event.data.presets);
+                        }
+                        break;
+                    case 'updateState':
+                        if (event.data.state) {
+                            this.updateState(event.data.state);
+                        }
+                        break;
+                }
+            }
+        });
     }
 
     sendMessage(action, data = {}) {
@@ -49,12 +73,14 @@ class PresetBrowserUI {
     }
 
     updatePresetList(presets) {
+        console.log('PresetBrowserUI.updatePresetList called with', presets.length, 'presets');
         this.presetList = presets.map((preset, index) => ({
             index,
             displayName: preset.displayName || 'Unnamed Preset',
             instrumentType: preset.instrumentType || 'Unknown',
             category: preset.category || ''
         }));
+        console.log('Mapped preset list:', this.presetList);
         this.render();
     }
 
