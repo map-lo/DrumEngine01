@@ -58,19 +58,9 @@ void AudioPluginAudioProcessorEditor::setupWebViewForDevelopment()
 {
     logToFile("setupWebViewForDevelopment() called");
 
-    // Load files from disk for hot reloading
-    juce::File uiDir = getUIDirectory();
-    juce::File indexHtml = uiDir.getChildFile("index.html");
-
-    logToFile("Looking for index.html at: " + indexHtml.getFullPathName());
-    logToFile("File exists: " + juce::String(indexHtml.existsAsFile() ? "YES" : "NO"));
-
-    if (!indexHtml.existsAsFile())
-    {
-        logToFile("ERROR: UI files not found!");
-        jassertfalse; // UI files not found!
-        return;
-    }
+    // Connect to Vite dev server
+    juce::String viteServerUrl = "http://localhost:5173";
+    logToFile("Connecting to Vite dev server: " + viteServerUrl);
 
     // Create WebBrowserComponent with native integration
     webView = std::make_unique<juce::WebBrowserComponent>(
@@ -78,7 +68,7 @@ void AudioPluginAudioProcessorEditor::setupWebViewForDevelopment()
             .withBackend(juce::WebBrowserComponent::Options::Backend::defaultBackend)
             .withNativeIntegrationEnabled()
             .withUserScript(
-                "console.log('JUCE WebView initialized - DEVELOPMENT MODE');"
+                "console.log('JUCE WebView initialized - DEVELOPMENT MODE with Vite HMR');"
                 "window.juce = window.__JUCE__.backend;")
             .withEventListener("fromWebView", [this](const juce::var &message)
                                { 
@@ -93,39 +83,16 @@ void AudioPluginAudioProcessorEditor::setupWebViewForDevelopment()
 
     addAndMakeVisible(webView.get());
 
-    // Navigate directly to the HTML file on disk
-    juce::String fileUrl = "file://" + indexHtml.getFullPathName();
-    logToFile("Loading URL: " + fileUrl);
-    webView->goToURL(fileUrl);
+    // Navigate to Vite dev server
+    logToFile("Loading URL: " + viteServerUrl);
+    webView->goToURL(viteServerUrl);
 
-    logToFile("setupWebViewForDevelopment() completed");
+    logToFile("setupWebViewForDevelopment() completed - using Vite HMR");
 }
 
 void AudioPluginAudioProcessorEditor::setupWebViewForProduction()
 {
-    // Load HTML content from binary resources
-    juce::String html(BinaryData::index_html, static_cast<size_t>(BinaryData::index_htmlSize));
-    juce::String css(BinaryData::styles_css, static_cast<size_t>(BinaryData::styles_cssSize));
-    juce::String js(BinaryData::app_js, static_cast<size_t>(BinaryData::app_jsSize));
-
-    // Modify JavaScript to use JUCE event listener instead of postMessage
-    js = js.replace(
-        "window.juce.postMessage(JSON.stringify(message));",
-        "window.__JUCE__.backend.emitEvent('fromWebView', message);");
-
-    // Create complete HTML with inline CSS and JS
-    juce::String fullHtml = html;
-    fullHtml = fullHtml.replace("</head>",
-                                "<style>" + css + "</style></head>");
-    fullHtml = fullHtml.replace("</body>",
-                                "<script>" + js + "</script></body>");
-
-    // Remove external references
-    fullHtml = fullHtml.replace("<link rel=\"stylesheet\" href=\"styles.css\">", "");
-    fullHtml = fullHtml.replace("<script src=\"app.js\"></script>", "");
-
-    // Store the HTML content for the resource provider
-    htmlContent = fullHtml;
+    logToFile("setupWebViewForProduction() called");
 
     // Create WebBrowserComponent with native integration and resource provider
     webView = std::make_unique<juce::WebBrowserComponent>(
@@ -133,30 +100,81 @@ void AudioPluginAudioProcessorEditor::setupWebViewForProduction()
             .withBackend(juce::WebBrowserComponent::Options::Backend::defaultBackend)
             .withNativeIntegrationEnabled()
             .withUserScript(
-                "console.log('JUCE WebView initialized - PRODUCTION MODE');"
+                "console.log('JUCE WebView initialized - PRODUCTION MODE with Vite bundle');"
                 "window.juce = window.__JUCE__.backend;")
             .withEventListener("fromWebView", [this](const juce::var &message)
-                               { handleMessageFromWebView(juce::JSON::toString(message)); })
+                               { 
+                                   logToFile("C++ received fromWebView event: " + juce::JSON::toString(message));
+                                   handleMessageFromWebView(juce::JSON::toString(message)); })
             .withEventListener("pageReady", [this](const juce::var &)
                                { 
+                                   logToFile("C++ received pageReady event");
                                    pageLoaded = true;
                                    sendPresetListToWebView();
                                    sendStateUpdateToWebView(); })
-            .withResourceProvider([this](const juce::String &url) -> std::optional<juce::WebBrowserComponent::Resource>
+            .withResourceProvider([](const juce::String &url) -> std::optional<juce::WebBrowserComponent::Resource>
                                   {
+                // Helper lambda to create resource from binary data
+                auto createResource = [](const char* data, size_t size, const juce::String& mimeType) {
+                    std::vector<std::byte> vec;
+                    vec.resize(size);
+                    std::memcpy(vec.data(), data, size);
+                    return juce::WebBrowserComponent::Resource { vec, mimeType.toStdString() };
+                };
+
+                // Serve index.html
                 if (url == "/" || url == "/index.html")
                 {
-                    std::vector<std::byte> data;
-                    data.resize(this->htmlContent.length());
-                    std::memcpy(data.data(), this->htmlContent.toRawUTF8(), this->htmlContent.length());
-                    return juce::WebBrowserComponent::Resource { data, "text/html" };
+                    return createResource(BinaryData::index_html, 
+                                        BinaryData::index_htmlSize, 
+                                        "text/html");
                 }
+                
+                // Serve JavaScript
+                if (url.endsWith("/app.js") || url.endsWith("app.js"))
+                {
+                    return createResource(BinaryData::app_js, 
+                                        BinaryData::app_jsSize, 
+                                        "application/javascript");
+                }
+                
+                // Serve CSS
+                if (url.endsWith("/styles.css") || url.endsWith("styles.css"))
+                {
+                    return createResource(BinaryData::styles_css, 
+                                        BinaryData::styles_cssSize, 
+                                        "text/css");
+                }
+                
+                // Serve fonts
+                if (url.contains("Inter_24pt-Bold"))
+                    return createResource(BinaryData::Inter_24ptBold_ttf, 
+                                        BinaryData::Inter_24ptBold_ttfSize, 
+                                        "font/ttf");
+                                        
+                if (url.contains("Inter_24pt-Medium"))
+                    return createResource(BinaryData::Inter_24ptMedium_ttf, 
+                                        BinaryData::Inter_24ptMedium_ttfSize, 
+                                        "font/ttf");
+                                        
+                if (url.contains("Inter_24pt-Regular"))
+                    return createResource(BinaryData::Inter_24ptRegular_ttf, 
+                                        BinaryData::Inter_24ptRegular_ttfSize, 
+                                        "font/ttf");
+                                        
+                if (url.contains("Inter_24pt-SemiBold"))
+                    return createResource(BinaryData::Inter_24ptSemiBold_ttf, 
+                                        BinaryData::Inter_24ptSemiBold_ttfSize, 
+                                        "font/ttf");
+                
                 return std::nullopt; }));
 
     addAndMakeVisible(webView.get());
 
     // Navigate to the root which will trigger the resource provider
     webView->goToURL(juce::WebBrowserComponent::getResourceProviderRoot());
+
+    logToFile("setupWebViewForProduction() completed - using Vite dist bundle");
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()

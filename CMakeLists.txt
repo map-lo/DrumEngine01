@@ -103,16 +103,18 @@ target_compile_definitions(DrumEngine01
 # static library. These source files can be of any kind (wav data, images, fonts, icons etc.).
 # Conversion to binary-data will happen when your target is built.
 
-# Add WebView UI files as binary data
+# Add WebView UI files as binary data (from Vite dist folder for production)
 juce_add_binary_data(AudioPluginData
     HEADER_NAME BinaryData.h
     NAMESPACE BinaryData
     SOURCES
-        src/ui/index.html
-        src/ui/styles.css
-        src/ui/app.js
-        src/ui/preset-browser.html
-        src/ui/preset-browser.js)
+        src/ui/dist/index.html
+        src/ui/dist/app.js
+        src/ui/dist/styles.css
+        src/ui/dist/assets/Inter_24pt-Bold.ttf
+        src/ui/dist/assets/Inter_24pt-Medium.ttf
+        src/ui/dist/assets/Inter_24pt-Regular.ttf
+        src/ui/dist/assets/Inter_24pt-SemiBold.ttf)
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
 # we're linking our executable target to the `juce::juce_audio_utils` module. Inter-module

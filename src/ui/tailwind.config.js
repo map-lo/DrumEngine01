@@ -3,6 +3,7 @@ module.exports = {
     content: [
         "./index.html",
         "./app.js",
+        "./preset-browser.js",
     ],
     theme: {
         extend: {

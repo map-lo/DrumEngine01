@@ -170,6 +170,7 @@ class PresetBrowserUI {
                 'break-all',
                 'text-white',
                 'text-[10px]',
+                'tracking-wider',
                 'px-0.5',
                 'py-1',
                 'hover:bg-white',
@@ -190,7 +191,7 @@ class PresetBrowserUI {
 
             // Prefix div
             const prefixDiv = document.createElement('div');
-            prefixDiv.className = 'text-[8px] font-semibold text-white text-opacity-70';
+            prefixDiv.className = 'text-[8px] font-medium text-white tracking-wide text-opacity-70';
             prefixDiv.textContent = prefix;
             // Main name div (only after last slash)
             const nameDiv = document.createElement('div');
