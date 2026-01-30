@@ -198,13 +198,6 @@ class PresetBrowserUI {
                 'tracking-wider',
                 'px-0.5',
                 'py-1',
-                'hover:bg-white',
-                'hover:bg-opacity-20',
-                'hover:text-white',
-                'focus:outline-none',
-                'focus:ring-2',
-                'focus:ring-white',
-                'focus:ring-opacity-50',
                 isSelected ? 'bg-white !bg-opacity-30' : 'bg-black'
             ].join(' ');
 
