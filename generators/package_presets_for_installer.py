@@ -9,7 +9,10 @@ This script converts local development presets to an installer-ready package:
 - Preserves wavsBySlot relative paths unchanged
 
 Usage:
-    python package_presets_for_installer.py
+    python package_presets_for_installer.py [--limit N]
+    
+Options:
+    --limit N    Limit to N presets per subfolder (for testing smaller installers)
     
 Output:
     dist/factory-content/
@@ -31,6 +34,7 @@ Output:
                                 BOWSER OH V01.wav
 """
 
+import argparse
 import json
 import shutil
 from pathlib import Path
@@ -39,13 +43,15 @@ import os
 
 
 class PresetPackager:
-    def __init__(self, source_presets_dir: Path, output_dir: Path):
+    def __init__(self, source_presets_dir: Path, output_dir: Path, limit_per_folder: int = None):
         self.source_presets_dir = source_presets_dir
         self.output_dir = output_dir
         self.presets_output_dir = output_dir / "presets"
         self.samples_output_dir = output_dir / "samples"
+        self.limit_per_folder = limit_per_folder
         
         self.processed_count = 0
+        self.skipped_count = 0
         self.error_count = 0
         self.errors: List[str] = []
     
@@ -54,6 +60,8 @@ class PresetPackager:
         print(f"Starting preset packaging...")
         print(f"Source: {self.source_presets_dir}")
         print(f"Output: {self.output_dir}")
+        if self.limit_per_folder:
+            print(f"Limit: {self.limit_per_folder} presets per folder")
         print()
         
         # Create output directories
@@ -64,6 +72,29 @@ class PresetPackager:
         json_files = list(self.source_presets_dir.rglob("*.json"))
         print(f"Found {len(json_files)} preset files")
         print()
+        
+        # Group files by parent directory if limiting
+        if self.limit_per_folder:
+            files_by_folder = {}
+            for json_file in json_files:
+                folder = json_file.parent
+                if folder not in files_by_folder:
+                    files_by_folder[folder] = []
+                files_by_folder[folder].append(json_file)
+            
+            # Limit each folder and flatten
+            json_files_to_process = []
+            for folder, files in files_by_folder.items():
+                limited_files = files[:self.limit_per_folder]
+                json_files_to_process.extend(limited_files)
+                skipped = len(files) - len(limited_files)
+                if skipped > 0:
+                    self.skipped_count += skipped
+                    print(f"Limiting {folder.name}: processing {len(limited_files)}/{len(files)} presets")
+            
+            print(f"\nProcessing {len(json_files_to_process)} presets (skipped {self.skipped_count})")
+            print()
+            json_files = json_files_to_process
         
         for json_file in json_files:
             try:
@@ -79,6 +110,8 @@ class PresetPackager:
         print("=" * 70)
         print(f"Processing complete!")
         print(f"✅ Successfully processed: {self.processed_count} presets")
+        if self.skipped_count > 0:
+            print(f"⏭️  Skipped (limit): {self.skipped_count} presets")
         if self.error_count > 0:
             print(f"❌ Errors: {self.error_count}")
             print()
@@ -163,6 +196,25 @@ class PresetPackager:
 
 
 def main():
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description='Package DrumEngine01 presets and samples for installer',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python package_presets_for_installer.py              # Package all presets
+  python package_presets_for_installer.py --limit 2    # Limit to 2 presets per folder (testing)
+        """
+    )
+    parser.add_argument(
+        '--limit',
+        type=int,
+        metavar='N',
+        help='Limit to N presets per subfolder (useful for testing smaller installers)'
+    )
+    
+    args = parser.parse_args()
+    
     # Paths relative to this script
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
@@ -181,7 +233,7 @@ def main():
         shutil.rmtree(output_dir)
         print()
     
-    packager = PresetPackager(source_presets, output_dir)
+    packager = PresetPackager(source_presets, output_dir, limit_per_folder=args.limit)
     packager.process_all_presets()
     
     return 0 if packager.error_count == 0 else 1
