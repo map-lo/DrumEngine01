@@ -2,7 +2,7 @@
 <installer-gui-script minSpecVersion="1">
     <title>DrumEngine01</title>
     <organization>Mari</organization>
-    <domains enable_localSystem="true" enable_currentUserHome="true" />
+    <domains enable_localSystem="true" />
     <options customize="always" require-scripts="false" hostArchitectures="x86_64,arm64"/>
     
     <!-- Define installer UI -->
