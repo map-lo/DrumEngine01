@@ -27,7 +27,6 @@
     <!-- Define installation choices -->
     <choices-outline>
         <line choice="vst3"/>
-        <line choice="vst"/>
         <line choice="au"/>
         <line choice="content"/>
     </choices-outline>
@@ -39,13 +38,6 @@
         <pkg-ref id="com.mari.drumengine01.vst3"/>
     </choice>
     
-    <choice id="vst" 
-            title="VST Plugin" 
-            description="Install the VST2 plugin (legacy format)"
-            start_selected="false">
-        <pkg-ref id="com.mari.drumengine01.vst"/>
-    </choice>
-    
     <choice id="au" 
             title="Audio Unit Plugin" 
             description="Install the Audio Unit plugin (for Logic Pro, GarageBand, etc.)"
@@ -55,15 +47,14 @@
     
     <choice id="content" 
             title="Presets and Samples" 
-            description="Install factory presets and audio samples (Required)"
+            description="Install factory presets and audio samples"
             start_selected="true"
-            enabled="false">
+            customLocation="/Users">
         <pkg-ref id="com.mari.drumengine01.content"/>
     </choice>
     
     <!-- Package references -->
     <pkg-ref id="com.mari.drumengine01.vst3" version="0.0.1" onConclusion="none">vst3.pkg</pkg-ref>
-    <pkg-ref id="com.mari.drumengine01.vst" version="0.0.1" onConclusion="none">vst.pkg</pkg-ref>
     <pkg-ref id="com.mari.drumengine01.au" version="0.0.1" onConclusion="none">au.pkg</pkg-ref>
     <pkg-ref id="com.mari.drumengine01.content" version="0.0.1" onConclusion="none">content.pkg</pkg-ref>
     

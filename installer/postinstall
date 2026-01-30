@@ -1,36 +1,66 @@
 #!/bin/bash
 # Post-install script for DrumEngine01 presets and samples
-# This script copies presets and samples to the user's Documents folder
+# This script moves presets and samples from temp to the selected installation location
 
 set -e
 
-# Get the current user's home directory
-USER_HOME=$(eval echo ~$USER)
-DEST_DIR="$USER_HOME/Documents/DrumEngine01"
+# $2 is the target location (where the package is being installed)
+# For user home installations, this will be like /Users/username
+# The actual files are in $2/tmp/DrumEngine01_install/
+INSTALL_ROOT="$2"
+
+# Get the actual user (not root, even if running with sudo)
+if [ -n "$USER" ] && [ "$USER" != "root" ]; then
+    ACTUAL_USER="$USER"
+elif [ -n "$SUDO_USER" ]; then
+    ACTUAL_USER="$SUDO_USER"
+else
+    ACTUAL_USER=$(stat -f '%Su' "$INSTALL_ROOT")
+fi
+
+# Default to Documents/DrumEngine01 in the user's home
+if [ "$INSTALL_ROOT" = "/" ] || [ -z "$INSTALL_ROOT" ]; then
+    USER_HOME=$(eval echo ~$ACTUAL_USER)
+    DEST_DIR="$USER_HOME/Documents/DrumEngine01"
+else
+    # User selected a custom location
+    DEST_DIR="$INSTALL_ROOT/DrumEngine01"
+fi
 
 echo "Installing DrumEngine01 presets and samples..."
+echo "Installation root: $INSTALL_ROOT"
 echo "Destination: $DEST_DIR"
+echo "User: $ACTUAL_USER"
 
 # Create destination directories
 mkdir -p "$DEST_DIR/presets"
 mkdir -p "$DEST_DIR/samples"
 
-# Copy presets (these come from the installer payload)
-if [ -d "/tmp/DrumEngine01_install/presets" ]; then
+# Source files are in the temp location within the install root
+SOURCE_DIR="$INSTALL_ROOT/tmp/DrumEngine01_install"
+
+# Copy presets
+if [ -d "$SOURCE_DIR/presets" ]; then
     echo "Copying presets..."
-    cp -R "/tmp/DrumEngine01_install/presets/"* "$DEST_DIR/presets/"
+    cp -R "$SOURCE_DIR/presets/"* "$DEST_DIR/presets/" 2>/dev/null || true
     echo "✓ Presets installed"
 fi
 
-# Copy samples (these come from the installer payload)
-if [ -d "/tmp/DrumEngine01_install/samples" ]; then
+# Copy samples
+if [ -d "$SOURCE_DIR/samples" ]; then
     echo "Copying samples..."
-    cp -R "/tmp/DrumEngine01_install/samples/"* "$DEST_DIR/samples/"
+    cp -R "$SOURCE_DIR/samples/"* "$DEST_DIR/samples/" 2>/dev/null || true
     echo "✓ Samples installed"
 fi
 
+# Clean up temp files
+rm -rf "$SOURCE_DIR" 2>/dev/null || true
+
 # Set proper permissions
-chmod -R 755 "$DEST_DIR"
+chmod -R 755 "$DEST_DIR" 2>/dev/null || true
+if [ "$ACTUAL_USER" != "root" ]; then
+    chown -R "$ACTUAL_USER" "$DEST_DIR" 2>/dev/null || true
+fi
 
 echo "✓ Installation complete!"
 echo ""

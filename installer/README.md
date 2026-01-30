@@ -42,11 +42,26 @@ The installer will be created at: `installer_output/DrumEngine01-Installer.pkg`
 The installer contains these selectable components:
 
 - **VST3 Plugin** - Installs to `/Library/Audio/Plug-Ins/VST3/`
-- **VST Plugin** - Installs to `/Library/Audio/Plug-Ins/VST/`
 - **Audio Unit** - Installs to `/Library/Audio/Plug-Ins/Components/`
-- **Presets & Samples** - Installs to `~/Documents/DrumEngine01/` (required, not optional)
+- **Presets & Samples** (Optional) - Installs to `~/Documents/DrumEngine01/`
 
-## File Structure
+All components are optional and can be selected during installation.
+
+## Custom Installation Location for Presets/Samples
+
+The standard macOS .pkg installer doesn't support custom directory selection during installation.
+Presets and samples are installed to `~/Documents/DrumEngine01/` by default.
+
+**To use a custom location:**
+
+1. Install normally (or skip the content installation)
+2. Manually copy the `dist/presets/` and `dist/samples/` folders to your preferred location
+3. The plugin will still look in `~/Documents/DrumEngine01/presets/` for presets
+4. Each preset's JSON file contains a `rootFolder` path that points to its samples
+
+**Alternative approach:**
+
+- Create a symbolic link: `ln -s /your/custom/path ~/Documents/DrumEngine01`
 
 ```
 installer/
