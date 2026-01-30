@@ -5,8 +5,7 @@
 set -e
 
 # $2 is the target location (where the package is being installed)
-# For user home installations, this will be like /Users/username
-# The actual files are in $2/tmp/DrumEngine01_install/
+# When user selects a custom location, $2 is like /Users/username
 INSTALL_ROOT="$2"
 
 # Get the actual user (not root, even if running with sudo)
@@ -18,12 +17,18 @@ else
     ACTUAL_USER=$(stat -f '%Su' "$INSTALL_ROOT")
 fi
 
-# Default to Documents/DrumEngine01 in the user's home
+# Determine destination directory
 if [ "$INSTALL_ROOT" = "/" ] || [ -z "$INSTALL_ROOT" ]; then
+    # System-wide install - use current user's home
     USER_HOME=$(eval echo ~$ACTUAL_USER)
     DEST_DIR="$USER_HOME/Documents/DrumEngine01"
+elif [[ "$INSTALL_ROOT" == /Users/* ]]; then
+    # User selected a home directory like /Users/marian
+    # Install to Documents/DrumEngine01 within that user's home
+    DEST_DIR="$INSTALL_ROOT/Documents/DrumEngine01"
 else
-    # User selected a custom location
+    # User selected a custom non-home path like /Hello/Yoyo
+    # Install directly to DrumEngine01 within that path
     DEST_DIR="$INSTALL_ROOT/DrumEngine01"
 fi
 
@@ -36,8 +41,9 @@ echo "User: $ACTUAL_USER"
 mkdir -p "$DEST_DIR/presets"
 mkdir -p "$DEST_DIR/samples"
 
-# Source files are in the temp location within the install root
-SOURCE_DIR="$INSTALL_ROOT/tmp/DrumEngine01_install"
+# Source files are always in /tmp (absolute path)
+# The package installs to /tmp/DrumEngine01_install/ regardless of target
+SOURCE_DIR="/tmp/DrumEngine01_install"
 
 # Copy presets
 if [ -d "$SOURCE_DIR/presets" ]; then

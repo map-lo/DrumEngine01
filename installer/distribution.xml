@@ -49,7 +49,7 @@
             title="Presets and Samples" 
             description="Install factory presets and audio samples"
             start_selected="true"
-            customLocation="/Users">
+            customLocationAllowAlternateVolumes="true">
         <pkg-ref id="com.mari.drumengine01.content"/>
     </choice>
     
