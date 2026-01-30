@@ -497,8 +497,10 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
 {
     presetList.clear();
 
-    // For development, use absolute path
-    juce::File kitsFolder("/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits");
+    // Use user Documents directory
+    juce::File kitsFolder = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+                                .getChildFile("DrumEngine01")
+                                .getChildFile("presets");
 
     if (!kitsFolder.exists() || !kitsFolder.isDirectory())
         return;

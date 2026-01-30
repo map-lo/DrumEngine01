@@ -104,9 +104,14 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     // Only load default preset if no state was restored (i.e., new instance, not loading from session)
     if (!stateRestored)
     {
-        // Load a test preset (you can change this path or make it configurable)
-        // For now, we'll try to load BITE.json if it exists
-        juce::File presetFile = juce::File("/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits/ThatSound DarrenKing/Snare/BITE.json");
+        // Load a test preset from user Documents directory
+        juce::File presetFile = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+                                    .getChildFile("DrumEngine01")
+                                    .getChildFile("presets")
+                                    .getChildFile("factory01")
+                                    .getChildFile("ThatSound DarrenKing")
+                                    .getChildFile("Snare")
+                                    .getChildFile("BITE.json");
         if (presetFile.existsAsFile())
         {
             loadPresetFromFile(presetFile);
