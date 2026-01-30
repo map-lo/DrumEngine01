@@ -1,0 +1,39 @@
+#!/bin/bash
+# Post-install script for DrumEngine01 presets and samples
+# This script copies presets and samples to the user's Documents folder
+
+set -e
+
+# Get the current user's home directory
+USER_HOME=$(eval echo ~$USER)
+DEST_DIR="$USER_HOME/Documents/DrumEngine01"
+
+echo "Installing DrumEngine01 presets and samples..."
+echo "Destination: $DEST_DIR"
+
+# Create destination directories
+mkdir -p "$DEST_DIR/presets"
+mkdir -p "$DEST_DIR/samples"
+
+# Copy presets (these come from the installer payload)
+if [ -d "/tmp/DrumEngine01_install/presets" ]; then
+    echo "Copying presets..."
+    cp -R "/tmp/DrumEngine01_install/presets/"* "$DEST_DIR/presets/"
+    echo "✓ Presets installed"
+fi
+
+# Copy samples (these come from the installer payload)
+if [ -d "/tmp/DrumEngine01_install/samples" ]; then
+    echo "Copying samples..."
+    cp -R "/tmp/DrumEngine01_install/samples/"* "$DEST_DIR/samples/"
+    echo "✓ Samples installed"
+fi
+
+# Set proper permissions
+chmod -R 755 "$DEST_DIR"
+
+echo "✓ Installation complete!"
+echo ""
+echo "DrumEngine01 data installed to: $DEST_DIR"
+
+exit 0
