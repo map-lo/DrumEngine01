@@ -24,6 +24,11 @@ INSTALLER_DIR="$SCRIPT_DIR"
 OUTPUT_DIR="$PROJECT_ROOT/dist/installer"
 TEMP_DIR="$OUTPUT_DIR/temp"
 
+# Get version from environment variable or default to 0.0.1
+VERSION="${DRUMENGINE_VERSION:-0.0.1}"
+echo -e "${YELLOW}Version: $VERSION${NC}"
+echo ""
+
 # Plugin paths (after building)
 VST3_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/Release/VST3/DrumEngine01.vst3"
 VST_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/Release/VST/DrumEngine01.vst"
@@ -108,7 +113,7 @@ create_component_pkg() {
     pkgbuild \
         --root "$PAYLOAD_DIR" \
         --identifier "com.mari.drumengine01.$PKG_NAME" \
-        --version "0.0.1" \
+        --version "$VERSION" \
         --install-location "/" \
         "$OUTPUT_DIR/packages/$PKG_NAME.pkg"
     
@@ -153,7 +158,7 @@ if [ -d "$FACTORY_CONTENT_DIR/presets" ] && [ -d "$FACTORY_CONTENT_DIR/samples" 
     pkgbuild \
         --root "$CONTENT_PAYLOAD" \
         --identifier "com.mari.drumengine01.content" \
-        --version "0.0.1" \
+        --version "$VERSION" \
         --scripts "$SCRIPTS_DIR" \
         --install-location "/" \
         "$OUTPUT_DIR/packages/content.pkg"
@@ -165,11 +170,13 @@ fi
 echo ""
 echo "Building final installer..."
 
+INSTALLER_NAME="DrumEngine01-${VERSION}-Installer.pkg"
+
 productbuild \
     --distribution "$INSTALLER_DIR/distribution.xml" \
     --package-path "$OUTPUT_DIR/packages" \
     --resources "$INSTALLER_DIR" \
-    "$OUTPUT_DIR/DrumEngine01-Installer.pkg"
+    "$OUTPUT_DIR/$INSTALLER_NAME"
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
@@ -177,10 +184,10 @@ echo -e "${GREEN}✓ Installer created successfully!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo "Installer location:"
-echo "  $OUTPUT_DIR/DrumEngine01-Installer.pkg"
+echo "  $OUTPUT_DIR/$INSTALLER_NAME"
 echo ""
 echo "To test the installer:"
-echo "  sudo installer -pkg \"$OUTPUT_DIR/DrumEngine01-Installer.pkg\" -target /"
+echo "  sudo installer -pkg \"$OUTPUT_DIR/$INSTALLER_NAME\" -target /"
 echo ""
 echo "Or double-click the .pkg file to install via GUI"
 echo ""

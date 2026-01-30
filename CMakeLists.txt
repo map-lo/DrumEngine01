@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.22)
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
 
-project(DRUM_ENGINE_01 VERSION 0.0.1)
+project(DRUM_ENGINE_01 VERSION 0.0.2)
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
@@ -96,7 +96,12 @@ target_compile_definitions(DrumEngine01
         # Enable WebBrowser for WebView UI
         JUCE_WEB_BROWSER=1  # Required for WebBrowserComponent
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
-        JUCE_VST3_CAN_REPLACE_VST2=0)
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        # Project version macros
+        DRUMENGINE_VERSION="${PROJECT_VERSION}"
+        DRUMENGINE_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+        DRUMENGINE_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+        DRUMENGINE_VERSION_PATCH=${PROJECT_VERSION_PATCH})
 
 # If your target needs extra binary assets, you can add them here. The first argument is the name of
 # a new static library target that will include all the binary resources. There is an optional

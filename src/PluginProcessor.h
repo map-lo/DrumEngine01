@@ -104,6 +104,12 @@ public:
     // Engine access for editor
     const DrumEngine::Engine &getEngine() const { return engine; }
 
+    // Version information (from CMakeLists.txt)
+    static juce::String getPluginVersion() { return DRUMENGINE_VERSION; }
+    static int getVersionMajor() { return DRUMENGINE_VERSION_MAJOR; }
+    static int getVersionMinor() { return DRUMENGINE_VERSION_MINOR; }
+    static int getVersionPatch() { return DRUMENGINE_VERSION_PATCH; }
+
     // Hit notification for UI visualization
     class HitListener
     {
