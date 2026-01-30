@@ -3,8 +3,8 @@
 Preset Packager for DrumEngine01
 
 This script converts local development presets to an installer-ready package:
-- Copies preset JSON files to dist/presets/ maintaining folder structure
-- Copies sample WAV files from absolute paths to dist/samples/ organized by preset path
+- Copies preset JSON files to dist/factory-content/presets/ maintaining folder structure
+- Copies sample WAV files from absolute paths to dist/factory-content/samples/ organized by preset path
 - Rewrites JSON rootFolder to use ~/Documents/DrumEngine01/samples/{preset_path}
 - Preserves wavsBySlot relative paths unchanged
 
@@ -12,7 +12,7 @@ Usage:
     python package_presets_for_installer.py
     
 Output:
-    dist/
+    dist/factory-content/
         presets/
             factory01/
                 ThatSound DarrenKing/
@@ -168,16 +168,16 @@ def main():
     project_root = script_dir.parent
     
     source_presets = project_root / "presets" / "factory01"
-    output_dir = project_root / "dist"
+    output_dir = project_root / "dist" / "factory-content"
     
     if not source_presets.exists():
         print(f"❌ Error: Source presets directory not found: {source_presets}")
         print("Please ensure presets/factory01/ exists in the project root")
         return 1
     
-    # Clean dist directory if it exists
+    # Clean factory-content directory if it exists
     if output_dir.exists():
-        print(f"Cleaning existing dist directory: {output_dir}")
+        print(f"Cleaning existing factory-content directory: {output_dir}")
         shutil.rmtree(output_dir)
         print()
     
