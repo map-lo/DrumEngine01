@@ -1,11 +1,12 @@
 <div
+  x-data="presetBrowser()"
   class="bg-neutral-700 text-white font-bold select-none !cursor-default h-full overflow-hidden"
 >
   <div class="m-[2px] h-full flex flex-col">
     <div class="text-white text-xs flex items-center justify-between px-2 py-1">
       <div class="font-semibold tracking-wide uppercase">Presets</div>
       <button
-        id="closePresetBrowser"
+        @click="getRoot()?.togglePresetBrowser()"
         class="p-1 -mr-1.5 hover:opacity-60"
         aria-label="Close preset browser"
       >
@@ -24,28 +25,60 @@
 
     <div class="p-2 flex flex-col gap-2 grow overflow-hidden">
       <input
-        id="presetSearch"
+        x-model="searchTerm"
         type="text"
         placeholder="Search presets..."
         autocomplete="off"
         class="shrink-0 h-10 font-semibold px-2 text-xs border-2 border-black bg-black text-white outline-none"
       />
 
-      <div
-        id="presetTags"
-        class="flex flex-wrap gap-1"
-        aria-label="Preset tags"
-      >
-        <div id="noTagsMessage" class="text-[10px] text-white text-opacity-50">
-          No tags available
-        </div>
+      <div class="flex flex-wrap gap-1" aria-label="Preset tags">
+        <template x-if="availableTags.length === 0">
+          <div class="text-[10px] text-white text-opacity-50">
+            No tags available
+          </div>
+        </template>
+
+        <template x-for="tag in availableTags" :key="tag">
+          <button
+            @click="toggleTag(tag)"
+            class="px-2 py-1 text-[10px] uppercase tracking-widest hover:bg-white hover:bg-opacity-20"
+            :class="selectedTags.has(tag) ? 'bg-white text-black' : 'bg-black text-white'"
+            x-text="tag"
+          ></button>
+        </template>
       </div>
 
       <div
-        id="presetList"
         class="bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
         aria-label="Preset list"
-      ></div>
+      >
+        <template x-if="filteredPresets.length === 0">
+          <div class="px-2 py-2 text-black text-opacity-50">
+            No presets found
+          </div>
+        </template>
+
+        <template
+          x-for="(preset, index) in filteredPresets"
+          :key="preset.index"
+        >
+          <button
+            @click="loadPreset(preset.index)"
+            @keydown.down.prevent="navigateDown(index)"
+            @keydown.up.prevent="navigateUp(index)"
+            tabindex="0"
+            class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
+            :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-white !bg-opacity-30' : 'bg-black'"
+          >
+            <div
+              class="text-[8px] -mb-0.5 font-medium text-white tracking-wide text-opacity-70"
+              x-text="getPresetPrefix(preset.displayName)"
+            ></div>
+            <div x-text="getPresetName(preset.displayName)"></div>
+          </button>
+        </template>
+      </div>
     </div>
   </div>
 </div>

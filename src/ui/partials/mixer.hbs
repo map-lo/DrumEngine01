@@ -1,34 +1,42 @@
 <!-- Mixer Strips -->
 <div class="flex gap-6 justify-center grow px-12 py-6">
-  {{#each (range 1 8)}}
-    <!-- Mixer Strip {{this}} -->
-    <div class="channel-strip w-16 opacity-50" data-slot="{{@index}}">
+  <template x-for="(slot, index) in slots" :key="index">
+    <!-- Mixer Strip -->
+    <div
+      class="channel-strip w-16"
+      :class="slot.isActive ? 'opacity-100' : 'opacity-50'"
+    >
       <div
         class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
-      >
-        {{this}}
-      </div>
+        x-text="slot.name || (index + 1)"
+      ></div>
       <div
-        class="h-[180px] w-8 border-2 border-black mx-auto my-1 flex items-end relative"
+        @mousedown="startVolumeDrag($event, index)"
+        @dblclick="resetSlotVolume(index)"
+        @click.alt="resetSlotVolume(index)"
+        class="fader-container h-[180px] w-8 border-2 border-black mx-auto my-1 flex items-end relative cursor-pointer select-none"
       >
-        <input
-          type="range"
-          class="volume-fader absolute inset-0 w-full h-full opacity-0"
-          orient="vertical"
-          min="0"
-          max="100"
-          value="100"
-        />
         <div
           class="volume-indicator w-full bg-black"
-          style="height: 100%"
+          :style="`height: ${getSlotFaderPosition(index)}%`"
         ></div>
       </div>
       <div class="text-center grid grid-cols-1 gap-0.5 text-[10px] font-black">
-        <div class="volume-value text-center">0.0 dB</div>
-        <button class="mute-button uppercase">Mute</button>
-        <button class="solo-button uppercase">Solo</button>
+        <div
+          class="volume-value text-center"
+          x-text="getSlotVolumeDisplay(index)"
+        ></div>
+        <button
+          @click="toggleSlotMute(index)"
+          class="uppercase"
+          :class="slot.muted ? 'bg-red-600 text-white' : 'text-black'"
+        >Mute</button>
+        <button
+          @click="toggleSlotSolo(index)"
+          class="uppercase"
+          :class="slot.soloed ? 'bg-yellow-400' : ''"
+        >Solo</button>
       </div>
     </div>
-  {{/each}}
+  </template>
 </div>

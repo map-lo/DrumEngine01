@@ -3,29 +3,41 @@
   <label class="flex items-center gap-1 mb-[2px]">
     <span class="text-[10px]">Pitch</span>
     <div
-      id="pitchSliderContainer"
+      @pointerdown="handlePitchDrag($event)"
+      @dblclick="resetPitch()"
+      @click.alt="resetPitch()"
       class="h-4 w-16 border-2 border-black flex items-center relative cursor-pointer"
     >
       <div
-        id="pitchIndicator"
         class="pitch-indicator h-full bg-black pointer-events-none"
-        style="width: 50%"
+        :style="`width: ${((presetInfo.pitchShift + 6) / 12) * 100}%`"
       ></div>
     </div>
-    <span id="pitchValue" class="text-[10px] w-8 h-4 text-right">0.0st</span>
+    <span
+      class="text-[10px] w-8 h-4 text-right"
+      x-text="formatPitchShift(presetInfo.pitchShift)"
+    ></span>
   </label>
   <div class="grow"></div>
   <label class="flex">
     <span class="text-[10px]">Midi Note</span>
     <input
       type="text"
-      id="midiNoteInput"
-      value="D1"
+      x-model="midiNoteInput"
+      @keydown.enter.prevent="handleMidiNoteChange()"
+      @keydown.escape.prevent="resetMidiNoteInput()"
+      @blur="handleMidiNoteChange()"
+      @input="sanitizeMidiNoteInput($event)"
       class="w-8 h-4 text-[10px] text-center ml-1 bg-black !text-white"
     />
   </label>
   <label class="flex">
-    <input type="checkbox" id="midiNoteLock" class="hidden peer" />
+    <input
+      type="checkbox"
+      x-model="presetInfo.midiNoteLocked"
+      @change="sendMessage('setMidiNoteLocked', { locked: presetInfo.midiNoteLocked })"
+      class="hidden peer"
+    />
     <span
       class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
     >
@@ -33,7 +45,12 @@
     </span>
   </label>
   <label class="flex">
-    <input type="checkbox" id="velocityToVolume" class="hidden peer" />
+    <input
+      type="checkbox"
+      x-model="presetInfo.useVelocityToVolume"
+      @change="sendMessage('setVelocityToVolume', { enabled: presetInfo.useVelocityToVolume })"
+      class="hidden peer"
+    />
     <span
       class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
     >
@@ -41,7 +58,12 @@
     </span>
   </label>
   <label class="flex">
-    <input type="checkbox" id="outputMode" class="hidden peer" />
+    <input
+      type="checkbox"
+      :checked="outputMode === 'multiout'"
+      @change="sendMessage('setOutputMode', { mode: $event.target.checked ? 'multiout' : 'stereo' }); outputMode = $event.target.checked ? 'multiout' : 'stereo'"
+      class="hidden peer"
+    />
     <span
       class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
     >

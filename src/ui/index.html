@@ -6,7 +6,8 @@
     <title>DrumEngine01</title>
   </head>
   <body
-    x-data="{ editor: false }"
+    x-data="drumEngineApp()"
+    x-init="init()"
     class="bg-[ghostwhite] text-black font-bold select-none !cursor-default h-full overflow-hidden"
   >
     <div x-show="!editor" class="h-full flex flex-row-reverse items-stretch">

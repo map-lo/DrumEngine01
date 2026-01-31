@@ -3,13 +3,16 @@
   class="h-20 border-b-2 border-black mt-[2px] flex items-center justify-between gap-6 px-6"
 >
   <div class="overflow-hidden">
-    <span id="pluginTitle" class="text-3xl tracking-wide">DrumEngine01</span>
-    <div id="presetInfo" class="hidden">
+    <span
+      x-show="!presetInfo.isPresetLoaded"
+      class="text-3xl tracking-wide"
+    >DrumEngine01</span>
+    <div x-show="presetInfo.isPresetLoaded">
       <div class="-mb-1.5 -mt-1">
         <span class="text-xs tracking-widest font-normal">DrumEngine01</span>
       </div>
       <div class="truncate">
-        <span id="presetDisplay" class="text-2xl font-semibold">[Empty]</span>
+        <span class="text-2xl font-semibold" x-text="presetDisplay"></span>
       </div>
     </div>
   </div>
@@ -18,14 +21,15 @@
     <div
       class="grid grid-cols-10 gap-y-[5px] gap-x-[3px] preset-quality-indicator min-w-[127px]"
     >
-      {{#each (range 5 1) as |rr|}}
-        {{#each (range 1 10)}}
+      <template x-for="rr in [1, 2, 3, 4, 5]" :key="rr">
+        <template x-for="vel in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" :key="vel">
           <div
-            class="w-[10px] h-[4px] bg-black opacity-20 velocity-{{this}}
-              rr-{{rr}}"
+            :class="`velocity-${vel} rr-${rr} w-[10px] h-[4px] bg-black ${
+              hasSample(vel, rr) ? 'opacity-100' : 'opacity-20'
+            }`"
           ></div>
-        {{/each}}
-      {{/each}}
+        </template>
+      </template>
     </div>
   </div>
 </div>
