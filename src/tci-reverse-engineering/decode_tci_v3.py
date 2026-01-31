@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Decode TCI using CWaveData::decompressToFloatData logic."""
 
+import io
 import os
 import struct
 import sys
 import wave
+import zlib
+import xml.etree.ElementTree as ET
 
-SIGNATURE = b"TRIGGER COMPRESSED INSTRUMENT\x00"
+SIGNATURES = [
+    b"TRIGGER COMPRESSED INSTRUMENT\x00",
+    b"TRIGGER COMPRESSED INSTRUMENT 2\x00",
+    b"TRIGGER COMPRESSED INSTRUMENT 2",
+    b"TRIGGER COMPRESSED INSTRUMENT",
+]
 DEFAULT_BLOCK_SIZE = 0xC9
 
 
@@ -24,11 +32,18 @@ def read_u32le(data, offset):
 
 
 def find_tlv_start(data):
-    sig_index = data.find(SIGNATURE)
+    sig_index = -1
+    sig_value = None
+    for sig in SIGNATURES:
+        sig_index = data.find(sig)
+        if sig_index != -1:
+            sig_value = sig
+            break
+
     if sig_index == -1:
         return None
 
-    scan_start = sig_index + len(SIGNATURE)
+    scan_start = sig_index + len(sig_value)
     scan_end = min(scan_start + 0x100, len(data) - 32)
 
     for offset in range(scan_start, scan_end):
@@ -100,11 +115,90 @@ def parse_tci_waves(path):
     return chunks
 
 
+def find_zlib_xml(data):
+    for offset in range(len(data) - 2):
+        if data[offset:offset + 2] not in (b"\x78\x9C", b"\x78\xDA"):
+            continue
+        try:
+            out = zlib.decompress(data[offset:])
+        except Exception:
+            continue
+        text = out.decode("utf-8", errors="ignore")
+        start = text.find("<")
+        end = text.rfind(">")
+        if start == -1 or end == -1:
+            continue
+        xml_text = text[start:end + 1]
+        try:
+            root = ET.fromstring(xml_text)
+        except ET.ParseError:
+            continue
+        return offset, root
+    return None, None
+
+
+def parse_tci2_waves(path):
+    with open(path, 'rb') as f:
+        data = f.read()
+
+    zoff, root = find_zlib_xml(data)
+    if root is None:
+        return None
+
+    data_count = int(root.attrib.get("data_count", "0"))
+    if data_count == 0:
+        return None
+
+    comp_bits = []
+    sample_counts = []
+    stereo_flags = []
+
+    for i in range(data_count):
+        comp = root.attrib.get(f"wd{i}comp1")
+        samples = root.attrib.get(f"wd{i}samples")
+        stereo = root.attrib.get(f"wd{i}stereo", "0")
+        if comp is None or samples is None:
+            return None
+        comp_bits.append(int(comp))
+        sample_counts.append(int(samples))
+        stereo_flags.append(int(stereo))
+
+    total_bytes = sum((c + 7) // 8 for c in comp_bits)
+    blob_start = zoff - total_bytes
+    if blob_start < 0:
+        return None
+
+    sample_rate = int(root.attrib.get("sample_rate", "48000"))
+    chunks = []
+    cursor = blob_start
+    for i in range(data_count):
+        bit_len = comp_bits[i]
+        payload_len = (bit_len + 7) // 8
+        payload = data[cursor:cursor + payload_len]
+        cursor += payload_len
+
+        channels = 2 if stereo_flags[i] else 1
+        chunks.append(
+            {
+                "offset": cursor - payload_len,
+                "wave_id": i,
+                "channels": channels,
+                "bit_len": bit_len,
+                "sample_count": sample_counts[i],
+                "payload_len": payload_len,
+                "payload": payload,
+                "sample_rate": sample_rate,
+            }
+        )
+
+    return chunks
+
+
 def find_wave_chunks(path):
     with open(path, 'rb') as f:
         data = f.read()
 
-    if not data.startswith(b"TRIGGER COMPRESSED INSTRUMENT"):
+    if not any(data.startswith(sig) for sig in SIGNATURES):
         raise ValueError("Not a TCI file")
 
     # Scan for wave chunk headers: [wave_id][data_len][channels][bit_len][sample_count]
@@ -267,6 +361,8 @@ def main():
     output_dir = sys.argv[2] if len(sys.argv) > 2 else 'output'
 
     chunks = parse_tci_waves(input_path)
+    if not chunks:
+        chunks = parse_tci2_waves(input_path)
     if not chunks:
         chunks = find_wave_chunks(input_path)
     if not chunks:

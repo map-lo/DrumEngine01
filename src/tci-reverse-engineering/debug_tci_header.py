@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 import struct
+import sys
 
-SIGNATURE = b"TRIGGER COMPRESSED INSTRUMENT\x00"
+SIGNATURES = [
+    b"TRIGGER COMPRESSED INSTRUMENT\x00",
+    b"TRIGGER COMPRESSED INSTRUMENT 2\x00",
+    b"TRIGGER COMPRESSED INSTRUMENT 2",
+    b"TRIGGER COMPRESSED INSTRUMENT",
+]
 
 
 def read_u32le(data, offset):
@@ -11,16 +17,27 @@ def read_u32le(data, offset):
 
 
 def main():
-    path = "/Users/marian/Downloads/SPINLIGHT SAMPLES/Trigger TCI/Vintage 70's Acrolite (Tight)/Vintage 70's Acrolite (Tight) - Close Mic.tci"
+    path = (
+        sys.argv[1]
+        if len(sys.argv) > 1
+        else "/Users/marian/Downloads/SPINLIGHT SAMPLES/Trigger TCI/Vintage 70's Acrolite (Tight)/Vintage 70's Acrolite (Tight) - Close Mic.tci"
+    )
     with open(path, 'rb') as f:
         data = f.read()
 
-    sig_index = data.find(SIGNATURE)
+    sig_index = -1
+    sig_value = None
+    for sig in SIGNATURES:
+        sig_index = data.find(sig)
+        if sig_index != -1:
+            sig_value = sig
+            break
+
     print(f"Signature index: {sig_index}")
     if sig_index == -1:
         return
 
-    scan_start = sig_index + len(SIGNATURE)
+    scan_start = sig_index + len(sig_value)
     header_offset = None
     for offset in range(scan_start, scan_start + 0x100):
         v = [read_u32le(data, offset + i * 4) for i in range(8)]
@@ -34,6 +51,18 @@ def main():
 
     if header_offset is None:
         print("No matching header found in scan window")
+        # Fallback: scan for tag 0x14 size 4 with common sample rates
+        candidates = []
+        for offset in range(0, len(data) - 12):
+            tag = read_u32le(data, offset)
+            size = read_u32le(data, offset + 4)
+            value = read_u32le(data, offset + 8)
+            if tag == 0x14 and size == 4 and value in (44100, 48000, 96000):
+                candidates.append(offset)
+                if len(candidates) >= 5:
+                    break
+        if candidates:
+            print("Sample-rate tag candidates:", candidates)
         return
 
     tlv_start = header_offset + 32

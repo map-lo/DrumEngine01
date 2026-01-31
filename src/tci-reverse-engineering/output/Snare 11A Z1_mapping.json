@@ -1,0 +1,161 @@
+{
+  "sample_rate": 48000,
+  "wave_chunks": 20,
+  "articulations": [
+    {
+      "name": " Snare Full",
+      "layers": [
+        {
+          "velocity": 0,
+          "waves": [
+            16,
+            17,
+            18,
+            19
+          ]
+        },
+        {
+          "velocity": 30,
+          "waves": [
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "velocity": 60,
+          "waves": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "velocity": 90,
+          "waves": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "velocity": 110,
+          "waves": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "name": " Snare Rimshot",
+      "layers": [
+        {
+          "velocity": 0,
+          "waves": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "velocity": 60,
+          "waves": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "name": " Snare Soft",
+      "layers": [
+        {
+          "velocity": 0,
+          "waves": [
+            16,
+            17,
+            18,
+            19
+          ]
+        },
+        {
+          "velocity": 30,
+          "waves": [
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "velocity": 75,
+          "waves": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "velocity": 105,
+          "waves": [
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "name": " Snare Hard",
+      "layers": [
+        {
+          "velocity": 0,
+          "waves": [
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "velocity": 40,
+          "waves": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "velocity": 80,
+          "waves": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "velocity": 100,
+          "waves": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ]
+    }
+  ]
+}
