@@ -1,0 +1,28 @@
+<!-- Header -->
+<div
+  class="h-20 border-b-2 border-black mt-[2px] flex items-center justify-between gap-6 px-6"
+>
+  <div class="overflow-hidden">
+    <span id="pluginTitle" class="text-3xl tracking-wide">DrumEngine01</span>
+    <div id="presetInfo" class="hidden">
+      <div class="-mb-1.5 -mt-1">
+        <span class="text-xs tracking-widest font-normal">DrumEngine01</span>
+      </div>
+      <div class="truncate">
+        <span id="presetDisplay" class="text-2xl font-semibold">[Empty]</span>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div
+      class="grid grid-cols-10 gap-y-[5px] gap-x-[3px] preset-quality-indicator min-w-[127px]"
+    >
+      {{#each (range 5 0)}}
+        {{#each (range 1 11)}}
+      <div class="w-[10px] h-[4px] bg-black opacity-20 velocity-{{this}} rr-{{@../index}}"></div>
+        {{/each}}
+      {{/each}}
+    </div>
+  </div>
+</div>

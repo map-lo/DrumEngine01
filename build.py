@@ -112,10 +112,55 @@ class BuildOrchestrator:
         print()
         return True
     
-    def step_configure_cmake(self):
-        """Step 2: Configure CMake"""
+    def step_remove_installed_plugins(self):
+        """Step 2: Remove system-level installed plugins (for dev builds)"""
+        if self.config.BUILD_TYPE != "Debug":
+            print(f"{Colors.YELLOW}Skipping plugin removal (not a Debug build){Colors.NC}")
+            print()
+            return True
+        
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 2: Configuring CMake{Colors.NC}")
+        print(f"{Colors.GREEN}Step 2: Removing System-Level Installed Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print()
+        
+        # System-level plugin directories (where installer puts them)
+        system_vst3 = Path("/Library/Audio/Plug-Ins/VST3/DrumEngine01.vst3")
+        system_au = Path("/Library/Audio/Plug-Ins/Components/DrumEngine01.component")
+        
+        plugins_to_remove = []
+        
+        if system_vst3.exists():
+            plugins_to_remove.append(("VST3", system_vst3))
+        
+        if system_au.exists():
+            plugins_to_remove.append(("AU", system_au))
+        
+        if not plugins_to_remove:
+            print(f"No system plugins found to remove")
+            print()
+            return True
+        
+        # Need sudo to remove system-level plugins
+        print(f"{Colors.YELLOW}Removing system-level plugins requires administrator privileges{Colors.NC}")
+        
+        for plugin_type, plugin_path in plugins_to_remove:
+            print(f"Removing system {plugin_type}: {plugin_path}")
+            if not self.run_command(
+                ["sudo", "rm", "-rf", str(plugin_path)],
+                description=f"Removing {plugin_type} plugin"
+            ):
+                print(f"{Colors.RED}Failed to remove {plugin_type} plugin{Colors.NC}")
+                return False
+        
+        print(f"{Colors.GREEN}✓ System plugins removed (dev build will be used){Colors.NC}")
+        print()
+        return True
+    
+    def step_configure_cmake(self):
+        """Step 3: Configure CMake"""
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print(f"{Colors.GREEN}Step 3: Configuring CMake{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -129,9 +174,9 @@ class BuildOrchestrator:
         )
     
     def step_build_plugins(self):
-        """Step 3: Build plugins"""
+        """Step 4: Build plugins"""
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 3: Building Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}Step 4: Building Plugins{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -144,9 +189,14 @@ class BuildOrchestrator:
         )
     
     def step_package_content(self):
-        """Step 4: Package factory content"""
+        """Step 5: Package factory content"""
+        if not self.config.BUILD_INSTALLER:
+            print(f"{Colors.YELLOW}Skipping content packaging (BUILD_INSTALLER=False){Colors.NC}")
+            print()
+            return True
+        
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 4: Packaging Factory Content{Colors.NC}")
+        print(f"{Colors.GREEN}Step 5: Packaging Factory Content{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -166,14 +216,14 @@ class BuildOrchestrator:
         )
     
     def step_build_installer(self):
-        """Step 5: Build installer"""
+        """Step 6: Build installer"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping installer build (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 5: Building Installer{Colors.NC}")
+        print(f"{Colors.GREEN}Step 6: Building Installer{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -238,6 +288,7 @@ class BuildOrchestrator:
         
         steps = [
             self.step_clean_build,
+            self.step_remove_installed_plugins,
             self.step_configure_cmake,
             self.step_build_plugins,
             self.step_package_content,

@@ -1,0 +1,51 @@
+<!-- Status Bar -->
+<div class="flex gap-3 items-end justify-start mx-2 mb-1">
+  <label class="flex items-center gap-1 mb-[2px]">
+    <span class="text-[10px]">Pitch</span>
+    <div
+      id="pitchSliderContainer"
+      class="h-4 w-16 border-2 border-black flex items-center relative cursor-pointer"
+    >
+      <div
+        id="pitchIndicator"
+        class="pitch-indicator h-full bg-black pointer-events-none"
+        style="width: 50%"
+      ></div>
+    </div>
+    <span id="pitchValue" class="text-[10px] w-8 h-4 text-right">0.0st</span>
+  </label>
+  <div class="grow"></div>
+  <label class="flex">
+    <span class="text-[10px]">Midi Note</span>
+    <input
+      type="text"
+      id="midiNoteInput"
+      value="D1"
+      class="w-8 h-4 text-[10px] text-center ml-1 bg-black !text-white"
+    />
+  </label>
+  <label class="flex">
+    <input type="checkbox" id="midiNoteLock" class="hidden peer" />
+    <span
+      class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
+    >
+      Lock MIDI
+    </span>
+  </label>
+  <label class="flex">
+    <input type="checkbox" id="velocityToVolume" class="hidden peer" />
+    <span
+      class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
+    >
+      Velocity→Volume
+    </span>
+  </label>
+  <label class="flex">
+    <input type="checkbox" id="outputMode" class="hidden peer" />
+    <span
+      class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
+    >
+      Multi-Out
+    </span>
+  </label>
+</div>

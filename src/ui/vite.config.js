@@ -1,7 +1,23 @@
 import { defineConfig } from 'vite';
+import handlebars from 'vite-plugin-handlebars';
 
 export default defineConfig({
     base: './',
+
+    plugins: [
+        handlebars({
+            partialDirectory: './partials',
+            helpers: {
+                range: (start, end) => {
+                    const result = [];
+                    for (let i = start; i <= end; i++) {
+                        result.push(i);
+                    }
+                    return result;
+                }
+            }
+        }),
+    ],
 
     server: {
         fs: {

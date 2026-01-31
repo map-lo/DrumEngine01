@@ -16,17 +16,17 @@ def get_version_from_cmake():
 VERSION = get_version_from_cmake()
 
 # Build Settings
-BUILD_TYPE = "Release"  # Release or Debug
+BUILD_TYPE = "Debug"  # Release or Debug
 CLEAN_BUILD = False     # Set to True to clean build artifacts before building
 
-# Preset Packaging
+# Installer Settings
+BUILD_INSTALLER = False  # Set to False to skip installer creation
+
+# Preset Packaging if installer is built
 PRESET_LIMIT = 4     # Set to a number (e.g., 2) to limit presets per folder for testing, or None for all presets
 
-# Installer Settings
-BUILD_INSTALLER = True  # Set to False to skip installer creation
-
 # Plugin Formats (must match CMakeLists.txt)
-PLUGIN_FORMATS = ["VST3", "AU"]  # Available: VST3, AU, AAX (requires SDK)
+PLUGIN_FORMATS = ["VST3"]  # Available: VST3, AU, AAX (requires SDK)
 
 # Paths (usually don't need to change these)
 BUILD_DIR = "build"
