@@ -8,3 +8,4 @@ dist/
 *.log
 installer_output/
 __pycache__/
+pace_config.py

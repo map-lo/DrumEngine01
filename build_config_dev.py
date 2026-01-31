@@ -1,4 +1,4 @@
-# Build Configuration for DrumEngine01
+# Development Build Configuration for DrumEngine01
 
 import re
 from pathlib import Path
@@ -16,7 +16,6 @@ def get_version_from_cmake():
 VERSION = get_version_from_cmake()
 
 # Build Settings
-BUILD_TYPE = "Debug"  # Release or Debug
 CLEAN_BUILD = False     # Set to True to clean build artifacts before building
 
 # Installer Settings
@@ -26,7 +25,10 @@ BUILD_INSTALLER = False  # Set to False to skip installer creation
 PRESET_LIMIT = 4     # Set to a number (e.g., 2) to limit presets per folder for testing, or None for all presets
 
 # Plugin Formats (must match CMakeLists.txt)
-PLUGIN_FORMATS = ["VST3"]  # Available: VST3, AU, AAX (requires SDK)
+PLUGIN_FORMATS = ["VST3", "AU", "AAX"]
+
+# AAX Signing
+SIGN_AAX = True  # Set to False to skip AAX signing (requires PACE configuration)
 
 # Paths (usually don't need to change these)
 BUILD_DIR = "build"

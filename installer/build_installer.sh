@@ -26,13 +26,26 @@ TEMP_DIR="$OUTPUT_DIR/temp"
 
 # Get version from environment variable or default to 0.0.1
 VERSION="${DRUMENGINE_VERSION:-0.0.1}"
+BUILD_TYPE="${DRUMENGINE_BUILD_TYPE:-release}"
+
+# Determine plugin name based on build type
+if [ "$BUILD_TYPE" = "dev" ]; then
+    PLUGIN_NAME="DrumEngine01Dev"
+    CMAKE_BUILD="Debug"
+else
+    PLUGIN_NAME="DrumEngine01"
+    CMAKE_BUILD="Release"
+fi
+
 echo -e "${YELLOW}Version: $VERSION${NC}"
+echo -e "${YELLOW}Build Type: $BUILD_TYPE${NC}"
+echo -e "${YELLOW}Plugin Name: $PLUGIN_NAME${NC}"
 echo ""
 
 # Plugin paths (after building)
-VST3_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/Release/VST3/DrumEngine01.vst3"
-VST_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/Release/VST/DrumEngine01.vst"
-AU_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/Release/AU/DrumEngine01.component"
+VST3_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/$CMAKE_BUILD/VST3/$PLUGIN_NAME.vst3"
+AU_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/$CMAKE_BUILD/AU/$PLUGIN_NAME.component"
+AAX_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/$CMAKE_BUILD/AAX/$PLUGIN_NAME.aaxplugin"
 
 # Check if build exists
 if [ ! -d "$BUILD_DIR" ]; then
@@ -47,21 +60,21 @@ if [ -d "$VST3_SOURCE" ]; then
     echo -e "${GREEN}✓ Found VST3 plugin${NC}"
     PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
 else
-    echo -e "${YELLOW}⚠ VST3 plugin not found${NC}"
-fi
-
-if [ -d "$VST_SOURCE" ]; then
-    echo -e "${GREEN}✓ Found VST plugin${NC}"
-    PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
-else
-    echo -e "${YELLOW}⚠ VST plugin not found${NC}"
+    echo -e "${YELLOW}⚠ VST3 plugin not found at $VST3_SOURCE${NC}"
 fi
 
 if [ -d "$AU_SOURCE" ]; then
     echo -e "${GREEN}✓ Found AU plugin${NC}"
     PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
 else
-    echo -e "${YELLOW}⚠ AU plugin not found${NC}"
+    echo -e "${YELLOW}⚠ AU plugin not found at $AU_SOURCE${NC}"
+fi
+
+if [ -d "$AAX_SOURCE" ]; then
+    echo -e "${GREEN}✓ Found AAX plugin${NC}"
+    PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
+else
+    echo -e "${YELLOW}⚠ AAX plugin not found at $AAX_SOURCE${NC}"
 fi
 
 if [ $PLUGINS_FOUND -eq 0 ]; then
@@ -135,6 +148,11 @@ if [ -d "$AU_SOURCE" ]; then
     create_component_pkg "AU" "$AU_SOURCE" "/Library/Audio/Plug-Ins/Components" "au"
 fi
 
+# Create AAX package
+if [ -d "$AAX_SOURCE" ]; then
+    create_component_pkg "AAX" "$AAX_SOURCE" "/Library/Application Support/Avid/Audio/Plug-Ins" "aax"
+fi
+
 # Create content package (presets and samples)
 if [ -d "$FACTORY_CONTENT_DIR/presets" ] && [ -d "$FACTORY_CONTENT_DIR/samples" ]; then
     echo "Creating content package..."
@@ -170,7 +188,7 @@ fi
 echo ""
 echo "Building final installer..."
 
-INSTALLER_NAME="DrumEngine01-${VERSION}-Installer.pkg"
+INSTALLER_NAME="${PLUGIN_NAME}-${VERSION}-Installer.pkg"
 
 productbuild \
     --distribution "$INSTALLER_DIR/distribution.xml" \

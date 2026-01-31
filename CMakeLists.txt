@@ -54,12 +54,13 @@ juce_add_plugin(DrumEngine01
     # COPY_PLUGIN_AFTER_BUILD TRUE/FALSE        # Should the plugin be installed to a default location after building?
     COPY_PLUGIN_AFTER_BUILD TRUE                # Should the plugin be installed to a default location after building?
     PLUGIN_MANUFACTURER_CODE Mari               # A four-character manufacturer id with at least one upper-case character
-    PLUGIN_CODE Dem0                            # A unique four-character plugin id with exactly one upper-case character
+    PLUGIN_CODE ${PLUGIN_ID}                    # A unique four-character plugin id with exactly one upper-case character
                                                 # GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
-    FORMATS VST3 AU                             # The formats to build. Other valid formats are: AAX Unity AUv3
+    FORMATS VST3 AU AAX                         # The formats to build. Other valid formats are: AAX Unity AUv3
                                                 # VST (VST2) requires legacy SDK (set with juce_set_vst2_sdk_path)
                                                 # AAX requires AAX SDK from Avid (set with juce_set_aax_sdk_path)
-    PRODUCT_NAME "DrumEngine01")        # The name of the final executable, which can differ from the target name
+    AAX_CATEGORY AAX_ePlugInCategory_SWGenerators  # AAX category for software instrument
+    PRODUCT_NAME ${PLUGIN_NAME})                # The name of the final executable, which can differ from the target name
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
