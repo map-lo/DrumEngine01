@@ -10,6 +10,9 @@ window.Alpine = Alpine;
 // Main DrumEngine Alpine Component
 window.drumEngineApp = function () {
     return {
+        // Debug mode - set to false to disable console logging
+        debugMode: false,
+
         // UI State
         editor: false,
         isPresetBrowserOpen: false,
@@ -56,7 +59,6 @@ window.drumEngineApp = function () {
 
         // Initialize
         init() {
-            console.log('DrumEngine Alpine app initialized');
 
             // Set up global functions for C++ to call
             window.updateStateFromCpp = (stateJson) => {
@@ -92,7 +94,6 @@ window.drumEngineApp = function () {
 
             // Notify C++ that page is ready
             if (window.__JUCE__ && window.__JUCE__.backend && window.__JUCE__.backend.emitEvent) {
-                console.log('Emitting pageReady event');
                 window.__JUCE__.backend.emitEvent('pageReady', {});
             }
 
@@ -215,30 +216,21 @@ window.drumEngineApp = function () {
         },
 
         startVolumeDrag(event, index) {
-            console.log('startVolumeDrag called', { index, slots: this.slots });
             this.volumeDragIndex = index;
             this.handleVolumeDrag(event);
             event.preventDefault();
         },
 
         handleVolumeDrag(event) {
-            console.log('handleVolumeDrag called', { index: this.volumeDragIndex });
             if (this.volumeDragIndex < 0) return;
 
             const strips = document.querySelectorAll('.channel-strip');
-            console.log('Found strips:', strips.length);
             const strip = strips[this.volumeDragIndex];
-            if (!strip) {
-                console.log('Strip not found for index:', this.volumeDragIndex);
-                return;
-            }
+            if (!strip) return;
 
             // Find the fader container
             const container = strip.querySelector('.fader-container');
-            if (!container) {
-                console.log('Container not found');
-                return;
-            }
+            if (!container) return;
 
             const rect = container.getBoundingClientRect();
             const y = event.clientY - rect.top;
@@ -246,10 +238,7 @@ window.drumEngineApp = function () {
             let position = Math.round(((height - y) / height) * 100);
             position = Math.max(0, Math.min(100, position));
 
-            console.log('Position calculated:', position);
-
             const linear = this.faderPositionToLinear(position);
-            console.log('Linear value:', linear);
             this.slots[this.volumeDragIndex] = { ...this.slots[this.volumeDragIndex], volume: linear };
             this.sendMessage('setSlotVolume', { slot: this.volumeDragIndex, volume: linear });
         },
@@ -283,8 +272,6 @@ window.drumEngineApp = function () {
         },
 
         updateState(state) {
-            console.log('updateState called with:', state);
-
             if (state.statusMessage) {
                 this.statusMessage = state.statusMessage;
             }
@@ -324,8 +311,6 @@ window.drumEngineApp = function () {
 
         // Hit visualization
         onHit(velocityLayer, rrIndex) {
-            console.log(`Hit: velocity ${velocityLayer}, RR ${rrIndex}`);
-
             // Find the indicator element using CSS classes
             const selector = `.velocity-${velocityLayer}.rr-${rrIndex}`;
             const indicator = document.querySelector(selector);
@@ -480,9 +465,9 @@ window.drumEngineApp = function () {
             const message = { action, ...data };
 
             if (window.__JUCE__ && window.__JUCE__.backend && window.__JUCE__.backend.emitEvent) {
-                console.log('Sending to C++:', action, data);
+                if (this.debugMode) console.log('Sending to C++:', action, data);
                 window.__JUCE__.backend.emitEvent('fromWebView', message);
-            } else {
+            } else if (this.debugMode) {
                 console.log('Message to C++ (not available):', message);
             }
         }
@@ -599,5 +584,3 @@ window.presetBrowser = function () {
 
 // Start Alpine
 Alpine.start();
-
-console.log('Alpine started');
