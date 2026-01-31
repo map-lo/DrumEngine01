@@ -18,9 +18,12 @@
     <div
       class="grid grid-cols-10 gap-y-[5px] gap-x-[3px] preset-quality-indicator min-w-[127px]"
     >
-      {{#each (range 5 0)}}
-        {{#each (range 1 11)}}
-      <div class="w-[10px] h-[4px] bg-black opacity-20 velocity-{{this}} rr-{{@../index}}"></div>
+      {{#each (range 5 1) as |rr|}}
+        {{#each (range 1 10)}}
+          <div
+            class="w-[10px] h-[4px] bg-black opacity-20 velocity-{{this}}
+              rr-{{rr}}"
+          ></div>
         {{/each}}
       {{/each}}
     </div>

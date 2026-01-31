@@ -10,11 +10,19 @@ export default defineConfig({
             helpers: {
                 range: (start, end) => {
                     const result = [];
-                    for (let i = start; i <= end; i++) {
-                        result.push(i);
+                    if (start <= end) {
+                        for (let i = start; i <= end; i++) {
+                            result.push(i);
+                        }
+                    } else {
+                        for (let i = start; i >= end; i--) {
+                            result.push(i);
+                        }
                     }
                     return result;
-                }
+                },
+                add: (a, b) => a + b,
+                subtract: (a, b) => a - b
             }
         }),
     ],
