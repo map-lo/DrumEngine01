@@ -1,52 +1,175 @@
 #!/usr/bin/env python3
+import argparse
 import json
 import os
-import sys
+import re
 
 from tci_decoder import decode_tci, decompress_bitstream, write_wav
 
+SLOT_NAMES = ["top", "bottom", "oh", "room1", "room2", "extra1", "extra2", "extra3"]
+
+
+def sanitize_name(value):
+    name = (value or "articulation").strip()
+    name = name.replace("/", "_").replace("\\", "_").replace(":", "_")
+    return re.sub(r"\s+", " ", name)
+
+
+def infer_instrument_type(name):
+    lower = name.lower()
+    if "snare" in lower:
+        return "snare"
+    if "kick" in lower:
+        return "kick"
+    if "tom" in lower:
+        return "tom"
+    if "hat" in lower:
+        return "hihat"
+    if "cymbal" in lower:
+        return "cymbal"
+    return "snare"
+
+
+def build_velocity_ranges(velocities):
+    ranges = []
+    for idx, vel in enumerate(velocities):
+        lo = max(1, int(vel))
+        if idx < len(velocities) - 1:
+            hi = max(lo, int(velocities[idx + 1]) - 1)
+        else:
+            hi = 127
+        ranges.append((lo, hi))
+    return ranges
+
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: preset_from_tci.py <path-to-tci> [output-dir]")
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--presetDir", required=True)
+    parser.add_argument("--sampleDir", required=True)
+    parser.add_argument("--type")
+    for i in range(1, 9):
+        parser.add_argument(f"--mic{i}")
+    args = parser.parse_args()
 
-    input_path = sys.argv[1]
-    base_name = os.path.splitext(os.path.basename(input_path))[0]
-    output_root = sys.argv[2] if len(sys.argv) > 2 else os.path.join("dist", "preset-from-tci")
+    mic_inputs = []
+    for i in range(1, 9):
+        path = getattr(args, f"mic{i}")
+        if path:
+            mic_inputs.append((i, path))
 
-    output_dir = os.path.join(output_root, base_name)
-    wav_dir = os.path.join(output_dir, "wavs")
-    os.makedirs(wav_dir, exist_ok=True)
+    if not mic_inputs:
+        raise SystemExit("At least one mic input must be provided.")
 
-    parsed = decode_tci(input_path)
-    chunks = parsed["chunks"]
-    mapping = parsed["mapping"]
+    output_preset_root = args.presetDir
+    output_sample_root = args.sampleDir
+    instrument_type = args.type
 
-    for index, chunk in enumerate(chunks, start=1):
-        samples = decompress_bitstream(
-            chunk["payload"],
-            chunk["bit_len"],
-            chunk["sample_count"],
+    mic_data = {}
+    reference_mapping = None
+    reference_name = None
+
+    for mic_index, path in mic_inputs:
+        parsed = decode_tci(path)
+        base_name = os.path.splitext(os.path.basename(path))[0]
+        mic_data[mic_index] = {
+            "path": path,
+            "base_name": base_name,
+            "chunks": parsed["chunks"],
+            "mapping": parsed["mapping"],
+        }
+        if reference_mapping is None:
+            reference_mapping = parsed["mapping"]
+            reference_name = base_name
+
+    articulations = reference_mapping.get("articulations", [])
+    if not articulations:
+        articulations = [{"name": reference_name, "layers": []}]
+
+    multiple_articulations = len(articulations) > 1
+
+    for art in articulations:
+        art_name = sanitize_name(art.get("name") or reference_name)
+        art_folder = art_name if multiple_articulations else ""
+
+        preset_dir = (
+            os.path.join(output_preset_root, art_folder)
+            if art_folder
+            else output_preset_root
         )
+        os.makedirs(preset_dir, exist_ok=True)
 
-        wave_id = chunk.get("wave_id", index - 1)
-        out_name = f"{base_name}_chunk{index}_wave{wave_id}.wav"
-        out_path = os.path.join(wav_dir, out_name)
-        write_wav(
-            out_path,
-            samples,
-            sample_rate=chunk["sample_rate"],
-            channels=chunk["channels"],
-            sample_width=3,
-        )
+        preset_name = art_name if multiple_articulations else reference_name
+        preset_path = os.path.join(preset_dir, f"{preset_name}.json")
 
-    mapping_path = os.path.join(output_dir, f"{base_name}_mapping.json")
-    with open(mapping_path, "w", encoding="utf-8") as f:
-        json.dump(mapping, f, indent=2)
+        velocity_layers = []
+        velocities = [layer.get("velocity", 0) for layer in art.get("layers", [])]
+        ranges = build_velocity_ranges(velocities)
 
-    print(f"WAVs written to {wav_dir}")
-    print(f"Mapping written to {mapping_path}")
+        for layer_index, layer in enumerate(art.get("layers", [])):
+            rr_waves = layer.get("waves", [])
+            lo, hi = ranges[layer_index] if layer_index < len(ranges) else (1, 127)
+            wavs_by_slot = {str(slot): [] for slot in range(1, 9)}
+
+            for rr_index, wave_id in enumerate(rr_waves, start=1):
+                if wave_id is None:
+                    continue
+                for mic_index, mic_info in mic_data.items():
+                    chunks = mic_info["chunks"]
+                    if wave_id >= len(chunks):
+                        continue
+                    chunk = chunks[wave_id]
+                    samples = decompress_bitstream(
+                        chunk["payload"],
+                        chunk["bit_len"],
+                        chunk["sample_count"],
+                    )
+
+                    mic_base = mic_info["base_name"]
+                    tci_folder = os.path.join(output_sample_root, mic_base)
+                    if art_folder:
+                        tci_folder = os.path.join(tci_folder, art_folder)
+                    os.makedirs(tci_folder, exist_ok=True)
+
+                    wav_name = f"{mic_base}_{art_name}_v{layer_index + 1}_rr{rr_index}.wav"
+                    wav_path = os.path.join(tci_folder, wav_name)
+
+                    write_wav(
+                        wav_path,
+                        samples,
+                        sample_rate=chunk["sample_rate"],
+                        channels=chunk["channels"],
+                        sample_width=3,
+                    )
+
+                    rel_path = os.path.relpath(wav_path, output_sample_root)
+                    wavs_by_slot[str(mic_index)].append(rel_path)
+
+            velocity_layers.append(
+                {
+                    "index": layer_index + 1,
+                    "lo": lo,
+                    "hi": hi,
+                    "wavsBySlot": wavs_by_slot,
+                }
+            )
+
+        resolved_type = instrument_type or infer_instrument_type(reference_name)
+        preset = {
+            "schemaVersion": 1,
+            "instrumentType": resolved_type,
+            "slotNames": SLOT_NAMES,
+            "rootFolder": output_sample_root,
+            "velocityLayers": velocity_layers,
+            "velToVol": {
+                "amount": 70,
+                "curve": {"type": "builtin", "name": "soft"},
+            },
+        }
+
+        with open(preset_path, "w", encoding="utf-8") as f:
+            json.dump(preset, f, indent=2)
+
+        print(f"Preset written to {preset_path}")
 
 
 if __name__ == "__main__":
