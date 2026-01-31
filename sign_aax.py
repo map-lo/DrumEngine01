@@ -147,12 +147,24 @@ def main():
     parser = argparse.ArgumentParser(description='Sign AAX plugins with PACE wraptool')
     parser.add_argument(
         '--build-type',
-        required=True,
         choices=['dev', 'release'],
-        help='Build type (dev or release)'
+        help='Build type (dev or release) - determines plugin name if --aax-path not provided'
+    )
+    parser.add_argument(
+        '--aax-path',
+        type=str,
+        help='Path to specific AAX plugin to sign (overrides build-type path)'
     )
     
     args = parser.parse_args()
+    
+    # Require either build-type or aax-path
+    if not args.build_type and not args.aax_path:
+        parser.error('Either --build-type or --aax-path must be specified')
+    
+    if args.aax_path and not args.build_type:
+        # Infer build type from path if possible, or default to 'dev'
+        args.build_type = 'dev'
     
     print()
     print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
@@ -173,21 +185,29 @@ def main():
     print(f"  Wraptool: {config.WRAPTOOL_PATH}")
     print()
     
-    # Determine plugin name and path based on build type
-    project_root = Path(__file__).parent
-    
-    if args.build_type == "dev":
-        plugin_name = "DrumEngine01Dev"
-        cmake_build_type = "Debug"
+    # Determine AAX plugin path
+    if args.aax_path:
+        # Use provided path
+        aax_path = Path(args.aax_path)
+        print(f"Signing AAX plugin from custom path...")
+        print(f"  Path: {aax_path}")
+        print()
     else:
-        plugin_name = "DrumEngine01"
-        cmake_build_type = "Release"
-    
-    # AAX plugin path
-    aax_path = project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
-    
-    print(f"Signing AAX plugin for {args.build_type} build...")
-    print()
+        # Determine plugin name and path based on build type
+        project_root = Path(__file__).parent
+        
+        if args.build_type == "dev":
+            plugin_name = "DrumEngine01Dev"
+            cmake_build_type = "Debug"
+        else:
+            plugin_name = "DrumEngine01"
+            cmake_build_type = "Release"
+        
+        # AAX plugin path
+        aax_path = project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
+        
+        print(f"Signing AAX plugin for {args.build_type} build...")
+        print()
     
     # Sign the AAX plugin
     success = sign_aax_plugin(aax_path, config, args.build_type)

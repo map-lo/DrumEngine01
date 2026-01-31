@@ -32,6 +32,15 @@ add_subdirectory(modules/JUCE)              # If you've put JUCE in a subdirecto
 # juce_set_vst2_sdk_path(...)
 # juce_set_aax_sdk_path(...)
 
+# Conditional plugin naming based on build type
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(PLUGIN_NAME "DrumEngine01Dev")
+    set(PLUGIN_ID "Den0")
+else()
+    set(PLUGIN_NAME "DrumEngine01")
+    set(PLUGIN_ID "Den1")
+endif()
+
 # `juce_add_plugin` adds a static library target with the name passed as the first argument
 # (DrumEngine01 here). This target is a normal CMake target, but has a lot of extra properties set
 # up by default. As well as this shared code static library, this function adds targets for each of
