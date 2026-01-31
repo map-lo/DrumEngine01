@@ -1,0 +1,8 @@
+Found 7 matches:
+1000bf730  CWaveData::ResampleData
+1000bf240  CWaveData::compressFloatData
+1000c0460  CWaveData::decompressToFloatData
+1000bf6b0  CWaveData::~CWaveData
+100045e90  CWaveDataPool::AddWaveData
+100274700  __GLOBAL__sub_I_WaveData.cpp
+100270350  __GLOBAL__sub_I_WaveDataPool.cpp

@@ -1,0 +1,5 @@
+Found 4 methods:
+100193ee0  CInstrumentSerializer::getFloat
+100193df0  CInstrumentSerializer::getLong
+100193d10  CInstrumentSerializer::putFloatRecord
+100193c40  CInstrumentSerializer::putLong

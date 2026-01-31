@@ -1,0 +1,385 @@
+================================================================================
+DECOMPILING CInstrumentSerializer METHODS
+================================================================================
+
+================================================================================
+Method match: CInstrumentSerializer::putLong -> CInstrumentSerializer::putLong at 100193c40
+================================================================================
+
+/* CInstrumentSerializer::putLong(unsigned long) */
+
+void __thiscall CInstrumentSerializer::putLong(CInstrumentSerializer *this,ulong param_1)
+
+{
+  undefined1 local_2c;
+  undefined1 local_2b;
+  undefined1 local_2a;
+  undefined1 local_29;
+  
+  if (*(FILE **)this != (FILE *)0x0) {
+    local_2c = (undefined1)param_1;
+    _fwrite(&local_2c,1,1,*(FILE **)this);
+    local_2a = (undefined1)(param_1 >> 8);
+    if (*(FILE **)this != (FILE *)0x0) {
+      _fwrite(&local_2a,1,1,*(FILE **)this);
+      local_2b = (undefined1)(param_1 >> 0x10);
+      if (*(FILE **)this != (FILE *)0x0) {
+        _fwrite(&local_2b,1,1,*(FILE **)this);
+        if (*(FILE **)this != (FILE *)0x0) {
+          local_29 = (char)(param_1 >> 0x18);
+          _fwrite(&local_29,1,1,*(FILE **)this);
+        }
+      }
+    }
+  }
+  return;
+}
+
+
+
+================================================================================
+Method match: putLong -> CInstrumentSerializer::putLong at 100193c40
+================================================================================
+
+/* CInstrumentSerializer::putLong(unsigned long) */
+
+void __thiscall CInstrumentSerializer::putLong(CInstrumentSerializer *this,ulong param_1)
+
+{
+  undefined1 local_2c;
+  undefined1 local_2b;
+  undefined1 local_2a;
+  undefined1 local_29;
+  
+  if (*(FILE **)this != (FILE *)0x0) {
+    local_2c = (undefined1)param_1;
+    _fwrite(&local_2c,1,1,*(FILE **)this);
+    local_2a = (undefined1)(param_1 >> 8);
+    if (*(FILE **)this != (FILE *)0x0) {
+      _fwrite(&local_2a,1,1,*(FILE **)this);
+      local_2b = (undefined1)(param_1 >> 0x10);
+      if (*(FILE **)this != (FILE *)0x0) {
+        _fwrite(&local_2b,1,1,*(FILE **)this);
+        if (*(FILE **)this != (FILE *)0x0) {
+          local_29 = (char)(param_1 >> 0x18);
+          _fwrite(&local_29,1,1,*(FILE **)this);
+        }
+      }
+    }
+  }
+  return;
+}
+
+
+
+================================================================================
+Method match: CInstrumentSerializer::putFloatRecord -> CInstrumentSerializer::putFloatRecord at 100193d10
+================================================================================
+
+/* CInstrumentSerializer::putFloatRecord(CInstrumentSerializer::eTagTypes, float) */
+
+void __thiscall
+CInstrumentSerializer::putFloatRecord(undefined4 param_1,CInstrumentSerializer *this,uint param_3)
+
+{
+  FILE *pFVar1;
+  undefined1 local_1c;
+  undefined1 local_1b;
+  undefined1 local_1a;
+  undefined1 local_19;
+  
+  putLong(this,(ulong)param_3);
+  putLong(this,4);
+  if (*(FILE **)this != (FILE *)0x0) {
+    local_1c = (undefined1)param_1;
+    _fwrite(&local_1c,1,1,*(FILE **)this);
+    local_1a = (undefined1)((uint)param_1 >> 8);
+    if (*(FILE **)this == (FILE *)0x0) {
+      pFVar1 = (FILE *)0x0;
+    }
+    else {
+      _fwrite(&local_1a,1,1,*(FILE **)this);
+      pFVar1 = *(FILE **)this;
+    }
+    local_1b = (undefined1)((uint)param_1 >> 0x10);
+    if (pFVar1 == (FILE *)0x0) {
+      pFVar1 = (FILE *)0x0;
+    }
+    else {
+      _fwrite(&local_1b,1,1,pFVar1);
+      pFVar1 = *(FILE **)this;
+    }
+    local_19 = (undefined1)((uint)param_1 >> 0x18);
+    if (pFVar1 != (FILE *)0x0) {
+      _fwrite(&local_19,1,1,pFVar1);
+    }
+  }
+  return;
+}
+
+
+
+================================================================================
+Method match: putFloatRecord -> CInstrumentSerializer::putFloatRecord at 100193d10
+================================================================================
+
+/* CInstrumentSerializer::putFloatRecord(CInstrumentSerializer::eTagTypes, float) */
+
+void __thiscall
+CInstrumentSerializer::putFloatRecord(undefined4 param_1,CInstrumentSerializer *this,uint param_3)
+
+{
+  FILE *pFVar1;
+  undefined1 local_1c;
+  undefined1 local_1b;
+  undefined1 local_1a;
+  undefined1 local_19;
+  
+  putLong(this,(ulong)param_3);
+  putLong(this,4);
+  if (*(FILE **)this != (FILE *)0x0) {
+    local_1c = (undefined1)param_1;
+    _fwrite(&local_1c,1,1,*(FILE **)this);
+    local_1a = (undefined1)((uint)param_1 >> 8);
+    if (*(FILE **)this == (FILE *)0x0) {
+      pFVar1 = (FILE *)0x0;
+    }
+    else {
+      _fwrite(&local_1a,1,1,*(FILE **)this);
+      pFVar1 = *(FILE **)this;
+    }
+    local_1b = (undefined1)((uint)param_1 >> 0x10);
+    if (pFVar1 == (FILE *)0x0) {
+      pFVar1 = (FILE *)0x0;
+    }
+    else {
+      _fwrite(&local_1b,1,1,pFVar1);
+      pFVar1 = *(FILE **)this;
+    }
+    local_19 = (undefined1)((uint)param_1 >> 0x18);
+    if (pFVar1 != (FILE *)0x0) {
+      _fwrite(&local_19,1,1,pFVar1);
+    }
+  }
+  return;
+}
+
+
+
+================================================================================
+Method match: CInstrumentSerializer::getLong -> CInstrumentSerializer::getLong at 100193df0
+================================================================================
+
+/* CInstrumentSerializer::getLong() */
+
+ulong __thiscall CInstrumentSerializer::getLong(CInstrumentSerializer *this)
+
+{
+  ulong uVar1;
+  byte bVar2;
+  ulong uVar3;
+  byte bVar4;
+  byte local_2c;
+  byte local_2b;
+  byte local_2a;
+  byte local_29;
+  
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    return 0;
+  }
+  local_2a = 0;
+  _fread(&local_2a,1,1,*(FILE **)(this + 8));
+  uVar3 = (ulong)local_2a;
+  local_2b = 0;
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    bVar2 = 0;
+    bVar4 = 0;
+  }
+  else {
+    _fread(&local_2b,1,1,*(FILE **)(this + 8));
+    bVar4 = local_2b;
+    local_2c = 0;
+    if (*(FILE **)(this + 8) == (FILE *)0x0) {
+      bVar2 = 0;
+    }
+    else {
+      _fread(&local_2c,1,1,*(FILE **)(this + 8));
+      bVar2 = local_2c;
+      local_29 = 0;
+      if (*(FILE **)(this + 8) != (FILE *)0x0) {
+        _fread(&local_29,1,1,*(FILE **)(this + 8));
+        uVar1 = (ulong)local_29 << 0x18;
+        goto LAB_100193eb6;
+      }
+    }
+  }
+  uVar1 = 0;
+LAB_100193eb6:
+  return (ulong)bVar4 << 8 | uVar1 | (ulong)bVar2 << 0x10 | uVar3;
+}
+
+
+
+================================================================================
+Method match: getLong -> CInstrumentSerializer::getLong at 100193df0
+================================================================================
+
+/* CInstrumentSerializer::getLong() */
+
+ulong __thiscall CInstrumentSerializer::getLong(CInstrumentSerializer *this)
+
+{
+  ulong uVar1;
+  byte bVar2;
+  ulong uVar3;
+  byte bVar4;
+  byte local_2c;
+  byte local_2b;
+  byte local_2a;
+  byte local_29;
+  
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    return 0;
+  }
+  local_2a = 0;
+  _fread(&local_2a,1,1,*(FILE **)(this + 8));
+  uVar3 = (ulong)local_2a;
+  local_2b = 0;
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    bVar2 = 0;
+    bVar4 = 0;
+  }
+  else {
+    _fread(&local_2b,1,1,*(FILE **)(this + 8));
+    bVar4 = local_2b;
+    local_2c = 0;
+    if (*(FILE **)(this + 8) == (FILE *)0x0) {
+      bVar2 = 0;
+    }
+    else {
+      _fread(&local_2c,1,1,*(FILE **)(this + 8));
+      bVar2 = local_2c;
+      local_29 = 0;
+      if (*(FILE **)(this + 8) != (FILE *)0x0) {
+        _fread(&local_29,1,1,*(FILE **)(this + 8));
+        uVar1 = (ulong)local_29 << 0x18;
+        goto LAB_100193eb6;
+      }
+    }
+  }
+  uVar1 = 0;
+LAB_100193eb6:
+  return (ulong)bVar4 << 8 | uVar1 | (ulong)bVar2 << 0x10 | uVar3;
+}
+
+
+
+================================================================================
+Method match: CInstrumentSerializer::getFloat -> CInstrumentSerializer::getFloat at 100193ee0
+================================================================================
+
+/* CInstrumentSerializer::getFloat() */
+
+uint __thiscall CInstrumentSerializer::getFloat(CInstrumentSerializer *this)
+
+{
+  byte bVar1;
+  uint uVar2;
+  byte bVar3;
+  byte bVar4;
+  byte local_2c;
+  byte local_2b;
+  byte local_2a;
+  byte local_29;
+  
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    return 0;
+  }
+  local_2a = 0;
+  _fread(&local_2a,1,1,*(FILE **)(this + 8));
+  bVar1 = local_2a;
+  local_2b = 0;
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    bVar3 = 0;
+    bVar4 = 0;
+  }
+  else {
+    _fread(&local_2b,1,1,*(FILE **)(this + 8));
+    bVar4 = local_2b;
+    local_2c = 0;
+    if (*(FILE **)(this + 8) == (FILE *)0x0) {
+      bVar3 = 0;
+    }
+    else {
+      _fread(&local_2c,1,1,*(FILE **)(this + 8));
+      bVar3 = local_2c;
+      local_29 = 0;
+      if (*(FILE **)(this + 8) != (FILE *)0x0) {
+        _fread(&local_29,1,1,*(FILE **)(this + 8));
+        uVar2 = (uint)local_29 << 0x18;
+        goto LAB_100193fa7;
+      }
+    }
+  }
+  uVar2 = 0;
+LAB_100193fa7:
+  return (uint)bVar4 << 8 | uVar2 | (uint)bVar3 << 0x10 | (uint)bVar1;
+}
+
+
+
+================================================================================
+Method match: getFloat -> CInstrumentSerializer::getFloat at 100193ee0
+================================================================================
+
+/* CInstrumentSerializer::getFloat() */
+
+uint __thiscall CInstrumentSerializer::getFloat(CInstrumentSerializer *this)
+
+{
+  byte bVar1;
+  uint uVar2;
+  byte bVar3;
+  byte bVar4;
+  byte local_2c;
+  byte local_2b;
+  byte local_2a;
+  byte local_29;
+  
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    return 0;
+  }
+  local_2a = 0;
+  _fread(&local_2a,1,1,*(FILE **)(this + 8));
+  bVar1 = local_2a;
+  local_2b = 0;
+  if (*(FILE **)(this + 8) == (FILE *)0x0) {
+    bVar3 = 0;
+    bVar4 = 0;
+  }
+  else {
+    _fread(&local_2b,1,1,*(FILE **)(this + 8));
+    bVar4 = local_2b;
+    local_2c = 0;
+    if (*(FILE **)(this + 8) == (FILE *)0x0) {
+      bVar3 = 0;
+    }
+    else {
+      _fread(&local_2c,1,1,*(FILE **)(this + 8));
+      bVar3 = local_2c;
+      local_29 = 0;
+      if (*(FILE **)(this + 8) != (FILE *)0x0) {
+        _fread(&local_29,1,1,*(FILE **)(this + 8));
+        uVar2 = (uint)local_29 << 0x18;
+        goto LAB_100193fa7;
+      }
+    }
+  }
+  uVar2 = 0;
+LAB_100193fa7:
+  return (uint)bVar4 << 8 | uVar2 | (uint)bVar3 << 0x10 | (uint)bVar1;
+}
+
+
+
+Done!
