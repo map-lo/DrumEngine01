@@ -6,7 +6,7 @@
     <title>DrumEngine01</title>
   </head>
   <body
-    class="bg-white bg-[ghostwhite] text-black font-bold select-none !cursor-default h-full overflow-hidden"
+    class="bg-[ghostwhite] text-black font-bold select-none !cursor-default h-full overflow-hidden"
   >
     <div class="h-full flex flex-row-reverse items-stretch">
       <div class="w-[660px]">
@@ -16,62 +16,7 @@
       </div>
 
       <div id="presetBrowserContainer" class="h-full w-[300px] shrink-0">
-        <div
-          class="bg-neutral-700 text-white font-bold select-none !cursor-default h-full overflow-hidden"
-        >
-          <div class="m-[2px] h-full flex flex-col">
-            <div
-              class="text-white text-xs flex items-center justify-between px-2 py-1"
-            >
-              <div class="font-semibold tracking-wide uppercase">Presets</div>
-              <button
-                id="closePresetBrowser"
-                class="p-1 -mr-1.5 hover:opacity-60"
-                aria-label="Close preset browser"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  class="size-4"
-                >
-                  <path
-                    d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="p-2 flex flex-col gap-2 grow overflow-hidden">
-              <input
-                id="presetSearch"
-                type="text"
-                placeholder="Search presets..."
-                autocomplete="off"
-                class="shrink-0 h-10 font-semibold px-2 text-xs border-2 border-black bg-black text-white outline-none"
-              />
-
-              <div
-                id="presetTags"
-                class="flex flex-wrap gap-1"
-                aria-label="Preset tags"
-              >
-                <div
-                  id="noTagsMessage"
-                  class="text-[10px] text-white text-opacity-50"
-                >
-                  No tags available
-                </div>
-              </div>
-
-              <div
-                id="presetList"
-                class="bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
-                aria-label="Preset list"
-              ></div>
-            </div>
-          </div>
-        </div>
+        {{> presetbrowser}}
       </div>
     </div>
     <script type="module" src="/app.js"></script>
