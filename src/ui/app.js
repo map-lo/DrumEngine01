@@ -554,6 +554,13 @@ window.presetBrowser = function () {
             if (currentIndex < this.filteredPresets.length - 1) {
                 const nextPreset = this.filteredPresets[currentIndex + 1];
                 this.loadPreset(nextPreset.index);
+                // Focus the next button element
+                this.$nextTick(() => {
+                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
+                    if (buttons[currentIndex + 1]) {
+                        buttons[currentIndex + 1].focus();
+                    }
+                });
             }
         },
 
@@ -561,6 +568,13 @@ window.presetBrowser = function () {
             if (currentIndex > 0) {
                 const prevPreset = this.filteredPresets[currentIndex - 1];
                 this.loadPreset(prevPreset.index);
+                // Focus the previous button element
+                this.$nextTick(() => {
+                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
+                    if (buttons[currentIndex - 1]) {
+                        buttons[currentIndex - 1].focus();
+                    }
+                });
             }
         },
 
