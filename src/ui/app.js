@@ -1,6 +1,15 @@
 // Import CSS for Vite to process
 import './styles.css'
 
+// Import Alpine.js
+import Alpine from 'alpinejs'
+
+// Make Alpine available globally
+window.Alpine = Alpine
+
+// Start Alpine
+Alpine.start()
+
 // Import preset browser functionality
 import './preset-browser.js'
 

@@ -6,9 +6,10 @@
     <title>DrumEngine01</title>
   </head>
   <body
+    x-data="{ editor: false }"
     class="bg-[ghostwhite] text-black font-bold select-none !cursor-default h-full overflow-hidden"
   >
-    <div class="h-full flex flex-row-reverse items-stretch">
+    <div x-show="!editor" class="h-full flex flex-row-reverse items-stretch">
       <div class="w-[660px]">
         <div id="mainContent" class="m-[2px] flex flex-col overflow-hidden">
           {{> menubar}} {{> header}} {{> mixer}} {{> statusbar}}
@@ -19,6 +20,7 @@
         {{> presetbrowser}}
       </div>
     </div>
+    <div x-show="editor" class="h-full">{{> editor}}</div>
     <script type="module" src="/app.js"></script>
   </body>
 </html>
