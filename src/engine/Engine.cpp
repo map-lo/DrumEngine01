@@ -97,9 +97,9 @@ namespace DrumEngine
             return juce::Result::fail("Failed to create temp file for preset");
         }
 
-        // Override root folder if provided AND schema doesn't have one
+        // Override root folder if provided
         // (for when samples have moved or schema has relative paths)
-        if (!rootFolder.isEmpty() && schema.rootFolder.isEmpty())
+        if (!rootFolder.isEmpty())
             schema.rootFolder = rootFolder;
         auto newPreset = std::make_unique<RuntimePreset>();
         auto buildResult = newPreset->buildFromSchema(schema);

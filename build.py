@@ -226,16 +226,143 @@ class BuildOrchestrator:
             ["python3", str(sign_script), f"--build-type={self.build_type}"],
             description="Signing AAX plugins with PACE wraptool"
         )
+
+    def step_install_signed_aax(self):
+        """Step 6: Copy signed AAX plugin to system location"""
+        if not self.config.SIGN_AAX or self.skip_signing:
+            reason = "skipped by --skip-signing flag" if self.skip_signing else "SIGN_AAX=False"
+            print(f"{Colors.YELLOW}Skipping signed AAX install ({reason}){Colors.NC}")
+            print()
+            return True
+
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print(f"{Colors.GREEN}Step 6: Installing Signed AAX Plugin{Colors.NC}")
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print()
+
+        if self.build_type == "dev":
+            plugin_name = "DrumEngine01Dev"
+            cmake_build_type = "Debug"
+        else:
+            plugin_name = "DrumEngine01"
+            cmake_build_type = "Release"
+
+        signed_aax = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
+        system_aax_dir = Path("/Library/Application Support/Avid/Audio/Plug-Ins")
+        system_aax = system_aax_dir / f"{plugin_name}.aaxplugin"
+
+        if not signed_aax.exists():
+            print(f"{Colors.YELLOW}Signed AAX plugin not found: {signed_aax}{Colors.NC}")
+            print(f"{Colors.YELLOW}Skipping system install for AAX{Colors.NC}")
+            print()
+            return True
+
+        print(f"Installing signed AAX plugin to system location:")
+        print(f"  Source: {signed_aax}")
+        print(f"  Target: {system_aax}")
+        print()
+
+        if not self.run_command(
+            ["sudo", "mkdir", "-p", str(system_aax_dir)],
+            description="Ensuring AAX system directory exists"
+        ):
+            return False
+
+        if system_aax.exists():
+            if not self.run_command(
+                ["sudo", "rm", "-rf", str(system_aax)],
+                description="Removing existing system AAX plugin"
+            ):
+                return False
+
+        if not self.run_command(
+            ["sudo", "cp", "-R", str(signed_aax), str(system_aax)],
+            description="Copying signed AAX plugin to system location"
+        ):
+            return False
+
+        print(f"{Colors.GREEN}✓ Signed AAX plugin installed to system location{Colors.NC}")
+        print()
+        return True
+
+    def step_install_vst3_au(self):
+        """Step 7: Copy VST3/AU plugins to system locations"""
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print(f"{Colors.GREEN}Step 7: Installing VST3/AU Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print()
+
+        if self.build_type == "dev":
+            plugin_name = "DrumEngine01Dev"
+            cmake_build_type = "Debug"
+        else:
+            plugin_name = "DrumEngine01"
+            cmake_build_type = "Release"
+
+        artefacts_dir = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type
+        installs = []
+
+        if "VST3" in self.config.PLUGIN_FORMATS:
+            vst3_src = artefacts_dir / "VST3" / f"{plugin_name}.vst3"
+            vst3_dest_dir = Path("/Library/Audio/Plug-Ins/VST3")
+            vst3_dest = vst3_dest_dir / f"{plugin_name}.vst3"
+            installs.append(("VST3", vst3_src, vst3_dest_dir, vst3_dest))
+
+        if "AU" in self.config.PLUGIN_FORMATS:
+            au_src = artefacts_dir / "AU" / f"{plugin_name}.component"
+            au_dest_dir = Path("/Library/Audio/Plug-Ins/Components")
+            au_dest = au_dest_dir / f"{plugin_name}.component"
+            installs.append(("AU", au_src, au_dest_dir, au_dest))
+
+        if not installs:
+            print(f"{Colors.YELLOW}No VST3/AU formats configured for install{Colors.NC}")
+            print()
+            return True
+
+        for fmt, src, dest_dir, dest in installs:
+            if not src.exists():
+                print(f"{Colors.YELLOW}{fmt} plugin not found: {src}{Colors.NC}")
+                print(f"{Colors.YELLOW}Skipping system install for {fmt}{Colors.NC}")
+                print()
+                continue
+
+            print(f"Installing {fmt} plugin to system location:")
+            print(f"  Source: {src}")
+            print(f"  Target: {dest}")
+            print()
+
+            if not self.run_command(
+                ["sudo", "mkdir", "-p", str(dest_dir)],
+                description=f"Ensuring {fmt} system directory exists"
+            ):
+                return False
+
+            if dest.exists():
+                if not self.run_command(
+                    ["sudo", "rm", "-rf", str(dest)],
+                    description=f"Removing existing system {fmt} plugin"
+                ):
+                    return False
+
+            if not self.run_command(
+                ["sudo", "cp", "-R", str(src), str(dest)],
+                description=f"Copying {fmt} plugin to system location"
+            ):
+                return False
+
+        print(f"{Colors.GREEN}✓ VST3/AU plugins installed to system locations{Colors.NC}")
+        print()
+        return True
     
     def step_package_content(self):
-        """Step 6: Package factory content"""
+        """Step 8: Package factory content"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping content packaging (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 6: Packaging Factory Content{Colors.NC}")
+        print(f"{Colors.GREEN}Step 8: Packaging Factory Content{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -255,14 +382,14 @@ class BuildOrchestrator:
         )
     
     def step_build_installer(self):
-        """Step 7: Build installer"""
+        """Step 9: Build installer"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping installer build (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 7: Building Installer{Colors.NC}")
+        print(f"{Colors.GREEN}Step 9: Building Installer{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -333,6 +460,8 @@ class BuildOrchestrator:
             self.step_configure_cmake,
             self.step_build_plugins,
             self.step_sign_aax,
+            self.step_install_signed_aax,
+            self.step_install_vst3_au,
             self.step_package_content,
             self.step_build_installer,
         ]

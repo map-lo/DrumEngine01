@@ -304,7 +304,7 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
         if (!presetJson.isEmpty())
         {
             debugStream << "  Calling loadPresetFromJsonInternal...\n";
-            auto result = loadPresetFromJsonInternal(presetJson, presetName);
+            auto result = loadPresetFromJsonInternal(presetJson, presetName, rootFolder);
 
             debugStream << "  Result: " << (result.wasOk() ? "OK" : result.getErrorMessage()) << "\n";
 
@@ -368,7 +368,8 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
 
 //==============================================================================
 juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::String &jsonText,
-                                                                   const juce::String &presetName)
+                                                                   const juce::String &presetName,
+                                                                   const juce::String &defaultRootFolder)
 {
     if (jsonText.isEmpty())
         return juce::Result::fail("Preset JSON is empty");
@@ -383,6 +384,9 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
         if (obj)
             rootFolderFromJson = obj->getProperty("rootFolder").toString();
     }
+
+    if (rootFolderFromJson.isEmpty() && !defaultRootFolder.isEmpty())
+        rootFolderFromJson = defaultRootFolder;
 
     // Load preset in engine
     auto result = engine.loadPresetFromJson(jsonText, rootFolderFromJson);
@@ -437,7 +441,9 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
     if (jsonText.isEmpty())
         return juce::Result::fail("Preset file is empty or cannot be read");
 
-    return loadPresetFromJsonInternal(jsonText, presetFile.getFileNameWithoutExtension());
+    return loadPresetFromJsonInternal(jsonText,
+                                      presetFile.getFileNameWithoutExtension(),
+                                      presetFile.getParentDirectory().getFullPathName());
 }
 
 AudioPluginAudioProcessor::PresetInfo AudioPluginAudioProcessor::getPresetInfo() const

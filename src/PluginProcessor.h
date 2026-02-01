@@ -124,7 +124,8 @@ public:
 private:
     // Common preset loading logic
     juce::Result loadPresetFromJsonInternal(const juce::String &jsonText,
-                                            const juce::String &presetName);
+                                            const juce::String &presetName,
+                                            const juce::String &defaultRootFolder = {});
     //==============================================================================
     DrumEngine::Engine engine;
     OutputMode outputMode = OutputMode::Stereo;
