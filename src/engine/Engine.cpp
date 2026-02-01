@@ -280,19 +280,37 @@ namespace DrumEngine
         if (!preset)
             return;
 
-        // Process MIDI events
+        int totalSamples = buffer.getNumSamples();
+        int currentSample = 0;
+
+        // Process MIDI events with sample-accurate timing
         for (const auto metadata : midiMessages)
         {
-            auto message = metadata.getMessage();
+            int eventSample = metadata.samplePosition;
+            if (eventSample < 0)
+                eventSample = 0;
+            if (eventSample > totalSamples)
+                eventSample = totalSamples;
 
+            if (eventSample > currentSample)
+            {
+                // Render up to the event
+                render(buffer, currentSample, eventSample - currentSample, multiOutEnabled);
+                currentSample = eventSample;
+            }
+
+            auto message = metadata.getMessage();
             if (message.isNoteOn())
             {
                 handleNoteOn(message.getNoteNumber(), message.getVelocity());
             }
         }
 
-        // Render all voices (each voice renders to mix + individual output if multi-out enabled)
-        render(buffer, 0, buffer.getNumSamples(), multiOutEnabled);
+        // Render remaining samples
+        if (currentSample < totalSamples)
+        {
+            render(buffer, currentSample, totalSamples - currentSample, multiOutEnabled);
+        }
 
         // Clean up inactive hit groups
         activeHitGroups.erase(
