@@ -21,11 +21,11 @@ static juce::String resamplingModeToString(DrumEngine::ResamplingMode mode)
     {
     case DrumEngine::ResamplingMode::Off:
         return "off";
-    case DrumEngine::ResamplingMode::Normal:
-        return "normal";
-    case DrumEngine::ResamplingMode::Ultra:
+    case DrumEngine::ResamplingMode::CatmullRom:
+        return "catmullrom";
+    case DrumEngine::ResamplingMode::Lanczos3:
     default:
-        return "ultra";
+        return "lanczos3";
     }
 }
 
@@ -33,11 +33,11 @@ static DrumEngine::ResamplingMode resamplingModeFromString(const juce::String &v
 {
     if (value == "off")
         return DrumEngine::ResamplingMode::Off;
-    if (value == "low")
-        return DrumEngine::ResamplingMode::Normal;
-    if (value == "normal")
-        return DrumEngine::ResamplingMode::Normal;
-    return DrumEngine::ResamplingMode::Ultra;
+    if (value == "low" || value == "normal" || value == "punch" || value == "catmullrom")
+        return DrumEngine::ResamplingMode::CatmullRom;
+    if (value == "ultra" || value == "smooth" || value == "lanczos3")
+        return DrumEngine::ResamplingMode::Lanczos3;
+    return DrumEngine::ResamplingMode::Lanczos3;
 }
 
 //==============================================================================

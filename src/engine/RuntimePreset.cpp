@@ -20,6 +20,7 @@ namespace DrumEngine
         // Clear existing state
         layers.clear();
         sampleCache.clear();
+        sourceSampleRate = 0.0;
 
         slotCount = juce::jmin(8, schema.slotNames.size());
         fixedMidiNote = schema.fixedMidiNote;
@@ -95,6 +96,9 @@ namespace DrumEngine
                         DBG("Warning: Failed to load sample: " + absolutePath);
                         continue;
                     }
+
+                    if (sourceSampleRate <= 0.0)
+                        sourceSampleRate = sample->getSampleRate();
 
                     // Store in samples[rr][slotIdx-1] (convert to 0-based)
                     runtimeLayer.samples[rr][slotIdx - 1] = sample;

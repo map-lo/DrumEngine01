@@ -47,7 +47,7 @@ window.drumEngineApp = function () {
 
         statusMessage: '',
         outputMode: 'stereo',
-        resamplingMode: 'ultra',
+        resamplingMode: 'lanczos3',
 
         // Volume drag state
         volumeDragIndex: -1,

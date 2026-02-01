@@ -1,7 +1,73 @@
 #include "Engine.h"
 
+#include <cmath>
+
 namespace DrumEngine
 {
+    static float catmullRomInterp(float y0, float y1, float y2, float y3, float mu)
+    {
+        float a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
+        float a1 = y0 - 2.5f * y1 + 2.0f * y2 - 0.5f * y3;
+        float a2 = -0.5f * y0 + 0.5f * y2;
+        float a3 = y1;
+        return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
+    }
+
+    static float sinc(float x)
+    {
+        if (x == 0.0f)
+            return 1.0f;
+        const float pix = juce::MathConstants<float>::pi * x;
+        return std::sin(pix) / pix;
+    }
+
+    static float lanczos(float x, int a)
+    {
+        const float ax = std::abs(x);
+        if (ax >= static_cast<float>(a))
+            return 0.0f;
+        return sinc(x) * sinc(x / static_cast<float>(a));
+    }
+
+    static void resampleChannelCatmullRom(const float *src, int srcSamples, float *dst, int dstSamples, double ratio)
+    {
+        for (int i = 0; i < dstSamples; ++i)
+        {
+            const double pos = static_cast<double>(i) * ratio;
+            const int idx = static_cast<int>(pos);
+            const float frac = static_cast<float>(pos - idx);
+
+            int i0 = juce::jlimit(0, srcSamples - 1, idx - 1);
+            int i1 = juce::jlimit(0, srcSamples - 1, idx);
+            int i2 = juce::jlimit(0, srcSamples - 1, idx + 1);
+            int i3 = juce::jlimit(0, srcSamples - 1, idx + 2);
+
+            dst[i] = catmullRomInterp(src[i0], src[i1], src[i2], src[i3], frac);
+        }
+    }
+
+    static void resampleChannelLanczos(const float *src, int srcSamples, float *dst, int dstSamples, double ratio, int a)
+    {
+        for (int i = 0; i < dstSamples; ++i)
+        {
+            const double pos = static_cast<double>(i) * ratio;
+            const int idx = static_cast<int>(pos);
+            const float frac = static_cast<float>(pos - idx);
+
+            float sum = 0.0f;
+            float sumW = 0.0f;
+
+            for (int tap = -a + 1; tap <= a; ++tap)
+            {
+                const int sampleIdx = juce::jlimit(0, srcSamples - 1, idx + tap);
+                const float w = lanczos(frac - static_cast<float>(tap), a);
+                sum += src[sampleIdx] * w;
+                sumW += w;
+            }
+
+            dst[i] = (sumW != 0.0f) ? (sum / sumW) : 0.0f;
+        }
+    }
 
     Engine::Engine()
     {
@@ -318,9 +384,9 @@ namespace DrumEngine
     {
         switch (resamplingMode.load())
         {
-        case ResamplingMode::Normal:
+        case ResamplingMode::CatmullRom:
             return 2;
-        case ResamplingMode::Ultra:
+        case ResamplingMode::Lanczos3:
             return 3;
         case ResamplingMode::Off:
         default:
@@ -336,36 +402,91 @@ namespace DrumEngine
         if (!preset)
             return;
 
-        int totalSamples = buffer.getNumSamples();
-        int currentSample = 0;
+        const auto mode = resamplingMode.load();
+        const double hostRate = currentSampleRate > 0.0 ? currentSampleRate : 44100.0;
+        const double sourceRate = preset->getSourceSampleRate();
+        const double pitchRatio = (mode == ResamplingMode::Off) ? 1.0 : std::pow(2.0, pitchShiftSemitones.load() / 12.0f);
+        const double ratio = (mode == ResamplingMode::Off || sourceRate <= 0.0) ? 1.0 : (sourceRate / hostRate) * pitchRatio;
 
-        // Process MIDI events with sample-accurate timing
-        for (const auto metadata : midiMessages)
+        if (mode == ResamplingMode::Off || ratio == 1.0)
         {
-            int eventSample = metadata.samplePosition;
-            if (eventSample < 0)
-                eventSample = 0;
-            if (eventSample > totalSamples)
-                eventSample = totalSamples;
+            int totalSamples = buffer.getNumSamples();
+            int currentSample = 0;
 
-            if (eventSample > currentSample)
+            for (const auto metadata : midiMessages)
             {
-                // Render up to the event
-                render(buffer, currentSample, eventSample - currentSample, multiOutEnabled);
-                currentSample = eventSample;
+                int eventSample = metadata.samplePosition;
+                if (eventSample < 0)
+                    eventSample = 0;
+                if (eventSample > totalSamples)
+                    eventSample = totalSamples;
+
+                if (eventSample > currentSample)
+                {
+                    render(buffer, currentSample, eventSample - currentSample, multiOutEnabled);
+                    currentSample = eventSample;
+                }
+
+                auto message = metadata.getMessage();
+                if (message.isNoteOn())
+                {
+                    handleNoteOn(message.getNoteNumber(), message.getVelocity());
+                }
             }
 
-            auto message = metadata.getMessage();
-            if (message.isNoteOn())
+            if (currentSample < totalSamples)
             {
-                handleNoteOn(message.getNoteNumber(), message.getVelocity());
+                render(buffer, currentSample, totalSamples - currentSample, multiOutEnabled);
             }
         }
-
-        // Render remaining samples
-        if (currentSample < totalSamples)
+        else
         {
-            render(buffer, currentSample, totalSamples - currentSample, multiOutEnabled);
+            const int totalSamples = buffer.getNumSamples();
+            const int sourceSamples = static_cast<int>(std::ceil(totalSamples * ratio));
+
+            sourceBuffer.setSize(buffer.getNumChannels(), sourceSamples, false, false, true);
+            sourceBuffer.clear();
+
+            int currentSourceSample = 0;
+
+            for (const auto metadata : midiMessages)
+            {
+                int eventSample = metadata.samplePosition;
+                if (eventSample < 0)
+                    eventSample = 0;
+                if (eventSample > totalSamples)
+                    eventSample = totalSamples;
+
+                const int eventSourceSample = juce::jlimit(0, sourceSamples, static_cast<int>(std::round(eventSample * ratio)));
+
+                if (eventSourceSample > currentSourceSample)
+                {
+                    render(sourceBuffer, currentSourceSample, eventSourceSample - currentSourceSample, multiOutEnabled);
+                    currentSourceSample = eventSourceSample;
+                }
+
+                auto message = metadata.getMessage();
+                if (message.isNoteOn())
+                {
+                    handleNoteOn(message.getNoteNumber(), message.getVelocity());
+                }
+            }
+
+            if (currentSourceSample < sourceSamples)
+            {
+                render(sourceBuffer, currentSourceSample, sourceSamples - currentSourceSample, multiOutEnabled);
+            }
+
+            for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+            {
+                const float *src = sourceBuffer.getReadPointer(ch);
+                float *dst = buffer.getWritePointer(ch);
+
+                if (mode == ResamplingMode::CatmullRom)
+                    resampleChannelCatmullRom(src, sourceSamples, dst, totalSamples, ratio);
+                else
+                    resampleChannelLanczos(src, sourceSamples, dst, totalSamples, ratio, 3);
+            }
         }
 
         // Clean up inactive hit groups
@@ -448,17 +569,8 @@ namespace DrumEngine
             // Set slot index for routing
             voice->slotIndex = slotIdx;
 
-            // Calculate playback rate from sample rate conversion + pitch shift
             float playbackRate = 1.0f;
             const auto mode = resamplingMode.load();
-            if (mode != ResamplingMode::Off)
-            {
-                const double sampleRate = sample->getSampleRate();
-                const double hostRate = currentSampleRate > 0.0 ? currentSampleRate : 44100.0;
-                const float rateRatio = (sampleRate > 0.0 ? static_cast<float>(sampleRate / hostRate) : 1.0f);
-                const float pitchRatio = std::pow(2.0f, pitchShiftSemitones.load() / 12.0f);
-                playbackRate = rateRatio * pitchRatio;
-            }
 
             // Start voice with just velocity gain (not slot gain)
             // Slot gain (volume/mute/solo) will be applied only to mix during render

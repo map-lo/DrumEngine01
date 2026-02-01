@@ -154,7 +154,7 @@ private:
     float pitchShift = 0.0f;
 
     // Resampling mode
-    DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::Ultra;
+    DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::Lanczos3;
 
     // Hit listeners
     juce::ListenerList<HitListener> hitListeners;

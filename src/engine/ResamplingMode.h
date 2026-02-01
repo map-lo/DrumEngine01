@@ -5,7 +5,7 @@ namespace DrumEngine
     enum class ResamplingMode
     {
         Off = 0,
-        Normal = 1,
-        Ultra = 2
+        CatmullRom = 1,
+        Lanczos3 = 2
     };
 }

@@ -48,6 +48,7 @@ namespace DrumEngine
         const std::vector<RuntimeVelocityLayer> &getLayers() const { return layers; }
         bool getUseVelocityToVolume() const { return useVelocityToVolume; }
         void setUseVelocityToVolume(bool enabled) { useVelocityToVolume = enabled; }
+        double getSourceSampleRate() const { return sourceSampleRate; }
 
     private:
         int slotCount = 0;
@@ -61,6 +62,8 @@ namespace DrumEngine
 
         // Sample cache for deduplication
         std::unordered_map<juce::String, std::shared_ptr<SampleRef>> sampleCache;
+
+        double sourceSampleRate = 0.0;
 
         std::shared_ptr<SampleRef> loadOrGetCachedSample(const juce::String &absolutePath);
 

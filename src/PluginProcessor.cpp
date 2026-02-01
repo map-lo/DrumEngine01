@@ -271,24 +271,23 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
         outputMode = static_cast<OutputMode>(modeValue);
     }
 
-    // Restore resampling mode (handle legacy values)
+    // Restore resampling mode
     if (xml->hasAttribute("resamplingMode"))
     {
-        int modeValue = xml->getIntAttribute("resamplingMode", static_cast<int>(DrumEngine::ResamplingMode::Ultra));
-        DrumEngine::ResamplingMode modeToSet = DrumEngine::ResamplingMode::Ultra;
+        int modeValue = xml->getIntAttribute("resamplingMode", static_cast<int>(DrumEngine::ResamplingMode::Lanczos3));
+        DrumEngine::ResamplingMode modeToSet = DrumEngine::ResamplingMode::Lanczos3;
 
         switch (modeValue)
         {
         case 0:
             modeToSet = DrumEngine::ResamplingMode::Off;
             break;
-        case 1: // legacy LowLatency
-        case 2: // legacy Normal
-            modeToSet = DrumEngine::ResamplingMode::Normal;
+        case 1:
+            modeToSet = DrumEngine::ResamplingMode::CatmullRom;
             break;
-        case 3: // legacy Ultra
+        case 2:
         default:
-            modeToSet = DrumEngine::ResamplingMode::Ultra;
+            modeToSet = DrumEngine::ResamplingMode::Lanczos3;
             break;
         }
 

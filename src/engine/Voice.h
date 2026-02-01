@@ -23,7 +23,7 @@ namespace DrumEngine
         MicVoice() = default;
 
         void start(std::shared_ptr<SampleRef> sample, float gain, int fadeLenSamples, float rate = 1.0f,
-                   ResamplingMode mode = ResamplingMode::Ultra);
+                   ResamplingMode mode = ResamplingMode::Lanczos3);
         void beginRelease();
         void reset();
 
@@ -39,10 +39,9 @@ namespace DrumEngine
         State state = State::Inactive;
         std::shared_ptr<SampleRef> currentSample;
         juce::int64 inputSampleIndex = 0;
-        double playbackPosition = 0.0;
         float playbackRate = 1.0f;
         float gain = 1.0f;
-        ResamplingMode resamplingMode = ResamplingMode::Ultra;
+        ResamplingMode resamplingMode = ResamplingMode::Lanczos3;
 
         // Resampling state
         static constexpr int lanczosA = 3;

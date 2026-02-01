@@ -15,7 +15,6 @@ namespace DrumEngine
         gain = startGain;
         fadeLenSamples = fadeLenSamps;
         inputSampleIndex = 0;
-        playbackPosition = 0.0;
         playbackRate = rate;
         resamplingMode = mode;
         fadePosition = 0;
@@ -36,7 +35,6 @@ namespace DrumEngine
         state = State::Inactive;
         currentSample = nullptr;
         inputSampleIndex = 0;
-        playbackPosition = 0.0;
         playbackRate = 1.0f;
         fadePosition = 0;
     }
@@ -76,8 +74,6 @@ namespace DrumEngine
             }
         }
 
-        const auto totalFrames = currentSample->getTotalFrames();
-
         for (int i = 0; i < numSamples; ++i)
         {
             float sampleLeft = 0.0f;
@@ -85,103 +81,14 @@ namespace DrumEngine
 
             if (state == State::Playing)
             {
-                if (resamplingMode == ResamplingMode::Off)
+                const auto totalFrames = currentSample->getTotalFrames();
+                if (inputSampleIndex < totalFrames)
                 {
-                    if (inputSampleIndex < totalFrames)
-                    {
-                        currentSample->getFrame(inputSampleIndex, sampleLeft, sampleRight);
-                        ++inputSampleIndex;
+                    currentSample->getFrame(inputSampleIndex, sampleLeft, sampleRight);
+                    ++inputSampleIndex;
 
-                        if (inputSampleIndex >= totalFrames)
-                            beginRelease();
-                    }
-                }
-                else if (resamplingMode == ResamplingMode::Normal)
-                {
-                    if (playbackPosition < totalFrames - 1)
-                    {
-                        int idx = static_cast<int>(playbackPosition);
-                        float frac = static_cast<float>(playbackPosition - idx);
-
-                        float L[4], R[4];
-                        for (int j = 0; j < 4; ++j)
-                        {
-                            int sampleIdx = idx + j - 1;
-                            sampleIdx = juce::jlimit(0, static_cast<int>(totalFrames - 1), sampleIdx);
-                            currentSample->getFrame(sampleIdx, L[j], R[j]);
-                        }
-
-                        auto cubicInterp = [](float y0, float y1, float y2, float y3, float mu)
-                        {
-                            float a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
-                            float a1 = y0 - 2.5f * y1 + 2.0f * y2 - 0.5f * y3;
-                            float a2 = -0.5f * y0 + 0.5f * y2;
-                            float a3 = y1;
-                            return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
-                        };
-
-                        sampleLeft = cubicInterp(L[0], L[1], L[2], L[3], frac);
-                        sampleRight = cubicInterp(R[0], R[1], R[2], R[3], frac);
-
-                        playbackPosition += playbackRate;
-
-                        if (playbackPosition >= totalFrames)
-                            beginRelease();
-                    }
-                }
-                else if (resamplingMode == ResamplingMode::Ultra)
-                {
-                    if (playbackPosition < totalFrames - 1)
-                    {
-                        const int idx = static_cast<int>(playbackPosition);
-                        const float frac = static_cast<float>(playbackPosition - idx);
-
-                        auto sinc = [](float x)
-                        {
-                            if (x == 0.0f)
-                                return 1.0f;
-                            const float pix = juce::MathConstants<float>::pi * x;
-                            return std::sin(pix) / pix;
-                        };
-
-                        auto lanczos = [&](float x)
-                        {
-                            const float ax = std::abs(x);
-                            if (ax >= static_cast<float>(lanczosA))
-                                return 0.0f;
-                            return sinc(x) * sinc(x / static_cast<float>(lanczosA));
-                        };
-
-                        float sumL = 0.0f;
-                        float sumR = 0.0f;
-                        float sumW = 0.0f;
-
-                        for (int tap = -lanczosA + 1; tap <= lanczosA; ++tap)
-                        {
-                            int sampleIdx = idx + tap;
-                            sampleIdx = juce::jlimit(0, static_cast<int>(totalFrames - 1), sampleIdx);
-
-                            float L = 0.0f;
-                            float R = 0.0f;
-                            currentSample->getFrame(sampleIdx, L, R);
-
-                            const float w = lanczos(frac - static_cast<float>(tap));
-                            sumL += L * w;
-                            sumR += R * w;
-                            sumW += w;
-                        }
-
-                        if (sumW != 0.0f)
-                        {
-                            sampleLeft = sumL / sumW;
-                            sampleRight = sumR / sumW;
-                        }
-
-                        playbackPosition += playbackRate;
-
-                        if (playbackPosition >= totalFrames)
-                            beginRelease();
-                    }
+                    if (inputSampleIndex >= totalFrames)
+                        beginRelease();
                 }
             }
 

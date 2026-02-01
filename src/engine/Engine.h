@@ -106,7 +106,7 @@ namespace DrumEngine
         std::atomic<float> pitchShiftSemitones{0.0f};
 
         // Resampling
-        std::atomic<ResamplingMode> resamplingMode{ResamplingMode::Ultra};
+        std::atomic<ResamplingMode> resamplingMode{ResamplingMode::Lanczos3};
 
         // Latency contributions
         mutable juce::CriticalSection latencyLock;
@@ -115,6 +115,9 @@ namespace DrumEngine
         // Voice management
         VoicePool voicePool;
         std::deque<HitGroup> activeHitGroups;
+
+        // Output resampling buffer
+        juce::AudioBuffer<float> sourceBuffer;
 
         // RR counters per velocity layer
         std::array<int, kMaxVelocityLayers> rrCounters = {};
