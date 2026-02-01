@@ -321,7 +321,7 @@ namespace DrumEngine
         case ResamplingMode::Normal:
             return 2;
         case ResamplingMode::Ultra:
-            return 100;
+            return 3;
         case ResamplingMode::Off:
         default:
             return 0;

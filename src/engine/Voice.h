@@ -44,10 +44,8 @@ namespace DrumEngine
         float gain = 1.0f;
         ResamplingMode resamplingMode = ResamplingMode::Ultra;
 
-        // Resampling state (per channel)
-        juce::WindowedSincInterpolator windowedSincInterpolators[2];
-        juce::AudioBuffer<float> resampleInputBuffer;
-        juce::AudioBuffer<float> resampleOutputBuffer;
+        // Resampling state
+        static constexpr int lanczosA = 3;
 
         // Fade-out state
         int fadeLenSamples = 32;

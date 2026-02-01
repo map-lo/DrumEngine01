@@ -20,9 +20,6 @@ namespace DrumEngine
         resamplingMode = mode;
         fadePosition = 0;
         state = State::Playing;
-
-        for (auto &interp : windowedSincInterpolators)
-            interp.reset();
     }
 
     void MicVoice::beginRelease()
@@ -80,54 +77,6 @@ namespace DrumEngine
         }
 
         const auto totalFrames = currentSample->getTotalFrames();
-        const bool useResampler = (state == State::Playing && resamplingMode == ResamplingMode::Ultra);
-        const float *resampledLeft = nullptr;
-        const float *resampledRight = nullptr;
-        bool endReached = false;
-
-        if (useResampler)
-        {
-            if (playbackRate <= 0.0f)
-            {
-                beginRelease();
-            }
-            else
-            {
-                const int numOutput = numSamples;
-                const int inputNeeded = static_cast<int>(std::ceil(numOutput * playbackRate)) + 4;
-
-                resampleInputBuffer.setSize(2, inputNeeded, false, false, true);
-                resampleOutputBuffer.setSize(2, numOutput, false, false, true);
-
-                float *inLeft = resampleInputBuffer.getWritePointer(0);
-                float *inRight = resampleInputBuffer.getWritePointer(1);
-
-                for (int j = 0; j < inputNeeded; ++j)
-                {
-                    const auto frameIndex = inputSampleIndex + j;
-                    if (frameIndex < totalFrames)
-                        currentSample->getFrame(frameIndex, inLeft[j], inRight[j]);
-                    else
-                        inLeft[j] = inRight[j] = 0.0f;
-                }
-
-                float *outLeft = resampleOutputBuffer.getWritePointer(0);
-                float *outRight = resampleOutputBuffer.getWritePointer(1);
-
-                int usedLeft = 0;
-                int usedRight = 0;
-
-                usedLeft = windowedSincInterpolators[0].process(playbackRate, inLeft, outLeft, numOutput);
-                usedRight = windowedSincInterpolators[1].process(playbackRate, inRight, outRight, numOutput);
-
-                const int numInputUsed = juce::jmax(usedLeft, usedRight);
-                inputSampleIndex += numInputUsed;
-                endReached = (inputSampleIndex >= totalFrames);
-
-                resampledLeft = resampleOutputBuffer.getReadPointer(0);
-                resampledRight = resampleOutputBuffer.getReadPointer(1);
-            }
-        }
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -180,10 +129,59 @@ namespace DrumEngine
                             beginRelease();
                     }
                 }
-                else if (resampledLeft && resampledRight)
+                else if (resamplingMode == ResamplingMode::Ultra)
                 {
-                    sampleLeft = resampledLeft[i];
-                    sampleRight = resampledRight[i];
+                    if (playbackPosition < totalFrames - 1)
+                    {
+                        const int idx = static_cast<int>(playbackPosition);
+                        const float frac = static_cast<float>(playbackPosition - idx);
+
+                        auto sinc = [](float x)
+                        {
+                            if (x == 0.0f)
+                                return 1.0f;
+                            const float pix = juce::MathConstants<float>::pi * x;
+                            return std::sin(pix) / pix;
+                        };
+
+                        auto lanczos = [&](float x)
+                        {
+                            const float ax = std::abs(x);
+                            if (ax >= static_cast<float>(lanczosA))
+                                return 0.0f;
+                            return sinc(x) * sinc(x / static_cast<float>(lanczosA));
+                        };
+
+                        float sumL = 0.0f;
+                        float sumR = 0.0f;
+                        float sumW = 0.0f;
+
+                        for (int tap = -lanczosA + 1; tap <= lanczosA; ++tap)
+                        {
+                            int sampleIdx = idx + tap;
+                            sampleIdx = juce::jlimit(0, static_cast<int>(totalFrames - 1), sampleIdx);
+
+                            float L = 0.0f;
+                            float R = 0.0f;
+                            currentSample->getFrame(sampleIdx, L, R);
+
+                            const float w = lanczos(frac - static_cast<float>(tap));
+                            sumL += L * w;
+                            sumR += R * w;
+                            sumW += w;
+                        }
+
+                        if (sumW != 0.0f)
+                        {
+                            sampleLeft = sumL / sumW;
+                            sampleRight = sumR / sumW;
+                        }
+
+                        playbackPosition += playbackRate;
+
+                        if (playbackPosition >= totalFrames)
+                            beginRelease();
+                    }
                 }
             }
 
@@ -219,9 +217,6 @@ namespace DrumEngine
                 slotRight[i] += sampleRight;
             }
         }
-
-        if (endReached)
-            beginRelease();
     }
 
     //==============================================================================
