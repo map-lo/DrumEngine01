@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "tom",
+  "slotNames": [
+    "z1",
+    "",
+    "",
+    "ssdr",
+    "nrg",
+    "",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 49,
+      "wavsBySlot": {
+        "1": [
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v1_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v1_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v1_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v1_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v1_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v1_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v1_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v1_rr4.wav"
+        ],
+        "5": [
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v1_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v1_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v1_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v1_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 50,
+      "hi": 99,
+      "wavsBySlot": {
+        "1": [
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v2_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v2_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v2_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v2_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v2_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v2_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v2_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v2_rr4.wav"
+        ],
+        "5": [
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v2_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v2_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v2_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v2_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 100,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v3_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v3_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v3_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 Z1/MapleTom 2 Z1_Tom Full_v3_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v3_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v3_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v3_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 SSDR/MapleTom 2 SSDR_Tom Full_v3_rr4.wav"
+        ],
+        "5": [
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v3_rr1.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v3_rr2.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v3_rr3.wav",
+          "../MapleTom 2_WAVS/MapleTom 2 NRG/MapleTom 2 NRG_Tom Full_v3_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  }
+}

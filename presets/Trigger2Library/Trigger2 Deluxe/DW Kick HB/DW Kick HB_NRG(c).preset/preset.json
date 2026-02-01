@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "kick",
+  "slotNames": [
+    "dir",
+    "",
+    "oh",
+    "",
+    "nrgc",
+    "",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 19,
+      "wavsBySlot": {
+        "1": [
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v1_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v1_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v1_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v1_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v1_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v1_rr6.wav"
+        ],
+        "2": [],
+        "3": [
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v1_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v1_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v1_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v1_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v1_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v1_rr6.wav"
+        ],
+        "4": [],
+        "5": [
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v1_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v1_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v1_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v1_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v1_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v1_rr6.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 20,
+      "hi": 59,
+      "wavsBySlot": {
+        "1": [
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v2_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v2_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v2_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v2_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v2_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v2_rr6.wav"
+        ],
+        "2": [],
+        "3": [
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v2_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v2_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v2_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v2_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v2_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v2_rr6.wav"
+        ],
+        "4": [],
+        "5": [
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v2_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v2_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v2_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v2_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v2_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v2_rr6.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 60,
+      "hi": 109,
+      "wavsBySlot": {
+        "1": [
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v3_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v3_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v3_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v3_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v3_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v3_rr6.wav"
+        ],
+        "2": [],
+        "3": [
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v3_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v3_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v3_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v3_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v3_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v3_rr6.wav"
+        ],
+        "4": [],
+        "5": [
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v3_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v3_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v3_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v3_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v3_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v3_rr6.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 110,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v4_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v4_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v4_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v4_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v4_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB DIR/DW Kick HB DIR_Kick Full_v4_rr6.wav"
+        ],
+        "2": [],
+        "3": [
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v4_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v4_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v4_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v4_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v4_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB OH/DW Kick HB OH_Kick Full_v4_rr6.wav"
+        ],
+        "4": [],
+        "5": [
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v4_rr1.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v4_rr2.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v4_rr3.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v4_rr4.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v4_rr5.wav",
+          "../DW Kick HB_WAVS/DW Kick HB NRG/DW Kick HB NRG_Kick Full_v4_rr6.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  }
+}

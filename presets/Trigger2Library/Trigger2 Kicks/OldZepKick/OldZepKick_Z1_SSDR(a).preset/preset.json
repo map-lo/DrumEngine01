@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "kick",
+  "slotNames": [
+    "z1",
+    "",
+    "",
+    "ssdra",
+    "nrg",
+    "",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 19,
+      "wavsBySlot": {
+        "1": [
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v1_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v1_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v1_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v1_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v1_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v1_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v1_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v1_rr4.wav"
+        ],
+        "5": [
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v1_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v1_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v1_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v1_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 20,
+      "hi": 59,
+      "wavsBySlot": {
+        "1": [
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v2_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v2_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v2_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v2_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v2_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v2_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v2_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v2_rr4.wav"
+        ],
+        "5": [
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v2_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v2_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v2_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v2_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 60,
+      "hi": 99,
+      "wavsBySlot": {
+        "1": [
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v3_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v3_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v3_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v3_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v3_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v3_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v3_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v3_rr4.wav"
+        ],
+        "5": [
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v3_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v3_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v3_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v3_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 100,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v4_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v4_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v4_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick Z1/OldZepKick Z1_Kick Full_v4_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v4_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v4_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v4_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick SSDR/OldZepKick SSDR_Kick Full_v4_rr4.wav"
+        ],
+        "5": [
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v4_rr1.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v4_rr2.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v4_rr3.wav",
+          "../OldZepKick_WAVS/OldZepKick NRG/OldZepKick NRG_Kick Full_v4_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  }
+}

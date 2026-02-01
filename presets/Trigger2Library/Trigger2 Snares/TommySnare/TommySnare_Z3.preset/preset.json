@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "snare",
+  "slotNames": [
+    "z3",
+    "",
+    "",
+    "ssdr",
+    "nrg",
+    "",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 29,
+      "wavsBySlot": {
+        "1": [
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v1_rr1.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v1_rr2.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v1_rr3.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v1_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v1_rr1.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v1_rr2.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v1_rr3.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v1_rr4.wav"
+        ],
+        "5": [
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v1_rr1.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v1_rr2.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v1_rr3.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v1_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 30,
+      "hi": 59,
+      "wavsBySlot": {
+        "1": [
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v2_rr1.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v2_rr2.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v2_rr3.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v2_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v2_rr1.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v2_rr2.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v2_rr3.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v2_rr4.wav"
+        ],
+        "5": [
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v2_rr1.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v2_rr2.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v2_rr3.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v2_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 60,
+      "hi": 89,
+      "wavsBySlot": {
+        "1": [
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v3_rr1.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v3_rr2.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v3_rr3.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v3_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v3_rr1.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v3_rr2.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v3_rr3.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v3_rr4.wav"
+        ],
+        "5": [
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v3_rr1.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v3_rr2.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v3_rr3.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v3_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 90,
+      "hi": 109,
+      "wavsBySlot": {
+        "1": [
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v4_rr1.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v4_rr2.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v4_rr3.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v4_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v4_rr1.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v4_rr2.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v4_rr3.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v4_rr4.wav"
+        ],
+        "5": [
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v4_rr1.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v4_rr2.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v4_rr3.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v4_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 5,
+      "lo": 110,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v5_rr1.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v5_rr2.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v5_rr3.wav",
+          "../TommySnare_WAVS/TommySnare Z3/TommySnare Z3_Snare Full_v5_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v5_rr1.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v5_rr2.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v5_rr3.wav",
+          "../TommySnare_WAVS/TommySnare SSDR/TommySnare SSDR_Snare Full_v5_rr4.wav"
+        ],
+        "5": [
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v5_rr1.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v5_rr2.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v5_rr3.wav",
+          "../TommySnare_WAVS/TommySnare NRG/TommySnare NRG_Snare Full_v5_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "snare",
+  "slotNames": [
+    "z1",
+    "",
+    "",
+    "ssdr",
+    "nrg",
+    "",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 29,
+      "wavsBySlot": {
+        "1": [
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v1_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v1_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v1_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v1_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 30,
+      "hi": 59,
+      "wavsBySlot": {
+        "1": [
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v2_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v2_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v2_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v2_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v2_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v2_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v2_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v2_rr4.wav"
+        ],
+        "5": [
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v2_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v2_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v2_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v2_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 60,
+      "hi": 89,
+      "wavsBySlot": {
+        "1": [
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v3_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v3_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v3_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v3_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v3_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v3_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v3_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v3_rr4.wav"
+        ],
+        "5": [
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v3_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v3_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v3_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v3_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 90,
+      "hi": 109,
+      "wavsBySlot": {
+        "1": [
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v4_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v4_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v4_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v4_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v4_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v4_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v4_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v4_rr4.wav"
+        ],
+        "5": [
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v4_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v4_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v4_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v4_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 5,
+      "lo": 110,
+      "hi": 119,
+      "wavsBySlot": {
+        "1": [
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v5_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v5_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v5_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v5_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v5_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v5_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v5_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v5_rr4.wav"
+        ],
+        "5": [
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v5_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v5_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v5_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v5_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 6,
+      "lo": 120,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v6_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v6_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v6_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare Z1/ChiliSnare Z1_Snare Full_v6_rr4.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v6_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v6_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v6_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare SSDR/ChiliSnare SSDR_Snare Full_v6_rr4.wav"
+        ],
+        "5": [
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v6_rr1.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v6_rr2.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v6_rr3.wav",
+          "../ChiliSnare_WAVS/ChiliSnare NRG/ChiliSnare NRG_Snare Full_v6_rr4.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  }
+}
