@@ -44,10 +44,11 @@ def build_velocity_ranges(velocities):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--presetDir", required=True)
-    parser.add_argument("--sampleDir", required=True)
+    parser.add_argument("--outputRoot", default=os.path.join("presets", "Trigger2Library"))
+    parser.add_argument("--presetDir")
+    parser.add_argument("--sampleDir")
     parser.add_argument("--type")
-        parser.add_argument("--fast", action="store_true")
+    parser.add_argument("--fast", action="store_true")
     for i in range(1, 9):
         parser.add_argument(f"--mic{i}")
     args = parser.parse_args()
@@ -61,8 +62,7 @@ def main():
     if not mic_inputs:
         raise SystemExit("At least one mic input must be provided.")
 
-    output_preset_root = args.presetDir
-    output_sample_root = args.sampleDir
+    output_root = args.presetDir or args.outputRoot
     instrument_type = args.type
 
     mic_data = {}
@@ -88,19 +88,22 @@ def main():
 
     multiple_articulations = len(articulations) > 1
 
+    shared_wav_root = None
+    if multiple_articulations:
+        shared_name = sanitize_name(reference_name)
+        shared_wav_root = os.path.join(output_root, f"{shared_name}_WAVS")
+
     for art in articulations:
         art_name = sanitize_name(art.get("name") or reference_name)
         art_folder = art_name if multiple_articulations else ""
 
-        preset_dir = (
-            os.path.join(output_preset_root, art_folder)
-            if art_folder
-            else output_preset_root
-        )
-        os.makedirs(preset_dir, exist_ok=True)
+        preset_parent = os.path.join(output_root, art_folder) if art_folder else output_root
+        os.makedirs(preset_parent, exist_ok=True)
 
         preset_name = art_name if multiple_articulations else reference_name
-        preset_path = os.path.join(preset_dir, f"{preset_name}.json")
+        preset_folder = os.path.join(preset_parent, f"{preset_name}.preset")
+        os.makedirs(preset_folder, exist_ok=True)
+        preset_path = os.path.join(preset_folder, "preset.json")
 
         velocity_layers = []
         velocities = [layer.get("velocity", 0) for layer in art.get("layers", [])]
@@ -127,7 +130,8 @@ def main():
                     )
 
                     mic_base = mic_info["base_name"]
-                    tci_folder = os.path.join(output_sample_root, mic_base)
+                    wav_root = shared_wav_root or preset_folder
+                    tci_folder = os.path.join(wav_root, mic_base)
                     if art_folder:
                         tci_folder = os.path.join(tci_folder, art_folder)
                     os.makedirs(tci_folder, exist_ok=True)
@@ -143,7 +147,7 @@ def main():
                         sample_width=3,
                     )
 
-                    rel_path = os.path.relpath(wav_path, output_sample_root)
+                    rel_path = os.path.relpath(wav_path, preset_folder)
                     wavs_by_slot[str(mic_index)].append(rel_path)
 
             velocity_layers.append(
@@ -160,7 +164,6 @@ def main():
             "schemaVersion": 1,
             "instrumentType": resolved_type,
             "slotNames": SLOT_NAMES,
-            "rootFolder": output_sample_root,
             "velocityLayers": velocity_layers,
             "velToVol": {
                 "amount": 70,

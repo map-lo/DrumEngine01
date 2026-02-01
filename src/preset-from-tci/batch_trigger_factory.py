@@ -82,8 +82,8 @@ def ensure_wav_written(
     layer_index,
     rr_index,
     wave_id,
-    output_sample_root,
-    rel_dir,
+    wav_root,
+    rel_base,
     folder_suffix,
     sample_width,
     resume,
@@ -91,7 +91,7 @@ def ensure_wav_written(
     in_progress=None,
 ):
     base_name = tci_data["base_name"]
-    tci_folder = os.path.join(output_sample_root, rel_dir, f"{base_name}{folder_suffix}")
+    tci_folder = os.path.join(wav_root, f"{base_name}{folder_suffix}")
     os.makedirs(tci_folder, exist_ok=True)
 
     art_label = sanitize_name(art_name)
@@ -101,13 +101,13 @@ def ensure_wav_written(
     if wav_path not in cache:
         if resume and os.path.exists(wav_path):
             cache[wav_path] = True
-            return os.path.relpath(wav_path, output_sample_root)
+            return os.path.relpath(wav_path, rel_base), wav_path
 
         if lock is not None and in_progress is not None:
             wait_for_other = False
             with lock:
                 if wav_path in cache:
-                    return os.path.relpath(wav_path, output_sample_root)
+                    return os.path.relpath(wav_path, rel_base), wav_path
                 if wav_path in in_progress:
                     wait_for_other = True
                 else:
@@ -118,7 +118,7 @@ def ensure_wav_written(
                 with lock:
                     cache[wav_path] = True
                     in_progress.discard(wav_path)
-                return os.path.relpath(wav_path, output_sample_root)
+                return os.path.relpath(wav_path, rel_base), wav_path
 
         chunk = tci_data["chunks"][wave_id]
         samples = decompress_bitstream(
@@ -146,7 +146,7 @@ def ensure_wav_written(
             else:
                 cache[wav_path] = True
 
-    return os.path.relpath(wav_path, output_sample_root)
+    return os.path.relpath(wav_path, rel_base), wav_path
 
 
 def build_slot_names(assignments):
@@ -159,7 +159,7 @@ def build_slot_names(assignments):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--inputRoot", required=True)
-    parser.add_argument("--outputRoot", default=os.path.join("dist", "preset-from-tci"))
+    parser.add_argument("--outputRoot", default=os.path.join("presets", "Trigger2Library"))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--bitDepth", type=int, choices=[16, 24], default=24)
     parser.add_argument("--resume", action="store_true")
@@ -178,8 +178,7 @@ def main():
 
     input_root = args.inputRoot
     output_root = args.outputRoot
-    output_preset_root = os.path.join(output_root, "presets", "Trigger2Library")
-    output_sample_root = os.path.join(output_root, "samples", "Trigger2Library")
+    output_preset_root = output_root
     groups = collect_tci_files(input_root)
     if not groups:
         raise SystemExit("No .tci files found.")
@@ -242,24 +241,20 @@ def main():
             processed_groups += 1
             if args.verbose:
                 print(f"[{processed_groups}/{total_groups}] scan {rel_dir}/{base_name}")
-            primary_files = []
+
+            primary_choices = []
             for ending in ENDINGS_PRIMARY:
-                primary_files.extend(ending_map.get(ending, []))
+                paths = ending_map.get(ending, [])
+                if paths and is_allowed(paths[0]):
+                    primary_choices.append((ending, paths[0]))
 
-            assigned = {}
-            mic_sources = {}
-
-            for slot_index, tci_path in zip(SLOT_ORDER_PRIMARY, primary_files):
-                if not is_allowed(tci_path):
-                    continue
-                _, ending = split_base_and_ending(os.path.basename(tci_path))
-                assigned[slot_index] = ending
-                mic_sources[slot_index] = tci_path
+            if not primary_choices:
+                print(
+                    f"[{processed_groups}/{total_groups}] skip preset: no primary TCI sources for {rel_dir}/{base_name}"
+                )
+                continue
 
             oh_files = ending_map.get(ENDING_OH, [])
-            if oh_files and is_allowed(oh_files[0]):
-                mic_sources[3] = oh_files[0]
-                assigned[3] = ENDING_OH
 
             ssdr_variants = []
             ssdr_paths = {}
@@ -287,18 +282,29 @@ def main():
             nrg_primary = nrg_paths.get(ENDING_NRG) or nrg_paths.get(ENDING_NRGc)
 
             preset_variants = []
-            for ssdr_choice in ssdr_variants:
-                for nrg_choice in nrg_variants:
-                    suffix_parts = []
-                    if len(ssdr_variants) > 1 and ssdr_choice is not None:
-                        suffix_parts.append("SSDR" if ssdr_choice == ENDING_SSDR else "SSDR(a)")
-                    if len(nrg_variants) > 1 and nrg_choice is not None:
-                        suffix_parts.append("NRG" if nrg_choice == ENDING_NRG else "NRG(c)")
-                    preset_variants.append((ssdr_choice, nrg_choice, suffix_parts))
+            for primary_ending, primary_path in primary_choices:
+                for ssdr_choice in ssdr_variants:
+                    for nrg_choice in nrg_variants:
+                        suffix_parts = []
+                        if len(primary_choices) > 1:
+                            suffix_parts.append(primary_ending)
+                        if len(ssdr_variants) > 1 and ssdr_choice is not None:
+                            suffix_parts.append("SSDR" if ssdr_choice == ENDING_SSDR else "SSDR(a)")
+                        if len(nrg_variants) > 1 and nrg_choice is not None:
+                            suffix_parts.append("NRG" if nrg_choice == ENDING_NRG else "NRG(c)")
+                        preset_variants.append(
+                            (primary_ending, primary_path, ssdr_choice, nrg_choice, suffix_parts)
+                        )
 
-            for ssdr_choice, nrg_choice, suffix_parts in preset_variants:
-                variant_assigned = dict(assigned)
-                variant_sources = dict(mic_sources)
+            multi_preset = len(preset_variants) > 1
+
+            for primary_ending, primary_path, ssdr_choice, nrg_choice, suffix_parts in preset_variants:
+                variant_assigned = {1: primary_ending}
+                variant_sources = {1: primary_path}
+
+                if oh_files and is_allowed(oh_files[0]):
+                    variant_sources[3] = oh_files[0]
+                    variant_assigned[3] = ENDING_OH
 
                 if ssdr_choice:
                     ssdr_file = ssdr_primary if len(ssdr_variants) > 1 else ssdr_paths.get(ssdr_choice)
@@ -378,155 +384,160 @@ def main():
                         reference_mapping = parsed["mapping"]
                         reference_name = os.path.splitext(os.path.basename(tci_path))[0]
 
-            if skipped_sources:
-                for slot_index, tci_path, err in skipped_sources:
-                    print(
-                        f"[{processed_groups}/{total_groups}] skip unsupported: {tci_path} (slot {slot_index}) - {err}"
-                    )
-
-            if not valid_sources:
-                print(
-                    f"[{processed_groups}/{total_groups}] skip preset: no valid TCI sources for {rel_dir}/{base_name}"
-                )
-                continue
-
-            variant_sources = valid_sources
-            variant_assigned = valid_assigned
-
-            articulations = reference_mapping.get("articulations", []) if reference_mapping else []
-            if not articulations:
-                articulations = [{"name": base_name, "layers": []}]
-
-            full_articulations = [
-                art for art in articulations
-                if "full" in (art.get("name") or "").strip().lower()
-            ]
-            full_only = bool(full_articulations)
-            if full_only:
-                articulations = full_articulations
-
-            multiple_articulations = len(articulations) > 1
-
-            suffix = ""
-            if suffix_parts:
-                suffix = "_" + "_".join(suffix_parts)
-
-            for art in articulations:
-                art_name = sanitize_name(art.get("name") or base_name)
-                is_full = "full" in art_name.lower()
-                art_name_display = "" if full_only and is_full else art_name
-                folder_suffix = (
-                    f" {art_name_display}" if multiple_articulations and art_name_display else ""
-                )
-
-                preset_dir = os.path.join(output_preset_root, rel_dir)
-                os.makedirs(preset_dir, exist_ok=True)
-
-                preset_name = (
-                    f"{base_name}{folder_suffix}{suffix}"
-                    if multiple_articulations and art_name_display
-                    else base_name + suffix
-                )
-                preset_path = os.path.join(preset_dir, f"{preset_name}.json")
-
-                if args.verbose:
-                    print(
-                        f"[{processed_groups}/{total_groups}] decoding {preset_path}"
-                    )
-
-                velocity_layers = []
-                all_wavs_written = True
-                velocities = [layer.get("velocity", 0) for layer in art.get("layers", [])]
-                ranges = build_velocity_ranges(velocities)
-
-                for layer_index, layer in enumerate(art.get("layers", [])):
-                    rr_waves = layer.get("waves", [])
-                    lo, hi = ranges[layer_index] if layer_index < len(ranges) else (1, 127)
-                    wavs_by_slot = {str(slot): [] for slot in range(1, 9)}
-
-                    tasks = []
-                    for rr_index, wave_id in enumerate(rr_waves, start=1):
-                        if wave_id is None:
-                            continue
-                        for slot_index, tci_path in variant_sources.items():
-                            tci_data = tci_cache[tci_path]
-                            if wave_id >= len(tci_data["chunks"]):
-                                continue
-                            tasks.append(
-                                (rr_index, wave_id, slot_index, tci_path, tci_data)
-                            )
-
-                    def run_task(task):
-                        rr_index, wave_id, slot_index, tci_path, tci_data = task
-                        rel_path = ensure_wav_written(
-                            wav_cache,
-                            tci_path,
-                            tci_data,
-                            art_name,
-                            layer_index,
-                            rr_index,
-                            wave_id,
-                            output_sample_root,
-                            rel_dir,
-                            folder_suffix,
-                            sample_width,
-                            resume,
-                            lock=lock,
-                            in_progress=in_progress,
+                if skipped_sources:
+                    for slot_index, tci_path, err in skipped_sources:
+                        print(
+                            f"[{processed_groups}/{total_groups}] skip unsupported: {tci_path} (slot {slot_index}) - {err}"
                         )
-                        return slot_index, rel_path
 
-                    if executor and tasks:
-                        results = executor.map(run_task, tasks)
-                        for slot_index, rel_path in results:
-                            if not os.path.exists(os.path.join(output_sample_root, rel_path)):
-                                all_wavs_written = False
-                            wavs_by_slot[str(slot_index)].append(rel_path)
-                    else:
-                        for task in tasks:
-                            slot_index, rel_path = run_task(task)
-                            if not os.path.exists(os.path.join(output_sample_root, rel_path)):
-                                all_wavs_written = False
-                            wavs_by_slot[str(slot_index)].append(rel_path)
+                if not valid_sources:
+                    print(
+                        f"[{processed_groups}/{total_groups}] skip preset: no valid TCI sources for {rel_dir}/{base_name}"
+                    )
+                    continue
 
-                    velocity_layers.append(
-                        {
-                            "index": layer_index + 1,
-                            "lo": lo,
-                            "hi": hi,
-                            "wavsBySlot": wavs_by_slot,
-                        }
+                variant_sources = valid_sources
+                variant_assigned = valid_assigned
+
+                articulations = reference_mapping.get("articulations", []) if reference_mapping else []
+                if not articulations:
+                    articulations = [{"name": base_name, "layers": []}]
+
+                full_articulations = [
+                    art for art in articulations
+                    if "full" in (art.get("name") or "").strip().lower()
+                ]
+                full_only = bool(full_articulations)
+                if full_only:
+                    articulations = full_articulations
+
+                multiple_articulations = len(articulations) > 1
+
+                suffix = ""
+                if suffix_parts:
+                    suffix = "_" + "_".join(suffix_parts)
+
+                for art in articulations:
+                    art_name = sanitize_name(art.get("name") or base_name)
+                    is_full = "full" in art_name.lower()
+                    art_name_display = "" if full_only and is_full else art_name
+                    folder_suffix = (
+                        f" {art_name_display}" if multiple_articulations and art_name_display else ""
                     )
 
-                resolved_type = infer_instrument_type(base_name)
-                preset = {
-                    "schemaVersion": 1,
-                    "instrumentType": resolved_type,
-                    "slotNames": build_slot_names(variant_assigned),
-                    "rootFolder": "~/Documents/DrumEngine01/Trigger2Library",
-                    "velocityLayers": velocity_layers,
-                    "velToVol": {
-                        "amount": 70,
-                        "curve": {"type": "builtin", "name": "soft"},
-                    },
-                }
+                    preset_dir = os.path.join(output_preset_root, rel_dir)
+                    os.makedirs(preset_dir, exist_ok=True)
 
-                if resume and os.path.exists(preset_path) and all_wavs_written:
-                    print(f"[{processed_groups}/{total_groups}] resume preset: {preset_path}")
-                else:
-                    tmp_preset_path = f"{preset_path}.tmp"
-                    os.makedirs(os.path.dirname(tmp_preset_path), exist_ok=True)
-                    with open(tmp_preset_path, "w", encoding="utf-8") as f:
-                        json.dump(preset, f, indent=2)
-                    os.replace(tmp_preset_path, preset_path)
+                    preset_name = (
+                        f"{base_name}{folder_suffix}{suffix}"
+                        if multiple_articulations and art_name_display
+                        else base_name + suffix
+                    )
+                    preset_folder = os.path.join(preset_dir, f"{preset_name}.preset")
+                    os.makedirs(preset_folder, exist_ok=True)
+                    preset_path = os.path.join(preset_folder, "preset.json")
 
-                processed_presets += 1
-                print(
-                    f"[{processed_groups}/{total_groups}] preset {processed_presets}: {preset_path}"
-                )
-                if limit and processed_presets >= limit:
-                    print(f"Limit reached ({limit}). Stopping.")
-                    return
+                    if args.verbose:
+                        print(
+                            f"[{processed_groups}/{total_groups}] decoding {preset_path}"
+                        )
+
+                    velocity_layers = []
+                    all_wavs_written = True
+                    velocities = [layer.get("velocity", 0) for layer in art.get("layers", [])]
+                    ranges = build_velocity_ranges(velocities)
+
+                    shared_wav_root = None
+                    if multi_preset:
+                        shared_wav_root = os.path.join(preset_dir, f"{base_name}_WAVS")
+
+                    for layer_index, layer in enumerate(art.get("layers", [])):
+                        rr_waves = layer.get("waves", [])
+                        lo, hi = ranges[layer_index] if layer_index < len(ranges) else (1, 127)
+                        wavs_by_slot = {str(slot): [] for slot in range(1, 9)}
+
+                        tasks = []
+                        for rr_index, wave_id in enumerate(rr_waves, start=1):
+                            if wave_id is None:
+                                continue
+                            for slot_index, tci_path in variant_sources.items():
+                                tci_data = tci_cache[tci_path]
+                                if wave_id >= len(tci_data["chunks"]):
+                                    continue
+                                tasks.append(
+                                    (rr_index, wave_id, slot_index, tci_path, tci_data)
+                                )
+
+                        def run_task(task):
+                            rr_index, wave_id, slot_index, tci_path, tci_data = task
+                            rel_path, wav_path = ensure_wav_written(
+                                wav_cache,
+                                tci_path,
+                                tci_data,
+                                art_name,
+                                layer_index,
+                                rr_index,
+                                wave_id,
+                                shared_wav_root or preset_folder,
+                                preset_folder,
+                                folder_suffix,
+                                sample_width,
+                                resume,
+                                lock=lock,
+                                in_progress=in_progress,
+                            )
+                            return slot_index, rel_path, wav_path
+
+                        if executor and tasks:
+                            results = executor.map(run_task, tasks)
+                            for slot_index, rel_path, wav_path in results:
+                                if not os.path.exists(wav_path):
+                                    all_wavs_written = False
+                                wavs_by_slot[str(slot_index)].append(rel_path)
+                        else:
+                            for task in tasks:
+                                slot_index, rel_path, wav_path = run_task(task)
+                                if not os.path.exists(wav_path):
+                                    all_wavs_written = False
+                                wavs_by_slot[str(slot_index)].append(rel_path)
+
+                        velocity_layers.append(
+                            {
+                                "index": layer_index + 1,
+                                "lo": lo,
+                                "hi": hi,
+                                "wavsBySlot": wavs_by_slot,
+                            }
+                        )
+
+                    resolved_type = infer_instrument_type(base_name)
+                    preset = {
+                        "schemaVersion": 1,
+                        "instrumentType": resolved_type,
+                        "slotNames": build_slot_names(variant_assigned),
+                        "velocityLayers": velocity_layers,
+                        "velToVol": {
+                            "amount": 70,
+                            "curve": {"type": "builtin", "name": "soft"},
+                        },
+                    }
+
+                    if resume and os.path.exists(preset_path) and all_wavs_written:
+                        print(f"[{processed_groups}/{total_groups}] resume preset: {preset_path}")
+                    else:
+                        tmp_preset_path = f"{preset_path}.tmp"
+                        os.makedirs(os.path.dirname(tmp_preset_path), exist_ok=True)
+                        with open(tmp_preset_path, "w", encoding="utf-8") as f:
+                            json.dump(preset, f, indent=2)
+                        os.replace(tmp_preset_path, preset_path)
+
+                    processed_presets += 1
+                    print(
+                        f"[{processed_groups}/{total_groups}] preset {processed_presets}: {preset_path}"
+                    )
+                    if limit and processed_presets >= limit:
+                        print(f"Limit reached ({limit}). Stopping.")
+                        return
     finally:
         if executor:
             executor.shutdown()
