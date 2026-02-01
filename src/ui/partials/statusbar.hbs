@@ -1,12 +1,16 @@
 <!-- Status Bar -->
 <div class="flex gap-3 items-end justify-start mx-2 mb-1">
   <label class="flex items-center gap-1 mb-[2px]">
-    <span class="text-[10px]">Pitch</span>
+    <span
+      class="text-[10px]"
+      :class="pitchEnabled ? '' : 'opacity-40'"
+    >Pitch</span>
     <div
       @pointerdown="handlePitchDrag($event)"
       @dblclick="resetPitch()"
       @click.alt="resetPitch()"
       class="h-4 w-16 border-2 border-black flex items-center relative cursor-pointer"
+      :class="pitchEnabled ? '' : 'opacity-40 pointer-events-none'"
     >
       <div
         class="pitch-indicator h-full bg-black pointer-events-none"
@@ -15,8 +19,21 @@
     </div>
     <span
       class="text-[10px] w-8 h-4 text-right"
+      :class="pitchEnabled ? '' : 'opacity-40'"
       x-text="formatPitchShift(presetInfo.pitchShift)"
     ></span>
+  </label>
+  <label class="flex items-center gap-1 mb-[2px]">
+    <span class="text-[10px]">SRC</span>
+    <select
+      x-model="resamplingMode"
+      @change="setResamplingMode($event.target.value)"
+      class="h-4 text-[10px] bg-white border-2 border-black px-1"
+    >
+      <option value="off">Off</option>
+      <option value="normal">Normal</option>
+      <option value="ultra">Ultra</option>
+    </select>
   </label>
   <div class="grow"></div>
   <label class="flex">

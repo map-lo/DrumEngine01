@@ -47,6 +47,7 @@ window.drumEngineApp = function () {
 
         statusMessage: '',
         outputMode: 'stereo',
+        resamplingMode: 'ultra',
 
         // Volume drag state
         volumeDragIndex: -1,
@@ -56,6 +57,11 @@ window.drumEngineApp = function () {
 
         // MIDI note input
         midiNoteInput: '-',
+
+        // Computed
+        get pitchEnabled() {
+            return this.resamplingMode !== 'off';
+        },
 
         // Initialize
         init() {
@@ -304,6 +310,10 @@ window.drumEngineApp = function () {
                 this.outputMode = state.outputMode;
             }
 
+            if (state.resamplingMode) {
+                this.resamplingMode = state.resamplingMode;
+            }
+
             if (typeof state.currentPresetIndex !== 'undefined') {
                 this.currentPresetIndex = state.currentPresetIndex;
             }
@@ -333,6 +343,7 @@ window.drumEngineApp = function () {
         },
 
         handlePitchDrag(event) {
+            if (!this.pitchEnabled) return;
             if (event.altKey) {
                 this.resetPitch();
                 return;
@@ -344,7 +355,7 @@ window.drumEngineApp = function () {
         },
 
         handlePitchMove(event) {
-            if (!this.isPitchDragging) return;
+            if (!this.isPitchDragging || !this.pitchEnabled) return;
 
             // Find the pitch fader container
             const container = document.querySelector('.pitch-indicator')?.parentElement;
@@ -365,6 +376,15 @@ window.drumEngineApp = function () {
         resetPitch() {
             this.presetInfo.pitchShift = 0.0;
             this.sendMessage('setPitchShift', { semitones: 0 });
+        },
+
+        setResamplingMode(mode) {
+            this.resamplingMode = mode;
+            this.sendMessage('setResamplingMode', { mode });
+
+            if (mode === 'off') {
+                this.resetPitch();
+            }
         },
 
         // MIDI note methods

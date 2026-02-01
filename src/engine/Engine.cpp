@@ -17,6 +17,9 @@ namespace DrumEngine
     {
         currentSampleRate = sampleRate;
 
+        // Initialize latency contribution for resampling mode
+        setLatencyContribution("resampling", getResamplingLatencySamples());
+
         // Allocate voice pool (3 hitgroups * 8 slots + headroom)
         voicePool.allocate(32);
 
@@ -268,8 +271,61 @@ namespace DrumEngine
     void Engine::setPitchShift(float semitones)
     {
         // Clamp to -6 to +6
+        if (resamplingMode.load() == ResamplingMode::Off)
+        {
+            pitchShiftSemitones.store(0.0f);
+            return;
+        }
+
         semitones = juce::jlimit(-6.0f, 6.0f, semitones);
         pitchShiftSemitones.store(semitones);
+    }
+
+    void Engine::setResamplingMode(ResamplingMode mode)
+    {
+        resamplingMode.store(mode);
+
+        // Update latency contribution for resampling
+        setLatencyContribution("resampling", getResamplingLatencySamples());
+
+        // Disable pitch when resampling is off
+        if (mode == ResamplingMode::Off)
+            pitchShiftSemitones.store(0.0f);
+    }
+
+    void Engine::setLatencyContribution(const juce::String &name, int samples)
+    {
+        juce::ScopedLock lock(latencyLock);
+        latencyContributions[name] = samples;
+    }
+
+    void Engine::removeLatencyContribution(const juce::String &name)
+    {
+        juce::ScopedLock lock(latencyLock);
+        latencyContributions.erase(name);
+    }
+
+    int Engine::getLatencySamples() const
+    {
+        juce::ScopedLock lock(latencyLock);
+        int total = 0;
+        for (const auto &entry : latencyContributions)
+            total += entry.second;
+        return total;
+    }
+
+    int Engine::getResamplingLatencySamples() const
+    {
+        switch (resamplingMode.load())
+        {
+        case ResamplingMode::Normal:
+            return 2;
+        case ResamplingMode::Ultra:
+            return 100;
+        case ResamplingMode::Off:
+        default:
+            return 0;
+        }
     }
 
     void Engine::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages,
@@ -392,12 +448,21 @@ namespace DrumEngine
             // Set slot index for routing
             voice->slotIndex = slotIdx;
 
-            // Calculate playback rate from pitch shift
-            float playbackRate = std::pow(2.0f, pitchShiftSemitones.load() / 12.0f);
+            // Calculate playback rate from sample rate conversion + pitch shift
+            float playbackRate = 1.0f;
+            const auto mode = resamplingMode.load();
+            if (mode != ResamplingMode::Off)
+            {
+                const double sampleRate = sample->getSampleRate();
+                const double hostRate = currentSampleRate > 0.0 ? currentSampleRate : 44100.0;
+                const float rateRatio = (sampleRate > 0.0 ? static_cast<float>(sampleRate / hostRate) : 1.0f);
+                const float pitchRatio = std::pow(2.0f, pitchShiftSemitones.load() / 12.0f);
+                playbackRate = rateRatio * pitchRatio;
+            }
 
             // Start voice with just velocity gain (not slot gain)
             // Slot gain (volume/mute/solo) will be applied only to mix during render
-            voice->start(sample, gain, fadeLenSamples, playbackRate);
+            voice->start(sample, gain, fadeLenSamples, playbackRate, mode);
             newGroup.voices[slotIdx] = voice;
         }
 

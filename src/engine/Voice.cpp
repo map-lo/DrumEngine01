@@ -1,4 +1,6 @@
 #include "Voice.h"
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <cmath>
 
 namespace DrumEngine
 {
@@ -6,15 +8,21 @@ namespace DrumEngine
     //==============================================================================
     // MicVoice
 
-    void MicVoice::start(std::shared_ptr<SampleRef> sample, float startGain, int fadeLenSamps, float rate)
+    void MicVoice::start(std::shared_ptr<SampleRef> sample, float startGain, int fadeLenSamps, float rate,
+                         ResamplingMode mode)
     {
         currentSample = sample;
         gain = startGain;
         fadeLenSamples = fadeLenSamps;
+        inputSampleIndex = 0;
         playbackPosition = 0.0;
         playbackRate = rate;
+        resamplingMode = mode;
         fadePosition = 0;
         state = State::Playing;
+
+        for (auto &interp : windowedSincInterpolators)
+            interp.reset();
     }
 
     void MicVoice::beginRelease()
@@ -30,6 +38,7 @@ namespace DrumEngine
     {
         state = State::Inactive;
         currentSample = nullptr;
+        inputSampleIndex = 0;
         playbackPosition = 0.0;
         playbackRate = 1.0f;
         fadePosition = 0;
@@ -70,6 +79,56 @@ namespace DrumEngine
             }
         }
 
+        const auto totalFrames = currentSample->getTotalFrames();
+        const bool useResampler = (state == State::Playing && resamplingMode == ResamplingMode::Ultra);
+        const float *resampledLeft = nullptr;
+        const float *resampledRight = nullptr;
+        bool endReached = false;
+
+        if (useResampler)
+        {
+            if (playbackRate <= 0.0f)
+            {
+                beginRelease();
+            }
+            else
+            {
+                const int numOutput = numSamples;
+                const int inputNeeded = static_cast<int>(std::ceil(numOutput * playbackRate)) + 4;
+
+                resampleInputBuffer.setSize(2, inputNeeded, false, false, true);
+                resampleOutputBuffer.setSize(2, numOutput, false, false, true);
+
+                float *inLeft = resampleInputBuffer.getWritePointer(0);
+                float *inRight = resampleInputBuffer.getWritePointer(1);
+
+                for (int j = 0; j < inputNeeded; ++j)
+                {
+                    const auto frameIndex = inputSampleIndex + j;
+                    if (frameIndex < totalFrames)
+                        currentSample->getFrame(frameIndex, inLeft[j], inRight[j]);
+                    else
+                        inLeft[j] = inRight[j] = 0.0f;
+                }
+
+                float *outLeft = resampleOutputBuffer.getWritePointer(0);
+                float *outRight = resampleOutputBuffer.getWritePointer(1);
+
+                int usedLeft = 0;
+                int usedRight = 0;
+
+                usedLeft = windowedSincInterpolators[0].process(playbackRate, inLeft, outLeft, numOutput);
+                usedRight = windowedSincInterpolators[1].process(playbackRate, inRight, outRight, numOutput);
+
+                const int numInputUsed = juce::jmax(usedLeft, usedRight);
+                inputSampleIndex += numInputUsed;
+                endReached = (inputSampleIndex >= totalFrames);
+
+                resampledLeft = resampleOutputBuffer.getReadPointer(0);
+                resampledRight = resampleOutputBuffer.getReadPointer(1);
+            }
+        }
+
         for (int i = 0; i < numSamples; ++i)
         {
             float sampleLeft = 0.0f;
@@ -77,41 +136,54 @@ namespace DrumEngine
 
             if (state == State::Playing)
             {
-                // Read from sample with cubic interpolation
-                if (playbackPosition < currentSample->getTotalFrames() - 1)
+                if (resamplingMode == ResamplingMode::Off)
                 {
-                    int idx = static_cast<int>(playbackPosition);
-                    float frac = static_cast<float>(playbackPosition - idx);
-
-                    // Get 4 samples for cubic interpolation (handle boundaries)
-                    float L[4], R[4];
-                    for (int j = 0; j < 4; ++j)
+                    if (inputSampleIndex < totalFrames)
                     {
-                        int sampleIdx = idx + j - 1;
-                        sampleIdx = juce::jlimit(0, static_cast<int>(currentSample->getTotalFrames() - 1), sampleIdx);
-                        currentSample->getFrame(sampleIdx, L[j], R[j]);
+                        currentSample->getFrame(inputSampleIndex, sampleLeft, sampleRight);
+                        ++inputSampleIndex;
+
+                        if (inputSampleIndex >= totalFrames)
+                            beginRelease();
                     }
-
-                    // Cubic interpolation (Catmull-Rom)
-                    auto cubicInterp = [](float y0, float y1, float y2, float y3, float mu)
+                }
+                else if (resamplingMode == ResamplingMode::Normal)
+                {
+                    if (playbackPosition < totalFrames - 1)
                     {
-                        float a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
-                        float a1 = y0 - 2.5f * y1 + 2.0f * y2 - 0.5f * y3;
-                        float a2 = -0.5f * y0 + 0.5f * y2;
-                        float a3 = y1;
-                        return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
-                    };
+                        int idx = static_cast<int>(playbackPosition);
+                        float frac = static_cast<float>(playbackPosition - idx);
 
-                    sampleLeft = cubicInterp(L[0], L[1], L[2], L[3], frac);
-                    sampleRight = cubicInterp(R[0], R[1], R[2], R[3], frac);
+                        float L[4], R[4];
+                        for (int j = 0; j < 4; ++j)
+                        {
+                            int sampleIdx = idx + j - 1;
+                            sampleIdx = juce::jlimit(0, static_cast<int>(totalFrames - 1), sampleIdx);
+                            currentSample->getFrame(sampleIdx, L[j], R[j]);
+                        }
 
-                    playbackPosition += playbackRate;
+                        auto cubicInterp = [](float y0, float y1, float y2, float y3, float mu)
+                        {
+                            float a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
+                            float a1 = y0 - 2.5f * y1 + 2.0f * y2 - 0.5f * y3;
+                            float a2 = -0.5f * y0 + 0.5f * y2;
+                            float a3 = y1;
+                            return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
+                        };
 
-                    // Check if reached EOF
-                    if (playbackPosition >= currentSample->getTotalFrames())
-                    {
-                        beginRelease();
+                        sampleLeft = cubicInterp(L[0], L[1], L[2], L[3], frac);
+                        sampleRight = cubicInterp(R[0], R[1], R[2], R[3], frac);
+
+                        playbackPosition += playbackRate;
+
+                        if (playbackPosition >= totalFrames)
+                            beginRelease();
                     }
+                }
+                else if (resampledLeft && resampledRight)
+                {
+                    sampleLeft = resampledLeft[i];
+                    sampleRight = resampledRight[i];
                 }
             }
 
@@ -147,6 +219,9 @@ namespace DrumEngine
                 slotRight[i] += sampleRight;
             }
         }
+
+        if (endReached)
+            beginRelease();
     }
 
     //==============================================================================

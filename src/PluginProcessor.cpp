@@ -100,6 +100,8 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 {
     // Initialize the drum engine
     engine.prepareToPlay(sampleRate, samplesPerBlock);
+    engine.setResamplingMode(resamplingMode);
+    updateLatency();
 
     // Only load default preset if no state was restored (i.e., new instance, not loading from session)
     if (!stateRestored)
@@ -210,6 +212,9 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
     // Save output mode
     xml.setAttribute("outputMode", static_cast<int>(outputMode));
 
+    // Save resampling mode
+    xml.setAttribute("resamplingMode", static_cast<int>(resamplingMode));
+
     // Save velocity to volume setting
     xml.setAttribute("useVelocityToVolume", getUseVelocityToVolume());
 
@@ -264,6 +269,30 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     {
         int modeValue = xml->getIntAttribute("outputMode", 0);
         outputMode = static_cast<OutputMode>(modeValue);
+    }
+
+    // Restore resampling mode (handle legacy values)
+    if (xml->hasAttribute("resamplingMode"))
+    {
+        int modeValue = xml->getIntAttribute("resamplingMode", static_cast<int>(DrumEngine::ResamplingMode::Ultra));
+        DrumEngine::ResamplingMode modeToSet = DrumEngine::ResamplingMode::Ultra;
+
+        switch (modeValue)
+        {
+        case 0:
+            modeToSet = DrumEngine::ResamplingMode::Off;
+            break;
+        case 1: // legacy LowLatency
+        case 2: // legacy Normal
+            modeToSet = DrumEngine::ResamplingMode::Normal;
+            break;
+        case 3: // legacy Ultra
+        default:
+            modeToSet = DrumEngine::ResamplingMode::Ultra;
+            break;
+        }
+
+        setResamplingMode(modeToSet);
     }
 
     // Restore slot states first (before loading preset)
@@ -563,8 +592,34 @@ bool AudioPluginAudioProcessor::getMidiNoteLocked() const
 
 void AudioPluginAudioProcessor::setPitchShift(float semitones)
 {
+    if (resamplingMode == DrumEngine::ResamplingMode::Off)
+    {
+        pitchShift = 0.0f;
+        engine.setPitchShift(0.0f);
+        return;
+    }
+
     pitchShift = juce::jlimit(-6.0f, 6.0f, semitones);
     engine.setPitchShift(pitchShift);
+}
+
+void AudioPluginAudioProcessor::setResamplingMode(DrumEngine::ResamplingMode mode)
+{
+    if (resamplingMode == mode)
+        return;
+
+    resamplingMode = mode;
+    engine.setResamplingMode(mode);
+
+    if (mode == DrumEngine::ResamplingMode::Off)
+        setPitchShift(0.0f);
+
+    updateLatency();
+}
+
+void AudioPluginAudioProcessor::updateLatency()
+{
+    setLatencySamples(engine.getLatencySamples());
 }
 
 //==============================================================================

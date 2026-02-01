@@ -1,11 +1,13 @@
 #pragma once
 
+#include "ResamplingMode.h"
 #include "RuntimePreset.h"
 #include "Voice.h"
 #include <deque>
 #include <array>
 #include <atomic>
 #include <functional>
+#include <map>
 
 namespace DrumEngine
 {
@@ -60,6 +62,18 @@ namespace DrumEngine
         void setPitchShift(float semitones);
         float getPitchShift() const { return pitchShiftSemitones.load(); }
 
+        // Resampling mode
+        void setResamplingMode(ResamplingMode mode);
+        ResamplingMode getResamplingMode() const { return resamplingMode.load(); }
+
+        // Latency reporting (aggregated)
+        void setLatencyContribution(const juce::String &name, int samples);
+        void removeLatencyContribution(const juce::String &name);
+        int getLatencySamples() const;
+        int getResamplingLatencySamples() const;
+
+        double getCurrentSampleRate() const { return currentSampleRate; }
+
         // Access to active preset (thread-safe, read-only)
         const RuntimePreset *getActivePreset() const { return activePreset.load(); }
 
@@ -90,6 +104,13 @@ namespace DrumEngine
 
         // Pitch shift
         std::atomic<float> pitchShiftSemitones{0.0f};
+
+        // Resampling
+        std::atomic<ResamplingMode> resamplingMode{ResamplingMode::Ultra};
+
+        // Latency contributions
+        mutable juce::CriticalSection latencyLock;
+        std::map<juce::String, int> latencyContributions;
 
         // Voice management
         VoicePool voicePool;

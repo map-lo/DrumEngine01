@@ -97,6 +97,10 @@ public:
     void setPitchShift(float semitones);
     float getPitchShift() const { return pitchShift; }
 
+    // Resampling mode
+    void setResamplingMode(DrumEngine::ResamplingMode mode);
+    DrumEngine::ResamplingMode getResamplingMode() const { return resamplingMode; }
+
     // MIDI note lock (prevents preset changes from overriding custom note)
     void setMidiNoteLocked(bool locked);
     bool getMidiNoteLocked() const;
@@ -126,6 +130,7 @@ private:
     juce::Result loadPresetFromJsonInternal(const juce::String &jsonText,
                                             const juce::String &presetName,
                                             const juce::String &defaultRootFolder = {});
+    void updateLatency();
     //==============================================================================
     DrumEngine::Engine engine;
     OutputMode outputMode = OutputMode::Stereo;
@@ -147,6 +152,9 @@ private:
 
     // Pitch shift
     float pitchShift = 0.0f;
+
+    // Resampling mode
+    DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::Ultra;
 
     // Hit listeners
     juce::ListenerList<HitListener> hitListeners;

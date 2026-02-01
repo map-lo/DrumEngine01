@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ResamplingMode.h"
 #include "SampleRef.h"
 #include <memory>
 #include <vector>
@@ -21,7 +22,8 @@ namespace DrumEngine
 
         MicVoice() = default;
 
-        void start(std::shared_ptr<SampleRef> sample, float gain, int fadeLenSamples, float rate = 1.0f);
+        void start(std::shared_ptr<SampleRef> sample, float gain, int fadeLenSamples, float rate = 1.0f,
+                   ResamplingMode mode = ResamplingMode::Ultra);
         void beginRelease();
         void reset();
 
@@ -36,9 +38,16 @@ namespace DrumEngine
     private:
         State state = State::Inactive;
         std::shared_ptr<SampleRef> currentSample;
+        juce::int64 inputSampleIndex = 0;
         double playbackPosition = 0.0;
         float playbackRate = 1.0f;
         float gain = 1.0f;
+        ResamplingMode resamplingMode = ResamplingMode::Ultra;
+
+        // Resampling state (per channel)
+        juce::WindowedSincInterpolator windowedSincInterpolators[2];
+        juce::AudioBuffer<float> resampleInputBuffer;
+        juce::AudioBuffer<float> resampleOutputBuffer;
 
         // Fade-out state
         int fadeLenSamples = 32;

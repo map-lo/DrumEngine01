@@ -15,6 +15,31 @@ static void logToFile(const juce::String &message)
     logFile.appendText(logLine);
 }
 
+static juce::String resamplingModeToString(DrumEngine::ResamplingMode mode)
+{
+    switch (mode)
+    {
+    case DrumEngine::ResamplingMode::Off:
+        return "off";
+    case DrumEngine::ResamplingMode::Normal:
+        return "normal";
+    case DrumEngine::ResamplingMode::Ultra:
+    default:
+        return "ultra";
+    }
+}
+
+static DrumEngine::ResamplingMode resamplingModeFromString(const juce::String &value)
+{
+    if (value == "off")
+        return DrumEngine::ResamplingMode::Off;
+    if (value == "low")
+        return DrumEngine::ResamplingMode::Normal;
+    if (value == "normal")
+        return DrumEngine::ResamplingMode::Normal;
+    return DrumEngine::ResamplingMode::Ultra;
+}
+
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p)
     : AudioProcessorEditor(&p), processorRef(p)
@@ -312,6 +337,11 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
         float semitones = obj->getProperty("semitones");
         processorRef.setPitchShift(semitones);
     }
+    else if (action == "setResamplingMode")
+    {
+        juce::String mode = obj->getProperty("mode").toString();
+        processorRef.setResamplingMode(resamplingModeFromString(mode));
+    }
     else if (action == "setSlotVolume")
     {
         int slot = obj->getProperty("slot");
@@ -371,6 +401,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("midiNoteLocked", processorRef.getMidiNoteLocked());
     presetInfoObj->setProperty("dawOctaveOffset", DrumEngine::MidiNoteUtils::getHostOctaveOffset());
     presetInfoObj->setProperty("pitchShift", processorRef.getPitchShift());
+    state->setProperty("resamplingMode", resamplingModeToString(processorRef.getResamplingMode()));
 
     juce::Array<juce::var> slotNamesArray;
     for (const auto &name : info.slotNames)
