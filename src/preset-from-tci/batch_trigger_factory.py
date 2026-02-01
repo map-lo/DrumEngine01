@@ -82,6 +82,7 @@ def ensure_wav_written(
     rel_dir,
     folder_suffix,
     sample_width,
+    resume,
 ):
     base_name = tci_data["base_name"]
     tci_folder = os.path.join(output_sample_root, rel_dir, f"{base_name}{folder_suffix}")
@@ -92,6 +93,9 @@ def ensure_wav_written(
     wav_path = os.path.join(tci_folder, wav_name)
 
     if wav_path not in cache:
+        if resume and os.path.exists(wav_path):
+            cache[wav_path] = True
+            return os.path.relpath(wav_path, output_sample_root)
         chunk = tci_data["chunks"][wave_id]
         samples = decompress_bitstream(
             chunk["payload"],
@@ -126,6 +130,7 @@ def main():
     parser.add_argument("--outputRoot", default=os.path.join("dist", "preset-from-tci"))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--bitDepth", type=int, choices=[16, 24], default=24)
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
 
     input_root = args.inputRoot
@@ -141,6 +146,7 @@ def main():
     processed_groups = 0
     limit = max(0, args.limit or 0)
     sample_width = 2 if args.bitDepth == 16 else 3
+    resume = args.resume
 
     for (rel_dir, base_name), ending_map in groups.items():
         processed_groups += 1
@@ -219,19 +225,45 @@ def main():
             wav_cache = {}
             reference_mapping = None
             reference_name = None
+            valid_sources = {}
+            valid_assigned = {}
+            skipped_sources = []
 
             for slot_index, tci_path in variant_sources.items():
                 if tci_path in tci_cache:
+                    valid_sources[slot_index] = tci_path
+                    valid_assigned[slot_index] = variant_assigned.get(slot_index)
                     continue
-                parsed = decode_tci(tci_path)
+                try:
+                    parsed = decode_tci(tci_path)
+                except ValueError as exc:
+                    skipped_sources.append((slot_index, tci_path, str(exc)))
+                    continue
                 tci_cache[tci_path] = {
                     "base_name": os.path.splitext(os.path.basename(tci_path))[0],
                     "chunks": parsed["chunks"],
                     "mapping": parsed["mapping"],
                 }
+                valid_sources[slot_index] = tci_path
+                valid_assigned[slot_index] = variant_assigned.get(slot_index)
                 if reference_mapping is None:
                     reference_mapping = parsed["mapping"]
                     reference_name = os.path.splitext(os.path.basename(tci_path))[0]
+
+            if skipped_sources:
+                for slot_index, tci_path, err in skipped_sources:
+                    print(
+                        f"[{processed_groups}/{total_groups}] skip unsupported: {tci_path} (slot {slot_index}) - {err}"
+                    )
+
+            if not valid_sources:
+                print(
+                    f"[{processed_groups}/{total_groups}] skip preset: no valid TCI sources for {rel_dir}/{base_name}"
+                )
+                continue
+
+            variant_sources = valid_sources
+            variant_assigned = valid_assigned
 
             articulations = reference_mapping.get("articulations", []) if reference_mapping else []
             if not articulations:
@@ -254,6 +286,7 @@ def main():
                 preset_path = os.path.join(preset_dir, f"{preset_name}.json")
 
                 velocity_layers = []
+                all_wavs_written = True
                 velocities = [layer.get("velocity", 0) for layer in art.get("layers", [])]
                 ranges = build_velocity_ranges(velocities)
 
@@ -281,7 +314,10 @@ def main():
                                 rel_dir,
                                 folder_suffix,
                                 sample_width,
+                                resume,
                             )
+                            if not os.path.exists(os.path.join(output_sample_root, rel_path)):
+                                all_wavs_written = False
                             wavs_by_slot[str(slot_index)].append(rel_path)
 
                     velocity_layers.append(
@@ -306,8 +342,14 @@ def main():
                     },
                 }
 
-                with open(preset_path, "w", encoding="utf-8") as f:
-                    json.dump(preset, f, indent=2)
+                if resume and os.path.exists(preset_path) and all_wavs_written:
+                    print(f"[{processed_groups}/{total_groups}] resume preset: {preset_path}")
+                else:
+                    tmp_preset_path = f"{preset_path}.tmp"
+                    os.makedirs(os.path.dirname(tmp_preset_path), exist_ok=True)
+                    with open(tmp_preset_path, "w", encoding="utf-8") as f:
+                        json.dump(preset, f, indent=2)
+                    os.replace(tmp_preset_path, preset_path)
 
                 processed_presets += 1
                 print(

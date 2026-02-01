@@ -268,28 +268,110 @@ def count_decoded_samples(payload, bit_len, sample_count, block_size=DEFAULT_BLO
     return count
 
 
+def decode_head_energy(payload, bit_len, sample_count, max_samples=64, block_size=DEFAULT_BLOCK_SIZE):
+    if sample_count == 0 or bit_len <= 8 or max_samples <= 0:
+        return 0.0
+
+    scale_pos = 1.0 / (1 << 23)
+    scale_neg = -1.0 / (1 << 23)
+
+    u_var9 = payload[0]
+    bit_pos = 8
+    block_count = 0
+    energy = 0.0
+    count = 0
+
+    target = min(sample_count, max_samples)
+    while count < target:
+        if (bit_pos >> 3) + 4 > len(payload):
+            break
+        word = struct.unpack(">I", payload[bit_pos >> 3:(bit_pos >> 3) + 4])[0]
+        b_var8 = bit_pos & 7
+        shifted = (word << b_var8) & 0xFFFFFFFF
+        magnitude = (shifted & 0x7FFFFFFF) >> ((32 - u_var9) & 0x1F)
+        scale = scale_pos if (shifted & 0x80000000) == 0 else scale_neg
+        energy += abs(magnitude * scale)
+
+        count += 1
+        block_count += 1
+        bit_pos += u_var9
+
+        if block_count >= block_size:
+            byte_index = bit_pos >> 3
+            if byte_index + 2 > len(payload):
+                break
+            u_var9 = ((payload[byte_index + 1] << 16) | (payload[byte_index] << 24))
+            u_var9 = ((u_var9 << (bit_pos & 7)) & 0xFFFFFFFF) >> 24
+            bit_pos += 8
+            block_count = 0
+
+        if bit_pos >= bit_len:
+            break
+
+    return energy
+
+
 def refine_blob_start(data, blob_start, payload_len, bit_len, sample_count):
     if payload_len <= 0:
         return blob_start
 
     best_start = blob_start
     best_diff = sample_count if sample_count else 0
+    best_energy = None
+    best_offset = None
+
+    best_any_start = blob_start
+    best_any_diff = sample_count if sample_count else 0
+    best_any_energy = None
 
     for offset in range(blob_start - 64, blob_start + 65):
         if offset < 0 or offset + payload_len > len(data):
             continue
         first_byte = data[offset]
-        if not (1 <= first_byte <= 25):
-            continue
         payload = data[offset:offset + payload_len]
         decoded = count_decoded_samples(payload, bit_len, sample_count)
         diff = abs(decoded - sample_count)
+        if diff < best_any_diff:
+            best_any_diff = diff
+            best_any_start = offset
+            best_any_energy = None
+        elif diff == best_any_diff:
+            energy = decode_head_energy(payload, bit_len, sample_count)
+            if best_any_energy is None:
+                best_any_payload = data[best_any_start:best_any_start + payload_len]
+                best_any_energy = decode_head_energy(best_any_payload, bit_len, sample_count)
+            if energy < best_any_energy:
+                best_any_start = offset
+                best_any_energy = energy
+
+        if not (1 <= first_byte <= 25):
+            continue
+
         if diff < best_diff:
             best_diff = diff
             best_start = offset
+            best_energy = None
+            best_offset = None
+        elif diff == best_diff:
+            energy = decode_head_energy(payload, bit_len, sample_count)
+            if best_energy is None:
+                best_payload = data[best_start:best_start + payload_len]
+                best_energy = decode_head_energy(best_payload, bit_len, sample_count)
+            if energy < best_energy:
+                best_start = offset
+                best_energy = energy
+                best_offset = None
+            elif energy == best_energy:
+                if best_offset is None:
+                    best_offset = best_start
+                if offset < best_offset:
+                    best_start = offset
+                    best_offset = offset
 
-    if best_diff <= 4:
+    if best_diff <= 12:
         return best_start
+    if best_any_diff <= 4:
+        return best_any_start
     return blob_start
 
 
