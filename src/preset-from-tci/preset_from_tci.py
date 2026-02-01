@@ -47,6 +47,7 @@ def main():
     parser.add_argument("--presetDir", required=True)
     parser.add_argument("--sampleDir", required=True)
     parser.add_argument("--type")
+        parser.add_argument("--fast", action="store_true")
     for i in range(1, 9):
         parser.add_argument(f"--mic{i}")
     args = parser.parse_args()
@@ -69,7 +70,7 @@ def main():
     reference_name = None
 
     for mic_index, path in mic_inputs:
-        parsed = decode_tci(path)
+        parsed = decode_tci(path, fast=args.fast)
         base_name = os.path.splitext(os.path.basename(path))[0]
         mic_data[mic_index] = {
             "path": path,

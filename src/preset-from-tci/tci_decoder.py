@@ -178,11 +178,10 @@ def write_wav(path, samples, sample_rate, channels, sample_width=3):
         wav.writeframes(raw)
 
 
-def parse_tci1(data):
-    tlv_start = find_tlv_start(data)
-    if tlv_start is None:
-        return None
+TLV_TAGS = {0x14, 5, 7, 8, 0x0b, 0x0c, 0x0f, 0x12, 0x13}
 
+
+def parse_tci1_at(data, tlv_start):
     cursor = tlv_start
     chunks = []
     sample_rate = 44100
@@ -280,25 +279,104 @@ def parse_tci1(data):
     return {"chunks": chunks, "mapping": mapping}
 
 
+def parse_tci1(data):
+    tlv_start = find_tlv_start(data)
+    if tlv_start is None:
+        return None
+    return parse_tci1_at(data, tlv_start)
+
+
+def find_tlv_start_bruteforce(data, scan_limit=2_000_000):
+    scan_end = min(len(data) - 8, scan_limit)
+    for offset in range(0, scan_end):
+        tag = read_u32le(data, offset)
+        size = read_u32le(data, offset + 4)
+        if tag is None or size is None:
+            continue
+        if tag not in TLV_TAGS:
+            continue
+        if size <= 0 or offset + 8 + size > len(data):
+            continue
+        if tag == 5:
+            if size < 9:
+                continue
+            channels = data[offset + 8]
+            bit_len = read_u32le(data, offset + 9)
+            sample_count = read_u32le(data, offset + 13)
+            if channels not in (1, 2):
+                continue
+            if bit_len is None or sample_count is None:
+                continue
+            if bit_len <= 0 or bit_len > 50_000_000:
+                continue
+            if sample_count <= 0 or sample_count > 50_000_000:
+                continue
+
+        # verify a short TLV sequence
+        cursor = offset
+        valid = 0
+        for _ in range(12):
+            t = read_u32le(data, cursor)
+            s = read_u32le(data, cursor + 4)
+            if t is None or s is None:
+                break
+            if t not in TLV_TAGS:
+                break
+            if s <= 0 or cursor + 8 + s > len(data):
+                break
+            valid += 1
+            cursor += 8 + s
+        if valid >= 3:
+            return offset
+    return None
+
+
+def is_valid_zlib_header(data, offset):
+    if offset + 2 > len(data):
+        return False
+    cmf = data[offset]
+    flg = data[offset + 1]
+    if (cmf & 0x0F) != 8:
+        return False
+    return ((cmf << 8) + flg) % 31 == 0
+
+
+def try_parse_xml(out):
+    text = out.decode("utf-8", errors="ignore")
+    start = text.find("<")
+    end = text.rfind(">")
+    if start == -1 or end == -1:
+        return None
+    xml_text = text[start:end + 1]
+    try:
+        return ET.fromstring(xml_text)
+    except ET.ParseError:
+        return None
+
+
 def find_zlib_xml(data):
     for offset in range(len(data) - 2):
-        if data[offset:offset + 2] not in (b"\x78\x9C", b"\x78\xDA"):
+        if data[offset:offset + 2] == b"\x1f\x8b" and offset + 3 <= len(data):
+            if data[offset + 2] != 0x08:
+                continue
+            try:
+                out = zlib.decompress(data[offset:], 16 + zlib.MAX_WBITS)
+            except Exception:
+                continue
+            root = try_parse_xml(out)
+            if root is not None:
+                return offset, root
+            continue
+
+        if not is_valid_zlib_header(data, offset):
             continue
         try:
             out = zlib.decompress(data[offset:])
         except Exception:
             continue
-        text = out.decode("utf-8", errors="ignore")
-        start = text.find("<")
-        end = text.rfind(">")
-        if start == -1 or end == -1:
-            continue
-        xml_text = text[start:end + 1]
-        try:
-            root = ET.fromstring(xml_text)
-        except ET.ParseError:
-            continue
-        return offset, root
+        root = try_parse_xml(out)
+        if root is not None:
+            return offset, root
     return None, None
 
 
@@ -534,7 +612,7 @@ def find_blob_start_first_chunk(data, blob_start, bit_len, sample_count, window=
     return best_start
 
 
-def parse_tci2(data, debug=False):
+def parse_tci2(data, debug=False, fast=False):
     zoff, root = find_zlib_xml(data)
     if root is None:
         return None
@@ -591,24 +669,25 @@ def parse_tci2(data, debug=False):
 
     cursor = blob_start
     sequential_ok = True
-    for i in range(data_count):
-        bit_len = comp_bits[i]
-        payload_len = (bit_len + 7) // 8
-        payload = data[cursor:cursor + payload_len]
-        decoded = count_decoded_samples(payload, bit_len, sample_counts[i])
-        if decoded < 0:
-            sequential_ok = False
-            break
-        if abs(decoded - sample_counts[i]) > 12:
-            sequential_ok = False
-            break
-        cursor += payload_len
+    if not fast:
+        for i in range(data_count):
+            bit_len = comp_bits[i]
+            payload_len = (bit_len + 7) // 8
+            payload = data[cursor:cursor + payload_len]
+            decoded = count_decoded_samples(payload, bit_len, sample_counts[i])
+            if decoded < 0:
+                sequential_ok = False
+                break
+            if abs(decoded - sample_counts[i]) > 12:
+                sequential_ok = False
+                break
+            cursor += payload_len
 
-    if any(stereo_flags):
-        sequential_ok = False
+        if any(stereo_flags):
+            sequential_ok = False
 
-    if not sequential_ok:
-        cursor = blob_start
+        if not sequential_ok:
+            cursor = blob_start
 
     for i in range(data_count):
         bit_len = comp_bits[i]
@@ -690,7 +769,46 @@ def parse_tci2(data, debug=False):
     return {"chunks": chunks, "mapping": mapping}
 
 
-def decode_tci(path, debug=False):
+def scan_header_markers(data, max_hits=8):
+    zlib_hits = []
+    gzip_hits = []
+    limit = len(data) - 2
+    for offset in range(limit):
+        if len(zlib_hits) < max_hits and is_valid_zlib_header(data, offset):
+            zlib_hits.append(offset)
+        if len(gzip_hits) < max_hits and data[offset:offset + 2] == b"\x1f\x8b":
+            gzip_hits.append(offset)
+        if len(zlib_hits) >= max_hits and len(gzip_hits) >= max_hits:
+            break
+    return zlib_hits, gzip_hits
+
+
+def diagnose_tci_data(data):
+    tlv_start = find_tlv_start(data)
+    zlib_off = find_zlib_xml(data)[0]
+    zlib_hits, gzip_hits = scan_header_markers(data)
+    header_fields = {}
+    if data.startswith(SIGNATURES[0]) or data.startswith(SIGNATURES[1]) or data.startswith(SIGNATURES[2]) or data.startswith(SIGNATURES[3]):
+        for off in (64, 68, 72, 76, 80):
+            if off + 4 <= len(data):
+                header_fields[off] = read_u32le(data, off)
+    return {
+        "tlv_start": tlv_start,
+        "zlib_xml": zlib_off,
+        "zlib_hits": zlib_hits,
+        "gzip_hits": gzip_hits,
+        "hdr": header_fields,
+        "size": len(data),
+    }
+
+
+def diagnose_tci(path):
+    with open(path, "rb") as f:
+        data = f.read()
+    return diagnose_tci_data(data)
+
+
+def decode_tci(path, debug=False, fast=False, diagnose=False):
     with open(path, "rb") as f:
         data = f.read()
 
@@ -699,8 +817,20 @@ def decode_tci(path, debug=False):
 
     parsed = parse_tci1(data)
     if parsed is None:
-        parsed = parse_tci2(data, debug=debug)
+        tlv_bruteforce = find_tlv_start_bruteforce(data)
+        if tlv_bruteforce is not None:
+            parsed = parse_tci1_at(data, tlv_bruteforce)
     if parsed is None:
+        parsed = parse_tci2(data, debug=debug, fast=fast)
+    if parsed is None:
+        if diagnose:
+            diag = diagnose_tci_data(data)
+            raise ValueError(
+                "Unsupported TCI format"
+                f" (tlv_start={diag['tlv_start']}, zlib_xml={diag['zlib_xml']}, "
+                f"zlib_hits={diag['zlib_hits'][:4]}, gzip_hits={diag['gzip_hits'][:4]}, "
+                f"hdr={diag['hdr']})"
+            )
         raise ValueError("Unsupported TCI format")
 
     return parsed
