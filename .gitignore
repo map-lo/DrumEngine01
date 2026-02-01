@@ -13,3 +13,4 @@ src/tci-reverse-engineering/**/*.wav
 src/tci-reverse-engineering/**/*.tci
 src/tci-reverse-engineering/**/*.bin
 src/tci-reverse-engineering/**/ghidra_*
+.venv

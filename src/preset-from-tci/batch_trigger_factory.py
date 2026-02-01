@@ -81,6 +81,7 @@ def ensure_wav_written(
     output_sample_root,
     rel_dir,
     folder_suffix,
+    sample_width,
 ):
     base_name = tci_data["base_name"]
     tci_folder = os.path.join(output_sample_root, rel_dir, f"{base_name}{folder_suffix}")
@@ -97,14 +98,15 @@ def ensure_wav_written(
             chunk["bit_len"],
             chunk["sample_count"],
         )
-        if not os.path.exists(wav_path):
-            write_wav(
-                wav_path,
-                samples,
-                sample_rate=chunk["sample_rate"],
-                channels=chunk["channels"],
-                sample_width=3,
-            )
+        tmp_path = f"{wav_path}.tmp"
+        write_wav(
+            tmp_path,
+            samples,
+            sample_rate=chunk["sample_rate"],
+            channels=chunk["channels"],
+            sample_width=sample_width,
+        )
+        os.replace(tmp_path, wav_path)
         cache[wav_path] = True
 
     return os.path.relpath(wav_path, output_sample_root)
@@ -121,6 +123,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--inputRoot", required=True)
     parser.add_argument("--outputRoot", default=os.path.join("dist", "preset-from-tci"))
+    parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--bitDepth", type=int, choices=[16, 24], default=24)
     args = parser.parse_args()
 
     input_root = args.inputRoot
@@ -134,6 +138,8 @@ def main():
     total_groups = len(groups)
     processed_presets = 0
     processed_groups = 0
+    limit = max(0, args.limit or 0)
+    sample_width = 2 if args.bitDepth == 16 else 3
 
     for (rel_dir, base_name), ending_map in groups.items():
         processed_groups += 1
@@ -273,6 +279,7 @@ def main():
                                 output_sample_root,
                                 rel_dir,
                                 folder_suffix,
+                                sample_width,
                             )
                             wavs_by_slot[str(slot_index)].append(rel_path)
 
@@ -305,6 +312,9 @@ def main():
                 print(
                     f"[{processed_groups}/{total_groups}] preset {processed_presets}: {preset_path}"
                 )
+                if limit and processed_presets >= limit:
+                    print(f"Limit reached ({limit}). Stopping.")
+                    return
 
 
 if __name__ == "__main__":

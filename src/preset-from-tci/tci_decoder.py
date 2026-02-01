@@ -236,6 +236,63 @@ def find_zlib_xml(data):
     return None, None
 
 
+def count_decoded_samples(payload, bit_len, sample_count, block_size=DEFAULT_BLOCK_SIZE):
+    if sample_count == 0 or bit_len <= 8:
+        return 0
+
+    u_var9 = payload[0]
+    bit_pos = 8
+    block_count = 0
+    count = 0
+
+    while count < sample_count:
+        if (bit_pos >> 3) + 4 > len(payload):
+            break
+
+        count += 1
+        block_count += 1
+        bit_pos += u_var9
+
+        if block_count >= block_size:
+            byte_index = bit_pos >> 3
+            if byte_index + 2 > len(payload):
+                break
+            u_var9 = ((payload[byte_index + 1] << 16) | (payload[byte_index] << 24))
+            u_var9 = ((u_var9 << (bit_pos & 7)) & 0xFFFFFFFF) >> 24
+            bit_pos += 8
+            block_count = 0
+
+        if bit_pos >= bit_len:
+            break
+
+    return count
+
+
+def refine_blob_start(data, blob_start, payload_len, bit_len, sample_count):
+    if payload_len <= 0:
+        return blob_start
+
+    best_start = blob_start
+    best_diff = sample_count if sample_count else 0
+
+    for offset in range(blob_start - 64, blob_start + 65):
+        if offset < 0 or offset + payload_len > len(data):
+            continue
+        first_byte = data[offset]
+        if not (1 <= first_byte <= 25):
+            continue
+        payload = data[offset:offset + payload_len]
+        decoded = count_decoded_samples(payload, bit_len, sample_count)
+        diff = abs(decoded - sample_count)
+        if diff < best_diff:
+            best_diff = diff
+            best_start = offset
+
+    if best_diff <= 4:
+        return best_start
+    return blob_start
+
+
 def parse_tci2(data):
     zoff, root = find_zlib_xml(data)
     if root is None:
@@ -266,10 +323,27 @@ def parse_tci2(data):
 
     sample_rate = int(root.attrib.get("sample_rate", "48000"))
     chunks = []
+    if comp_bits:
+        first_len = (comp_bits[0] + 7) // 8
+        blob_start = refine_blob_start(
+            data,
+            blob_start,
+            first_len,
+            comp_bits[0],
+            sample_counts[0],
+        )
+
     cursor = blob_start
     for i in range(data_count):
         bit_len = comp_bits[i]
         payload_len = (bit_len + 7) // 8
+        cursor = refine_blob_start(
+            data,
+            cursor,
+            payload_len,
+            bit_len,
+            sample_counts[i],
+        )
         payload = data[cursor:cursor + payload_len]
         cursor += payload_len
 
