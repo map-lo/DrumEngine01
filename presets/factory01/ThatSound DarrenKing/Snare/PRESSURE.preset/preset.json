@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "snare",
+  "slotNames": [
+    "top",
+    "bottom",
+    "oh",
+    "room1",
+    "room2",
+    "extra1",
+    "extra2",
+    "extra3"
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 12,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V01.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V01.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V01.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V01.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 13,
+      "hi": 24,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V02.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V02.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V02.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V02.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 25,
+      "hi": 36,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V03.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V03.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V03.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V03.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 37,
+      "hi": 48,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V04.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V04.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V04.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V04.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 5,
+      "lo": 49,
+      "hi": 60,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V05.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V05.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V05.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V05.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 6,
+      "lo": 61,
+      "hi": 72,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V06.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V06.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V06.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V06.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 7,
+      "lo": 73,
+      "hi": 84,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V07.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V07.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V07.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V07.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 8,
+      "lo": 85,
+      "hi": 96,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V08.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V08.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V08.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V08.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 9,
+      "lo": 97,
+      "hi": 108,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V09a.wav",
+          "DRY/PRESSURE DRY V09b.wav",
+          "DRY/PRESSURE DRY V09c.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V09a.wav",
+          "OVERHEADS/PRESSURE OH V09b.wav",
+          "OVERHEADS/PRESSURE OH V09c.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V09a.wav",
+          "ROOM 1/PRESSURE RM1 V09b.wav",
+          "ROOM 1/PRESSURE RM1 V09c.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V09a.wav",
+          "ROOM 2/PRESSURE RM2 V09b.wav",
+          "ROOM 2/PRESSURE RM2 V09c.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 10,
+      "lo": 109,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "DRY/PRESSURE DRY V10a.wav",
+          "DRY/PRESSURE DRY V10b.wav",
+          "DRY/PRESSURE DRY V10c.wav",
+          "DRY/PRESSURE DRY V010d.wav"
+        ],
+        "2": [],
+        "3": [
+          "OVERHEADS/PRESSURE OH V10a.wav",
+          "OVERHEADS/PRESSURE OH V10b.wav",
+          "OVERHEADS/PRESSURE OH V10c.wav",
+          "OVERHEADS/PRESSURE OH V10d.wav"
+        ],
+        "4": [
+          "ROOM 1/PRESSURE RM1 V10a.wav",
+          "ROOM 1/PRESSURE RM1 V10b.wav",
+          "ROOM 1/PRESSURE RM1 V10c.wav",
+          "ROOM 1/PRESSURE RM1 V10d.wav"
+        ],
+        "5": [
+          "ROOM 2/PRESSURE RM2 V10a.wav",
+          "ROOM 2/PRESSURE RM2 V10b.wav",
+          "ROOM 2/PRESSURE RM2 V10c.wav",
+          "ROOM 2/PRESSURE RM2 V10d.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  }
+}

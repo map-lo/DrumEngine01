@@ -18,7 +18,17 @@ namespace DrumEngine
         if (parseResult.failed())
             return juce::Result::fail("Failed to parse JSON: " + parseResult.getErrorMessage());
 
-        return parseJSON(json, outSchema);
+        auto result = parseJSON(json, outSchema);
+        if (result.failed())
+            return result;
+
+        // Auto-resolve rootFolder to parent directory if empty
+        if (outSchema.rootFolder.isEmpty())
+        {
+            outSchema.rootFolder = file.getParentDirectory().getFullPathName();
+        }
+
+        return juce::Result::ok();
     }
 
     juce::Result PresetSchema::parseJSON(const juce::var &json, PresetSchema &outSchema)
@@ -50,10 +60,8 @@ namespace DrumEngine
         for (auto &slotName : *slotNamesArray)
             outSchema.slotNames.add(slotName.toString());
 
-        // Root folder (required)
+        // Root folder (optional - will be auto-resolved to parent directory if empty)
         outSchema.rootFolder = obj->getProperty("rootFolder").toString();
-        if (outSchema.rootFolder.isEmpty())
-            return juce::Result::fail("rootFolder is required and cannot be empty");
 
         // Velocity layers (required)
         auto velocityLayersVar = obj->getProperty("velocityLayers");

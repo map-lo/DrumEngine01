@@ -507,34 +507,46 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
 
     int itemId = 2;
 
-    // Scan all JSON files recursively and flatten
+    // Scan all .preset folders recursively
     std::function<void(const juce::File &, const juce::String &)> scanFolder =
         [&](const juce::File &folder, const juce::String &categoryPath)
     {
         auto allFiles = folder.findChildFiles(juce::File::findFilesAndDirectories, false, "*");
 
         juce::Array<juce::File> subFolders;
-        juce::Array<juce::File> jsonFiles;
+        juce::Array<juce::File> presetFolders;
 
         for (const auto &file : allFiles)
         {
-            if (file.isDirectory() && !file.getFileName().startsWith("."))
-                subFolders.add(file);
-            else if (file.hasFileExtension(".json"))
-                jsonFiles.add(file);
+            if (file.isDirectory())
+            {
+                if (file.getFileName().startsWith("."))
+                    continue; // Skip hidden folders
+
+                if (file.getFileName().endsWithIgnoreCase(".preset"))
+                    presetFolders.add(file);
+                else
+                    subFolders.add(file);
+            }
         }
 
         subFolders.sort();
-        jsonFiles.sort();
+        presetFolders.sort();
 
-        // Process JSON files in this folder
-        for (const auto &jsonFile : jsonFiles)
+        // Process .preset folders in this folder
+        for (const auto &presetFolder : presetFolders)
         {
-            juce::String displayName = jsonFile.getFileNameWithoutExtension();
+            // Look for preset.json inside the .preset folder
+            juce::File jsonFile = presetFolder.getChildFile("preset.json");
+            if (!jsonFile.existsAsFile())
+                continue;
+
+            // Use folder name without .preset extension as display name
+            juce::String presetName = presetFolder.getFileNameWithoutExtension();
             juce::String category = categoryPath.isEmpty() ? folder.getFileName() : categoryPath;
 
             // Add category prefix for better organization
-            juce::String fullDisplayName = category + " / " + displayName;
+            juce::String fullDisplayName = category + " / " + presetName;
 
             // Extract instrumentType from JSON file
             juce::String instrumentType = "Unknown";
@@ -559,7 +571,7 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
             itemId++;
         }
 
-        // Recurse into subfolders
+        // Recurse into subfolders (but not into .preset folders)
         for (const auto &subFolder : subFolders)
         {
             juce::String newCategoryPath = categoryPath.isEmpty() ? folder.getFileName() + "/" + subFolder.getFileName() : categoryPath + "/" + subFolder.getFileName();

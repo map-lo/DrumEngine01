@@ -3,7 +3,7 @@ import json
 
 # Paths
 revival_snares_path = "/Users/marian/Samples/YurtRock/RevivalSnares"
-kits_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits/YurtRock RevivalSnare"
+presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/factory01/YurtRock RevivalSnare"
 
 # Mapping from mic folder names to slot numbers
 mic_to_slot = {
@@ -17,8 +17,8 @@ mic_to_slot = {
 # Slot names as per the example
 slot_names = ["top", "bottom", "oh", "room1", "room2", "extra1", "extra2", "extra3"]
 
-# Ensure kits path exists
-os.makedirs(kits_path, exist_ok=True)
+# Ensure presets path exists
+os.makedirs(presets_path, exist_ok=True)
 
 # Process each snare folder
 for snare_folder in sorted(os.listdir(revival_snares_path)):
@@ -56,7 +56,6 @@ for snare_folder in sorted(os.listdir(revival_snares_path)):
         "schemaVersion": 1,
         "instrumentType": "snare",
         "slotNames": slot_names,
-        "rootFolder": root_folder,
         "velocityLayers": [
             {
                 "index": 1,
@@ -74,8 +73,10 @@ for snare_folder in sorted(os.listdir(revival_snares_path)):
         }
     }
     
-    # Write JSON file
-    json_path = os.path.join(kits_path, f"{snare_folder}.json")
+    # Create .preset folder and write JSON file
+    preset_folder_path = os.path.join(presets_path, f"{snare_folder}.preset")
+    os.makedirs(preset_folder_path, exist_ok=True)
+    json_path = os.path.join(preset_folder_path, "preset.json")
     with open(json_path, 'w') as f:
         json.dump(data, f, indent=2)
     

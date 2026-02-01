@@ -2,11 +2,10 @@
 """
 Preset Packager for DrumEngine01
 
-This script converts local development presets to an installer-ready package:
-- Copies preset JSON files to dist/factory-content/presets/ maintaining folder structure
-- Copies sample WAV files from absolute paths to dist/factory-content/samples/ organized by preset path
-- Rewrites JSON rootFolder to use ~/Documents/DrumEngine01/samples/{preset_path}
-- Preserves wavsBySlot relative paths unchanged
+This script packages .preset folders for installer distribution:
+- Copies .preset folders (containing preset.json and sample WAV files) to dist/factory-content/presets/
+- Maintains folder structure and organization
+- No JSON rewriting needed since rootFolder is auto-resolved to preset folder location
 
 Usage:
     python package_presets_for_installer.py [--limit N]
@@ -20,14 +19,8 @@ Output:
             factory01/
                 ThatSound DarrenKing/
                     Kick/
-                        BOWSER.json
-                    Snare/
-                        BITE.json
-        samples/
-            factory01/
-                ThatSound DarrenKing/
-                    Kick/
-                        BOWSER/
+                        BOWSER.preset/
+                            preset.json
                             DRY/
                                 BOWSER DRY V01.wav
                             OVERHEADS/
@@ -47,7 +40,6 @@ class PresetPackager:
         self.source_presets_dir = source_presets_dir
         self.output_dir = output_dir
         self.presets_output_dir = output_dir / "presets"
-        self.samples_output_dir = output_dir / "samples"
         self.limit_per_folder = limit_per_folder
         
         self.processed_count = 0
@@ -56,7 +48,7 @@ class PresetPackager:
         self.errors: List[str] = []
     
     def process_all_presets(self):
-        """Main entry point - scan and process all presets"""
+        """Main entry point - scan and process all .preset folders"""
         print(f"Starting preset packaging...")
         print(f"Source: {self.source_presets_dir}")
         print(f"Output: {self.output_dir}")
@@ -66,41 +58,41 @@ class PresetPackager:
         
         # Create output directories
         self.presets_output_dir.mkdir(parents=True, exist_ok=True)
-        self.samples_output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Find all JSON preset files recursively
-        json_files = list(self.source_presets_dir.rglob("*.json"))
-        print(f"Found {len(json_files)} preset files")
+        # Find all .preset folders recursively
+        preset_folders = [p for p in self.source_presets_dir.rglob("*") 
+                         if p.is_dir() and p.name.endswith(".preset")]
+        print(f"Found {len(preset_folders)} preset folders")
         print()
         
-        # Group files by parent directory if limiting
+        # Group folders by parent directory if limiting
         if self.limit_per_folder:
-            files_by_folder = {}
-            for json_file in json_files:
-                folder = json_file.parent
-                if folder not in files_by_folder:
-                    files_by_folder[folder] = []
-                files_by_folder[folder].append(json_file)
+            folders_by_parent = {}
+            for preset_folder in preset_folders:
+                parent = preset_folder.parent
+                if parent not in folders_by_parent:
+                    folders_by_parent[parent] = []
+                folders_by_parent[parent].append(preset_folder)
             
-            # Limit each folder and flatten
-            json_files_to_process = []
-            for folder, files in files_by_folder.items():
-                limited_files = files[:self.limit_per_folder]
-                json_files_to_process.extend(limited_files)
-                skipped = len(files) - len(limited_files)
+            # Limit each parent folder and flatten
+            preset_folders_to_process = []
+            for parent, folders in folders_by_parent.items():
+                limited_folders = folders[:self.limit_per_folder]
+                preset_folders_to_process.extend(limited_folders)
+                skipped = len(folders) - len(limited_folders)
                 if skipped > 0:
                     self.skipped_count += skipped
-                    print(f"Limiting {folder.name}: processing {len(limited_files)}/{len(files)} presets")
+                    print(f"Limiting {parent.name}: processing {len(limited_folders)}/{len(folders)} presets")
             
-            print(f"\nProcessing {len(json_files_to_process)} presets (skipped {self.skipped_count})")
+            print(f"\nProcessing {len(preset_folders_to_process)} presets (skipped {self.skipped_count})")
             print()
-            json_files = json_files_to_process
+            preset_folders = preset_folders_to_process
         
-        for json_file in json_files:
+        for preset_folder in preset_folders:
             try:
-                self.process_preset(json_file)
+                self.process_preset(preset_folder)
             except Exception as e:
-                error_msg = f"Error processing {json_file}: {e}"
+                error_msg = f"Error processing {preset_folder}: {e}"
                 self.errors.append(error_msg)
                 self.error_count += 1
                 print(f"❌ {error_msg}")
@@ -120,76 +112,28 @@ class PresetPackager:
                 print(f"  - {error}")
         print("=" * 70)
     
-    def process_preset(self, json_file: Path):
-        """Process a single preset file"""
+    def process_preset(self, preset_folder: Path):
+        """Process a single .preset folder by copying it wholesale"""
         # Calculate relative path from source directory
-        rel_path = json_file.relative_to(self.source_presets_dir)
+        rel_path = preset_folder.relative_to(self.source_presets_dir)
         
         print(f"Processing: {rel_path}")
         
-        # Read and parse JSON
-        with open(json_file, 'r') as f:
-            preset_data = json.load(f)
+        # Verify preset.json exists
+        preset_json = preset_folder / "preset.json"
+        if not preset_json.exists():
+            raise ValueError(f"Missing preset.json in {preset_folder}")
         
-        # Get the current rootFolder (absolute path to samples)
-        original_root_folder = preset_data.get("rootFolder", "")
-        if not original_root_folder:
-            raise ValueError(f"Missing rootFolder in {json_file}")
+        # Count WAV files
+        wav_files = list(preset_folder.rglob("*.wav"))
         
-        # Get preset name (without extension)
-        preset_name = json_file.stem
+        # Copy entire .preset folder to output
+        output_preset_folder = self.presets_output_dir / rel_path
         
-        # Calculate the category path (relative path without the filename)
-        category_path = rel_path.parent
+        # Use shutil.copytree to copy the entire folder structure
+        shutil.copytree(preset_folder, output_preset_folder, dirs_exist_ok=True)
         
-        # Create new sample directory path in output
-        # dist/samples/factory01/ThatSound DarrenKing/Kick/BOWSER/
-        new_sample_dir = self.samples_output_dir / category_path / preset_name
-        new_sample_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Copy all sample files referenced in the preset
-        velocity_layers = preset_data.get("velocityLayers", [])
-        copied_samples = 0
-        
-        for layer in velocity_layers:
-            wavs_by_slot = layer.get("wavsBySlot", {})
-            
-            for slot_num, wav_paths in wavs_by_slot.items():
-                if not isinstance(wav_paths, list):
-                    continue
-                
-                for relative_wav_path in wav_paths:
-                    if not relative_wav_path:
-                        continue
-                    
-                    # Source: original_root_folder + relative_wav_path
-                    source_wav = Path(original_root_folder) / relative_wav_path
-                    
-                    # Destination: new_sample_dir + relative_wav_path (preserve subfolder structure)
-                    dest_wav = new_sample_dir / relative_wav_path
-                    
-                    # Copy the WAV file
-                    if source_wav.exists():
-                        dest_wav.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(source_wav, dest_wav)
-                        copied_samples += 1
-                    else:
-                        print(f"  ⚠️  Warning: Sample not found: {source_wav}")
-        
-        # Update rootFolder to use tilde path
-        # ~/Documents/DrumEngine01/samples/factory01/ThatSound DarrenKing/Kick/BOWSER
-        new_root_folder = f"~/Documents/DrumEngine01/samples/{category_path}/{preset_name}"
-        preset_data["rootFolder"] = new_root_folder
-        
-        # Write updated JSON to output directory
-        output_json = self.presets_output_dir / rel_path
-        output_json.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_json, 'w') as f:
-            json.dump(preset_data, f, indent=2)
-        
-        print(f"  ✅ Copied {copied_samples} samples")
-        print(f"  📝 Updated rootFolder: {new_root_folder}")
+        print(f"  ✅ Copied preset folder with {len(wav_files)} samples")
         print()
         
         self.processed_count += 1

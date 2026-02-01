@@ -4,7 +4,7 @@ import re
 
 # Paths
 ts_kicks_path = "/Users/marian/Samples/TS DARREN KING DELUXE/01 KICKS"
-kits_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/kits/ThatSound DarrenKing/Kick"
+presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/factory01/ThatSound DarrenKing/Kick"
 
 # Mapping from mic folder names to slot numbers
 mic_to_slot = {
@@ -31,8 +31,8 @@ vel_layers = [
     {"index": 10, "lo": 109, "hi": 127}
 ]
 
-# Ensure kits path exists
-os.makedirs(kits_path, exist_ok=True)
+# Ensure presets path exists
+os.makedirs(presets_path, exist_ok=True)
 
 # Function to parse velocity from filename
 def parse_velocity(filename):
@@ -99,7 +99,6 @@ for kick_folder in sorted(os.listdir(ts_kicks_path)):
         "schemaVersion": 1,
         "instrumentType": "kick",
         "slotNames": slot_names,
-        "rootFolder": root_folder,
         "velocityLayers": velocity_layers,
         "velToVol": {
             "amount": 70,
@@ -110,8 +109,10 @@ for kick_folder in sorted(os.listdir(ts_kicks_path)):
         }
     }
     
-    # Write JSON file
-    json_path = os.path.join(kits_path, f"{kick_folder}.json")
+    # Create .preset folder and write JSON file
+    preset_folder_path = os.path.join(presets_path, f"{kick_folder}.preset")
+    os.makedirs(preset_folder_path, exist_ok=True)
+    json_path = os.path.join(preset_folder_path, "preset.json")
     with open(json_path, 'w') as f:
         json.dump(data, f, indent=2)
     

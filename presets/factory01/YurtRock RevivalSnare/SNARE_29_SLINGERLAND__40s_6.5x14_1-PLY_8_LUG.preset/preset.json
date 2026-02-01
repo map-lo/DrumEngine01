@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "useVelocityToVolume": true,
+  "instrumentType": "snare",
+  "slotNames": [
+    "top",
+    "bottom",
+    "oh",
+    "room1",
+    "room2",
+    "extra1",
+    "extra2",
+    "extra3"
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "TOP/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_TOP_SNARE_CENTER_01.wav",
+          "TOP/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_TOP_SNARE_CENTER_02.wav",
+          "TOP/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_TOP_SNARE_CENTER_03.wav",
+          "TOP/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_TOP_SNARE_CENTER_04.wav",
+          "TOP/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_TOP_SNARE_CENTER_05.wav"
+        ],
+        "2": [
+          "BOTTOM/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_BOTTOM_CENTER_01.wav",
+          "BOTTOM/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_BOTTOM_CENTER_02.wav",
+          "BOTTOM/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_BOTTOM_CENTER_03.wav",
+          "BOTTOM/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_BOTTOM_CENTER_04.wav",
+          "BOTTOM/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_BOTTOM_CENTER_05.wav"
+        ],
+        "3": [
+          "OVERHEAD/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_OVERHEAD_CENTER_01.wav",
+          "OVERHEAD/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_OVERHEAD_CENTER_02.wav",
+          "OVERHEAD/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_OVERHEAD_CENTER_03.wav",
+          "OVERHEAD/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_OVERHEAD_CENTER_04.wav",
+          "OVERHEAD/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_OVERHEAD_CENTER_05.wav"
+        ],
+        "4": [
+          "ROOM AKG/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_AKG_CENTER_01.wav",
+          "ROOM AKG/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_AKG_CENTER_02.wav",
+          "ROOM AKG/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_AKG_CENTER_03.wav",
+          "ROOM AKG/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_AKG_CENTER_04.wav",
+          "ROOM AKG/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_AKG_CENTER_05.wav"
+        ],
+        "5": [
+          "ROOM R88/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_R88_CENTER_01.wav",
+          "ROOM R88/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_R88_CENTER_02.wav",
+          "ROOM R88/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_R88_CENTER_03.wav",
+          "ROOM R88/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_R88_CENTER_04.wav",
+          "ROOM R88/SNARE_29_SLINGERLAND__40s_6.5x14_1-PLY_8_LUG_ROOM_R88_CENTER_05.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 100,
+    "curveName": "soft"
+  }
+}
