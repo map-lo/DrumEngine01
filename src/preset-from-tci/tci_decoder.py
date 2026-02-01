@@ -46,16 +46,71 @@ def find_tlv_start(data):
     return None
 
 
-def decompress_bitstream(payload, bit_len, sample_count, block_size=DEFAULT_BLOCK_SIZE):
-    if sample_count == 0 or bit_len <= 8:
-        return []
+def read_u8_bits(payload, start_bit):
+    value = 0
+    for j in range(8):
+        bit_index = start_bit + j
+        byte_index = bit_index >> 3
+        shift = 7 - (bit_index & 7)
+        bit = (payload[byte_index] >> shift) & 1
+        value = (value << 1) | bit
+    return value
+
+
+def normalize_uvar9(value):
+    if value < 1 or value > 25:
+        return None
+    return value
+
+
+def find_valid_start_bit(payload, start_bit, bit_len, max_scan_bytes=16):
+    if bit_len <= start_bit + 8:
+        return None
+
+    base_byte = start_bit // 8
+    for offset in range(max_scan_bytes + 1):
+        byte_index = base_byte + offset
+        if byte_index >= len(payload):
+            break
+        u_var9 = normalize_uvar9(payload[byte_index])
+        if u_var9 is not None:
+            return start_bit + offset * 8
+    return None
+
+
+def trim_leading_padding(payload, bit_len):
+    if bit_len <= 8:
+        return payload, 0
+
+    start_bit = find_valid_start_bit(payload, 0, bit_len)
+    if start_bit is None:
+        return payload, 0
+
+    byte_offset = start_bit // 8
+    if byte_offset <= 0:
+        return payload, 0
+
+    return payload[byte_offset:], byte_offset
+
+
+def decode_bitstream(payload, bit_len, sample_count, block_size=DEFAULT_BLOCK_SIZE, start_bit=0):
+    if sample_count == 0 or bit_len <= start_bit + 8:
+        return [], start_bit
 
     scale_pos = 1.0 / (1 << 23)
     scale_neg = -1.0 / (1 << 23)
 
     out = []
-    u_var9 = payload[0]
-    bit_pos = 8
+    start_bit = find_valid_start_bit(payload, start_bit, bit_len)
+    if start_bit is None:
+        return [], start_bit
+
+    u_var9 = read_u8_bits(payload, start_bit)
+    u_var9 = normalize_uvar9(u_var9)
+    if u_var9 is None:
+        return [], start_bit
+
+    bit_pos = start_bit + 8
     block_count = 0
 
     for _ in range(sample_count):
@@ -77,6 +132,9 @@ def decompress_bitstream(payload, bit_len, sample_count, block_size=DEFAULT_BLOC
                 break
             u_var9 = ((payload[byte_index + 1] << 16) | (payload[byte_index] << 24))
             u_var9 = ((u_var9 << (bit_pos & 7)) & 0xFFFFFFFF) >> 24
+            u_var9 = normalize_uvar9(u_var9)
+            if u_var9 is None:
+                break
             bit_pos += 8
             block_count = 0
 
@@ -86,7 +144,15 @@ def decompress_bitstream(payload, bit_len, sample_count, block_size=DEFAULT_BLOC
     if len(out) < sample_count:
         out.extend([0.0] * (sample_count - len(out)))
 
-    return out
+    return out, bit_pos
+
+
+def decompress_bitstream(payload, bit_len, sample_count, block_size=DEFAULT_BLOCK_SIZE, channels=1):
+    if sample_count == 0 or bit_len <= 8:
+        return []
+
+    samples, _ = decode_bitstream(payload, bit_len, sample_count, block_size=block_size, start_bit=0)
+    return samples
 
 
 def write_wav(path, samples, sample_rate, channels, sample_width=3):
@@ -240,8 +306,15 @@ def count_decoded_samples(payload, bit_len, sample_count, block_size=DEFAULT_BLO
     if sample_count == 0 or bit_len <= 8:
         return 0
 
-    u_var9 = payload[0]
-    bit_pos = 8
+    start_bit = find_valid_start_bit(payload, 0, bit_len)
+    if start_bit is None:
+        return -1
+
+    u_var9 = read_u8_bits(payload, start_bit)
+    u_var9 = normalize_uvar9(u_var9)
+    if u_var9 is None:
+        return -1
+    bit_pos = start_bit + 8
     block_count = 0
     count = 0
 
@@ -259,6 +332,9 @@ def count_decoded_samples(payload, bit_len, sample_count, block_size=DEFAULT_BLO
                 break
             u_var9 = ((payload[byte_index + 1] << 16) | (payload[byte_index] << 24))
             u_var9 = ((u_var9 << (bit_pos & 7)) & 0xFFFFFFFF) >> 24
+            u_var9 = normalize_uvar9(u_var9)
+            if u_var9 is None:
+                return -1
             bit_pos += 8
             block_count = 0
 
@@ -275,8 +351,15 @@ def decode_head_energy(payload, bit_len, sample_count, max_samples=64, block_siz
     scale_pos = 1.0 / (1 << 23)
     scale_neg = -1.0 / (1 << 23)
 
-    u_var9 = payload[0]
-    bit_pos = 8
+    start_bit = find_valid_start_bit(payload, 0, bit_len)
+    if start_bit is None:
+        return 0.0
+
+    u_var9 = read_u8_bits(payload, start_bit)
+    u_var9 = normalize_uvar9(u_var9)
+    if u_var9 is None:
+        return 0.0
+    bit_pos = start_bit + 8
     block_count = 0
     energy = 0.0
     count = 0
@@ -330,6 +413,8 @@ def refine_blob_start(data, blob_start, payload_len, bit_len, sample_count):
         first_byte = data[offset]
         payload = data[offset:offset + payload_len]
         decoded = count_decoded_samples(payload, bit_len, sample_count)
+        if decoded < 0:
+            continue
         diff = abs(decoded - sample_count)
         if diff < best_any_diff:
             best_any_diff = diff
@@ -344,7 +429,7 @@ def refine_blob_start(data, blob_start, payload_len, bit_len, sample_count):
                 best_any_start = offset
                 best_any_energy = energy
 
-        if not (1 <= first_byte <= 25):
+        if not (0 <= first_byte <= 25):
             continue
 
         if diff < best_diff:
@@ -375,7 +460,81 @@ def refine_blob_start(data, blob_start, payload_len, bit_len, sample_count):
     return blob_start
 
 
-def parse_tci2(data):
+def find_blob_start_global(data, blob_start, comp_bits, sample_counts, window=512):
+    total_payload = sum((bit_len + 7) // 8 for bit_len in comp_bits)
+    if total_payload <= 0:
+        return None
+
+    search_start = max(0, blob_start - window)
+    search_end = min(len(data) - total_payload, blob_start + window)
+    if search_start > search_end:
+        return None
+
+    best = None
+    best_energy = None
+
+    for start in range(search_start, search_end + 1):
+        cursor = start
+        total_diff = 0
+        energy_sum = 0.0
+        for bit_len, sample_count in zip(comp_bits, sample_counts):
+            payload_len = (bit_len + 7) // 8
+            payload = data[cursor:cursor + payload_len]
+            decoded = count_decoded_samples(payload, bit_len, sample_count)
+            diff = abs(decoded - sample_count)
+            if diff > 2:
+                total_diff = None
+                break
+            total_diff += diff
+            energy_sum += decode_head_energy(payload, bit_len, sample_count)
+            cursor += payload_len
+
+        if total_diff is None:
+            continue
+
+        if best is None or total_diff < best[0] or (total_diff == best[0] and energy_sum < best_energy):
+            best = (total_diff, start)
+            best_energy = energy_sum
+            if total_diff == 0:
+                return start
+
+    return best[1] if best else None
+
+
+def find_blob_start_first_chunk(data, blob_start, bit_len, sample_count, window=128):
+    payload_len = (bit_len + 7) // 8
+    best_start = None
+    best_diff = None
+    best_energy = None
+
+    for offset in range(blob_start - window, blob_start + window + 1):
+        if offset < 0 or offset + payload_len > len(data):
+            continue
+        first_byte = data[offset]
+        if not (0 <= first_byte <= 25):
+            continue
+        payload = data[offset:offset + payload_len]
+        decoded = count_decoded_samples(payload, bit_len, sample_count)
+        if decoded < 0:
+            continue
+        diff = abs(decoded - sample_count)
+        if best_diff is None or diff < best_diff:
+            best_diff = diff
+            best_start = offset
+            best_energy = None
+        elif diff == best_diff:
+            energy = decode_head_energy(payload, bit_len, sample_count)
+            if best_energy is None:
+                best_payload = data[best_start:best_start + payload_len]
+                best_energy = decode_head_energy(best_payload, bit_len, sample_count)
+            if energy < best_energy:
+                best_start = offset
+                best_energy = energy
+
+    return best_start
+
+
+def parse_tci2(data, debug=False):
     zoff, root = find_zlib_xml(data)
     if root is None:
         return None
@@ -398,6 +557,7 @@ def parse_tci2(data):
         sample_counts.append(int(samples))
         stereo_flags.append(int(stereo))
 
+
     total_bytes = sum((c + 7) // 8 for c in comp_bits)
     blob_start = zoff - total_bytes
     if blob_start < 0:
@@ -405,29 +565,88 @@ def parse_tci2(data):
 
     sample_rate = int(root.attrib.get("sample_rate", "48000"))
     chunks = []
+    debug_chunks = []
     if comp_bits:
         first_len = (comp_bits[0] + 7) // 8
-        blob_start = refine_blob_start(
+        first_start = find_blob_start_first_chunk(
             data,
             blob_start,
-            first_len,
             comp_bits[0],
             sample_counts[0],
         )
+        if first_start is not None:
+            blob_start = first_start
+        else:
+            global_start = find_blob_start_global(data, blob_start, comp_bits, sample_counts)
+            if global_start is not None:
+                blob_start = global_start
+            else:
+                blob_start = refine_blob_start(
+                    data,
+                    blob_start,
+                    first_len,
+                    comp_bits[0],
+                    sample_counts[0],
+                )
 
     cursor = blob_start
+    sequential_ok = True
     for i in range(data_count):
         bit_len = comp_bits[i]
         payload_len = (bit_len + 7) // 8
-        cursor = refine_blob_start(
-            data,
-            cursor,
-            payload_len,
-            bit_len,
-            sample_counts[i],
-        )
         payload = data[cursor:cursor + payload_len]
+        decoded = count_decoded_samples(payload, bit_len, sample_counts[i])
+        if decoded < 0:
+            sequential_ok = False
+            break
+        if abs(decoded - sample_counts[i]) > 12:
+            sequential_ok = False
+            break
         cursor += payload_len
+
+    if any(stereo_flags):
+        sequential_ok = False
+
+    if not sequential_ok:
+        cursor = blob_start
+
+    for i in range(data_count):
+        bit_len = comp_bits[i]
+        payload_len = (bit_len + 7) // 8
+        if sequential_ok:
+            payload = data[cursor:cursor + payload_len]
+            cursor += payload_len
+        else:
+            cursor = refine_blob_start(
+                data,
+                cursor,
+                payload_len,
+                bit_len,
+                sample_counts[i],
+            )
+            payload = data[cursor:cursor + payload_len]
+            cursor += payload_len
+
+        payload, header_off = trim_leading_padding(payload, bit_len)
+        bit_shift = 0
+
+        if debug:
+            start_bit = find_valid_start_bit(payload, 0, bit_len)
+            if start_bit is None:
+                header_byte_offset = None
+                u_var9 = None
+            else:
+                header_byte_offset = start_bit // 8
+                u_var9 = read_u8_bits(payload, start_bit)
+            debug_chunks.append(
+                {
+                    "wave_id": i,
+                    "start_byte": cursor - payload_len,
+                    "bit_shift": bit_shift,
+                    "header_byte_offset": header_off if header_off is not None else header_byte_offset,
+                    "u_var9": u_var9,
+                }
+            )
 
         channels = 2 if stereo_flags[i] else 1
         chunks.append(
@@ -466,10 +685,12 @@ def parse_tci2(data):
         "wave_chunks": len(chunks),
         "articulations": articulations,
     }
+    if debug and debug_chunks:
+        mapping["debug_chunks"] = debug_chunks
     return {"chunks": chunks, "mapping": mapping}
 
 
-def decode_tci(path):
+def decode_tci(path, debug=False):
     with open(path, "rb") as f:
         data = f.read()
 
@@ -478,7 +699,7 @@ def decode_tci(path):
 
     parsed = parse_tci1(data)
     if parsed is None:
-        parsed = parse_tci2(data)
+        parsed = parse_tci2(data, debug=debug)
     if parsed is None:
         raise ValueError("Unsupported TCI format")
 

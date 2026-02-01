@@ -122,6 +122,7 @@ def main():
                         chunk["payload"],
                         chunk["bit_len"],
                         chunk["sample_count"],
+                        channels=chunk["channels"],
                     )
 
                     mic_base = mic_info["base_name"]

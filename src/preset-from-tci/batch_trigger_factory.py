@@ -101,6 +101,7 @@ def ensure_wav_written(
             chunk["payload"],
             chunk["bit_len"],
             chunk["sample_count"],
+            channels=chunk["channels"],
         )
         tmp_path = f"{wav_path}.tmp"
         os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
@@ -131,6 +132,8 @@ def main():
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--bitDepth", type=int, choices=[16, 24], default=24)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--debugOffsets", action="store_true")
+    parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
     input_root = args.inputRoot
@@ -150,6 +153,8 @@ def main():
 
     for (rel_dir, base_name), ending_map in groups.items():
         processed_groups += 1
+        if args.verbose:
+            print(f"[{processed_groups}/{total_groups}] scan {rel_dir}/{base_name}")
         primary_files = []
         for ending in ENDINGS_PRIMARY:
             primary_files.extend(ending_map.get(ending, []))
@@ -235,7 +240,9 @@ def main():
                     valid_assigned[slot_index] = variant_assigned.get(slot_index)
                     continue
                 try:
-                    parsed = decode_tci(tci_path)
+                    if args.verbose:
+                        print(f"[{processed_groups}/{total_groups}] decode {tci_path}")
+                    parsed = decode_tci(tci_path, debug=args.debugOffsets)
                 except ValueError as exc:
                     skipped_sources.append((slot_index, tci_path, str(exc)))
                     continue
@@ -244,6 +251,18 @@ def main():
                     "chunks": parsed["chunks"],
                     "mapping": parsed["mapping"],
                 }
+                if args.debugOffsets and parsed["mapping"].get("debug_chunks"):
+                    print(f"[debug] {tci_path}")
+                    for info in parsed["mapping"]["debug_chunks"]:
+                        print(
+                            "  wave {wave_id}: start={start} shift={shift} header_off={hoff} u_var9={uvar}".format(
+                                wave_id=info["wave_id"],
+                                start=info["start_byte"],
+                                shift=info["bit_shift"],
+                                hoff=info.get("header_byte_offset"),
+                                uvar=info.get("u_var9"),
+                            )
+                        )
                 valid_sources[slot_index] = tci_path
                 valid_assigned[slot_index] = variant_assigned.get(slot_index)
                 if reference_mapping is None:
