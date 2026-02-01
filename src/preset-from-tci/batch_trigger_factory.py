@@ -99,6 +99,7 @@ def ensure_wav_written(
             chunk["sample_count"],
         )
         tmp_path = f"{wav_path}.tmp"
+        os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
         write_wav(
             tmp_path,
             samples,
