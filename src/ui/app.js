@@ -57,12 +57,18 @@ window.drumEngineApp = function () {
 
         // Volume drag state
         volumeDragIndex: -1,
+        volumeDragStartY: 0,
+        volumeDragStartPosition: 0,
+        volumeDragFineActive: false,
 
         // Pitch drag state
         isPitchDragging: false,
 
         // Output volume drag state
         isOutputVolumeDragging: false,
+        outputVolumeDragStartX: 0,
+        outputVolumeDragStartPercent: 0,
+        outputVolumeFineActive: false,
 
         // MIDI note input
         midiNoteInput: '-',
@@ -270,6 +276,9 @@ window.drumEngineApp = function () {
 
         startVolumeDrag(event, index) {
             this.volumeDragIndex = index;
+            this.volumeDragStartY = event.clientY;
+            this.volumeDragStartPosition = this.linearToFaderPosition(this.slots[index].volume);
+            this.volumeDragFineActive = false;
             this.handleVolumeDrag(event);
             event.preventDefault();
         },
@@ -288,7 +297,19 @@ window.drumEngineApp = function () {
             const rect = container.getBoundingClientRect();
             const y = event.clientY - rect.top;
             const height = rect.height;
-            let position = ((height - y) / height) * 100;
+            let position;
+            if (event.metaKey) {
+                if (!this.volumeDragFineActive) {
+                    this.volumeDragStartY = event.clientY;
+                    this.volumeDragStartPosition = this.linearToFaderPosition(this.slots[this.volumeDragIndex].volume);
+                    this.volumeDragFineActive = true;
+                }
+                const delta = (this.volumeDragStartY - event.clientY) / height;
+                position = this.volumeDragStartPosition + (delta * 100) / 4;
+            } else {
+                this.volumeDragFineActive = false;
+                position = ((height - y) / height) * 100;
+            }
             position = Math.max(0, Math.min(100, position));
             const linear = this.faderPositionToLinear(position);
             this.slots[this.volumeDragIndex] = { ...this.slots[this.volumeDragIndex], volume: linear };
@@ -448,6 +469,9 @@ window.drumEngineApp = function () {
             }
 
             this.isOutputVolumeDragging = true;
+            this.outputVolumeDragStartX = event.clientX;
+            this.outputVolumeDragStartPercent = this.outputVolumePercent();
+            this.outputVolumeFineActive = false;
             this.handleOutputVolumeMove(event);
             event.preventDefault();
         },
@@ -460,7 +484,20 @@ window.drumEngineApp = function () {
 
             const rect = container.getBoundingClientRect();
             const x = event.clientX - rect.left;
-            const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            let percentage;
+            if (event.metaKey) {
+                if (!this.outputVolumeFineActive) {
+                    this.outputVolumeDragStartX = event.clientX;
+                    this.outputVolumeDragStartPercent = this.outputVolumePercent();
+                    this.outputVolumeFineActive = true;
+                }
+                const delta = (event.clientX - this.outputVolumeDragStartX) / rect.width;
+                percentage = this.outputVolumeDragStartPercent + (delta * 100) / 4;
+            } else {
+                this.outputVolumeFineActive = false;
+                percentage = (x / rect.width) * 100;
+            }
+            percentage = Math.max(0, Math.min(100, percentage));
 
             const db = this.percentToOutputVolumeDb(percentage);
             this.outputVolumeDb = db;
