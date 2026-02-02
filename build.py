@@ -3,10 +3,11 @@
 DrumEngine01 Build Script
 
 Orchestrates the entire build process based on build configuration:
-1. Configure and build plugins with CMake
-2. Sign AAX plugins with PACE wraptool
-3. Package factory content (presets)
-4. Build macOS installer
+1. Build WebView UI (Vite dist)
+2. Configure and build plugins with CMake
+3. Sign AAX plugins with PACE wraptool
+4. Package factory content (presets)
+5. Build macOS installer
 
 Usage:
     python build.py --dev              Build development version (DrumEngine01Dev)
@@ -194,11 +195,30 @@ class BuildOrchestrator:
         print(f"{Colors.GREEN}✓ System plugins removed (dev build will be used){Colors.NC}")
         print()
         return True
+
+    def step_build_ui(self):
+        """Step 3: Build WebView UI (Vite dist)"""
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print(f"{Colors.GREEN}Step 3: Building WebView UI (Vite dist){Colors.NC}")
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print()
+
+        ui_dir = self.project_root / "src" / "ui"
+        if not ui_dir.exists():
+            print(f"{Colors.RED}Error: UI directory not found: {ui_dir}{Colors.NC}")
+            self.errors.append(f"UI directory not found: {ui_dir}")
+            return False
+
+        return self.run_command(
+            ["npm", "run", "build"],
+            cwd=ui_dir,
+            description="Building UI bundle with Vite"
+        )
     
     def step_configure_cmake(self):
-        """Step 3: Configure CMake"""
+        """Step 4: Configure CMake"""
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 3: Configuring CMake{Colors.NC}")
+        print(f"{Colors.GREEN}Step 4: Configuring CMake{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -212,9 +232,9 @@ class BuildOrchestrator:
         )
     
     def step_build_plugins(self):
-        """Step 4: Build plugins"""
+        """Step 5: Build plugins"""
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 4: Building Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}Step 5: Building Plugins{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -227,7 +247,7 @@ class BuildOrchestrator:
         )
     
     def step_sign_aax(self):
-        """Step 5: Sign AAX plugins with PACE wraptool"""
+        """Step 6: Sign AAX plugins with PACE wraptool"""
         if not self.config.SIGN_AAX or self.skip_signing:
             reason = "skipped by --skip-signing flag" if self.skip_signing else "SIGN_AAX=False"
             print(f"{Colors.YELLOW}Skipping AAX signing ({reason}){Colors.NC}")
@@ -235,7 +255,7 @@ class BuildOrchestrator:
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 5: Signing AAX Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}Step 6: Signing AAX Plugins{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -252,7 +272,7 @@ class BuildOrchestrator:
         )
 
     def step_install_signed_aax(self):
-        """Step 6: Copy signed AAX plugin to system location"""
+        """Step 7: Copy signed AAX plugin to system location"""
         if not self.config.SIGN_AAX or self.skip_signing:
             reason = "skipped by --skip-signing flag" if self.skip_signing else "SIGN_AAX=False"
             print(f"{Colors.YELLOW}Skipping signed AAX install ({reason}){Colors.NC}")
@@ -260,7 +280,7 @@ class BuildOrchestrator:
             return True
 
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 6: Installing Signed AAX Plugin{Colors.NC}")
+        print(f"{Colors.GREEN}Step 7: Installing Signed AAX Plugin{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
 
@@ -310,9 +330,9 @@ class BuildOrchestrator:
         return True
 
     def step_install_vst3_au(self):
-        """Step 7: Copy VST3/AU plugins to system locations"""
+        """Step 8: Copy VST3/AU plugins to system locations"""
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 7: Installing VST3/AU Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}Step 8: Installing VST3/AU Plugins{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
 
@@ -379,14 +399,14 @@ class BuildOrchestrator:
         return True
     
     def step_package_content(self):
-        """Step 8: Package factory content"""
+        """Step 9: Package factory content"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping content packaging (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 8: Packaging Factory Content{Colors.NC}")
+        print(f"{Colors.GREEN}Step 9: Packaging Factory Content{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -406,14 +426,14 @@ class BuildOrchestrator:
         )
     
     def step_build_installer(self):
-        """Step 9: Build installer"""
+        """Step 10: Build installer"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping installer build (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 9: Building Installer{Colors.NC}")
+        print(f"{Colors.GREEN}Step 10: Building Installer{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -484,6 +504,7 @@ class BuildOrchestrator:
         steps = [
             self.step_clean_build,
             self.step_remove_installed_plugins,
+            self.step_build_ui,
             self.step_configure_cmake,
             self.step_build_plugins,
             self.step_sign_aax,
