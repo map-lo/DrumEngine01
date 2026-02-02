@@ -195,6 +195,15 @@ def main():
     else:
         # Determine plugin name and path based on build type
         project_root = Path(__file__).parent
+        config_path = project_root / f"build_config_plugins_{args.build_type}.py"
+        build_dir = "build"
+
+        if config_path.exists():
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("build_config", config_path)
+            build_config = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(build_config)
+            build_dir = getattr(build_config, "BUILD_DIR", build_dir)
         
         if args.build_type == "dev":
             plugin_name = "DrumEngine01Dev"
@@ -204,7 +213,7 @@ def main():
             cmake_build_type = "Release"
         
         # AAX plugin path
-        aax_path = project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
+        aax_path = project_root / build_dir / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
         
         print(f"Signing AAX plugin for {args.build_type} build...")
         print()

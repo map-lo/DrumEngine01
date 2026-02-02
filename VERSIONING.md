@@ -23,6 +23,9 @@ build_factory_content.py runs. The current value is exposed as:
 
 - FACTORY_CONTENT_BUILD_NUMBER (environment variable for installer scripts)
 
+The factory content version is stored in factory_content_version.txt and can
+be set independently from the plugin version.
+
 ## How It Flows
 
 ```

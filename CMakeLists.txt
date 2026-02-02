@@ -85,6 +85,13 @@ juce_add_plugin(DrumEngine01
     AAX_CATEGORY AAX_ePlugInCategory_SWGenerators  # AAX category for software instrument
     PRODUCT_NAME ${PLUGIN_NAME})                # The name of the final executable, which can differ from the target name
 
+# Ensure plugin display name follows the per-config product name
+set_target_properties(DrumEngine01 PROPERTIES
+    JUCE_PRODUCT_NAME "${PLUGIN_NAME}"
+    JUCE_PLUGIN_NAME "${PLUGIN_NAME}"
+    JUCE_PLUGIN_CODE "${PLUGIN_ID}"
+    JUCE_BUNDLE_ID "${BUNDLE_ID}")
+
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
 # this header will be automatically added to the target. The main function of the JuceHeader is to

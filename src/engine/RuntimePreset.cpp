@@ -28,6 +28,7 @@ namespace DrumEngine
     // Helper function to log to file
     static void logToFile(const juce::String &message)
     {
+#if JUCE_DEBUG
         static juce::File logFile = juce::File::getSpecialLocation(juce::File::userHomeDirectory)
                                         .getChildFile("DrumEngine01_Debug.txt");
 
@@ -35,6 +36,9 @@ namespace DrumEngine
         juce::String fullMessage = timeStamp + " - " + message + "\n";
 
         logFile.appendText(fullMessage);
+#else
+        juce::ignoreUnused(message);
+#endif
     }
 
     juce::Result RuntimePreset::buildFromSchema(const PresetSchema &schema)

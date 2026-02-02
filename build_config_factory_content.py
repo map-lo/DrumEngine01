@@ -13,10 +13,18 @@ def get_version_from_cmake():
             return match.group(1)
     return "0.0.1"  # fallback
 
+
+def get_factory_content_version():
+    version_path = Path(__file__).parent / "factory_content_version.txt"
+    if version_path.exists():
+        return version_path.read_text().strip()
+    return get_version_from_cmake()
+
+
 VERSION = get_version_from_cmake()
 
 # Factory content version (separate from plugin VERSION)
-FACTORY_CONTENT_VERSION = VERSION
+FACTORY_CONTENT_VERSION = get_factory_content_version()
 
 # macOS Installer PKG Signing
 INSTALLER_CODE_SIGN_IDENTITY = "Developer ID Installer: Marian Plosch (4V59UK4A32)"  # Developer ID Installer identity string

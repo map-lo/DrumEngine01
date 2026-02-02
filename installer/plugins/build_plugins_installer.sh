@@ -18,7 +18,7 @@ echo ""
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 INSTALLER_ROOT="$SCRIPT_DIR/.."
 PROJECT_ROOT="$INSTALLER_ROOT/.."
-BUILD_DIR="$PROJECT_ROOT/build"
+BUILD_DIR="$PROJECT_ROOT/${DRUMENGINE_BUILD_DIR:-build}"
 INSTALLER_DIR="$SCRIPT_DIR"
 OUTPUT_DIR="$PROJECT_ROOT/dist/installer-plugins"
 TEMP_DIR="$OUTPUT_DIR/temp"
@@ -78,7 +78,7 @@ fi
 
 if [ $PLUGINS_FOUND -eq 0 ]; then
     echo -e "${RED}Error: No plugins found to package${NC}"
-    echo "Build the project first: cd build && cmake --build ."
+    echo "Build the project first: cd ${BUILD_DIR} && cmake --build ."
     exit 1
 fi
 

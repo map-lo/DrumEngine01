@@ -6,6 +6,7 @@
 // Debug logging helper
 static void logToFile(const juce::String &message)
 {
+#if JUCE_DEBUG
     juce::File logFile = juce::File::getSpecialLocation(juce::File::userHomeDirectory)
                              .getChildFile("DrumEngine01_debug.log");
 
@@ -13,6 +14,9 @@ static void logToFile(const juce::String &message)
     juce::String logLine = timestamp + " - " + message + "\n";
 
     logFile.appendText(logLine);
+#else
+    juce::ignoreUnused(message);
+#endif
 }
 
 static juce::String resamplingModeToString(DrumEngine::ResamplingMode mode)

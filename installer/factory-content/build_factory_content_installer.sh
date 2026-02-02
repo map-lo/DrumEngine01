@@ -125,16 +125,12 @@ if [ "$BUILD_CONTENT_PKG" = "true" ]; then
     if [ ! -f "$OUTPUT_DIR/packages/$CONTENT_PKG_NAME" ]; then
         echo "Creating content package..."
 
-        CONTENT_ROOT="$FACTORY_CONTENT_DIR"
+        CONTENT_ROOT="$TEMP_DIR/content_root"
         CONTENT_VERSION_FILE="$CONTENT_ROOT/version.txt"
-        RESTORE_VERSION_FILE=false
-        ORIGINAL_VERSION_CONTENT=""
 
-        if [ -f "$CONTENT_VERSION_FILE" ]; then
-            ORIGINAL_VERSION_CONTENT="$(cat "$CONTENT_VERSION_FILE")"
-        else
-            RESTORE_VERSION_FILE=true
-        fi
+        rm -rf "$CONTENT_ROOT"
+        mkdir -p "$CONTENT_ROOT"
+        ditto "$FACTORY_CONTENT_DIR" "$CONTENT_ROOT"
 
         echo "${CONTENT_VERSION}-b${CONTENT_BUILD_NUMBER}" > "$CONTENT_VERSION_FILE"
 
@@ -154,11 +150,7 @@ if [ "$BUILD_CONTENT_PKG" = "true" ]; then
 
         echo -e "${GREEN}✓ Created $CONTENT_PKG_NAME${NC}"
 
-        if [ "$RESTORE_VERSION_FILE" = true ]; then
-            rm -f "$CONTENT_VERSION_FILE"
-        else
-            echo "$ORIGINAL_VERSION_CONTENT" > "$CONTENT_VERSION_FILE"
-        fi
+        # No need to restore version.txt in source presets; we work on a temp copy
     fi
 
     if [ -n "$CACHED_CONTENT_PKG" ] && [ -f "$OUTPUT_DIR/packages/$CONTENT_PKG_NAME" ]; then

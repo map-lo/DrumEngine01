@@ -178,8 +178,9 @@ class BuildOrchestrator:
         print()
         
         # System-level plugin directories (where installer puts them)
-        system_vst3 = Path("/Library/Audio/Plug-Ins/VST3/DrumEngine01.vst3")
-        system_au = Path("/Library/Audio/Plug-Ins/Components/DrumEngine01.component")
+        plugin_name = "DrumEngine01Dev"
+        system_vst3 = Path(f"/Library/Audio/Plug-Ins/VST3/{plugin_name}.vst3")
+        system_au = Path(f"/Library/Audio/Plug-Ins/Components/{plugin_name}.component")
         
         plugins_to_remove = []
         
@@ -237,10 +238,10 @@ class BuildOrchestrator:
         print()
         
         build_dir = self.project_root / self.config.BUILD_DIR
-        build_dir.mkdir(exist_ok=True)
+        build_dir.mkdir(parents=True, exist_ok=True)
         
         return self.run_command(
-            ["cmake", "..", f"-DCMAKE_BUILD_TYPE={self.cmake_build_type}"],
+            ["cmake", str(self.project_root), f"-DCMAKE_BUILD_TYPE={self.cmake_build_type}"],
             cwd=build_dir,
             description="Configuring CMake"
         )
@@ -286,7 +287,7 @@ class BuildOrchestrator:
             plugin_name = "DrumEngine01"
             cmake_build_type = "Release"
 
-        artefacts_dir = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type
+        artefacts_dir = self.project_root / self.config.BUILD_DIR / "DrumEngine01_artefacts" / cmake_build_type
         plugins_to_sign = []
 
         if "VST3" in self.config.PLUGIN_FORMATS:
@@ -369,7 +370,7 @@ class BuildOrchestrator:
             plugin_name = "DrumEngine01"
             cmake_build_type = "Release"
 
-        signed_aax = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
+        signed_aax = self.project_root / self.config.BUILD_DIR / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
         system_aax_dir = Path("/Library/Application Support/Avid/Audio/Plug-Ins")
         system_aax = system_aax_dir / f"{plugin_name}.aaxplugin"
 
@@ -421,7 +422,7 @@ class BuildOrchestrator:
             plugin_name = "DrumEngine01"
             cmake_build_type = "Release"
 
-        artefacts_dir = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type
+        artefacts_dir = self.project_root / self.config.BUILD_DIR / "DrumEngine01_artefacts" / cmake_build_type
         installs = []
 
         if "VST3" in self.config.PLUGIN_FORMATS:
@@ -496,6 +497,7 @@ class BuildOrchestrator:
         env['DRUMENGINE_VERSION'] = self.config.VERSION
         env['DRUMENGINE_BUILD_TYPE'] = self.build_type
         env['DRUMENGINE_BUILD_NUMBER'] = str(self.config.BUILD_NUMBER)
+        env['DRUMENGINE_BUILD_DIR'] = str(self.config.BUILD_DIR)
 
         if hasattr(self.config, "BUILD_PLUGINS_INSTALLER"):
             env['BUILD_PLUGINS_INSTALLER'] = "true" if self.config.BUILD_PLUGINS_INSTALLER else "false"
@@ -533,7 +535,7 @@ class BuildOrchestrator:
             env['APPLE_APP_SPECIFIC_PASSWORD'] = str(self.config.APPLE_APP_SPECIFIC_PASSWORD)
         
         return self.run_command(
-            [str(script)],
+            ["bash", str(script)],
             cwd=installer_dir,
             description="Building macOS plugins installer",
             env=env
@@ -568,7 +570,7 @@ class BuildOrchestrator:
             if self.config.BUILD_INSTALLER:
                 plugin_name = "DrumEngine01Dev" if self.build_type == "dev" else "DrumEngine01"
                 installer_name = f"{plugin_name}-{self.config.VERSION}-b{self.config.BUILD_NUMBER}-Plugins.pkg"
-                installer_path = dist_dir / "installer" / installer_name
+                installer_path = dist_dir / installer_name
                 if installer_path.exists():
                     print(f"  📦 Installer: {installer_path}")
             

@@ -40,7 +40,7 @@ TEAM_ID = None
 APPLE_APP_SPECIFIC_PASSWORD = None
 
 # Paths (usually don't need to change these)
-BUILD_DIR = "build"
+BUILD_DIR = "build/dev"
 GENERATORS_DIR = "generators"
 INSTALLER_DIR = "installer/plugins"
-DIST_DIR = "dist"
+DIST_DIR = "dist/installer-plugins"
