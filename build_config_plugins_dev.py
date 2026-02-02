@@ -1,4 +1,4 @@
-# Release Build Configuration for DrumEngine01
+# Development Build Configuration for DrumEngine01
 
 import re
 from pathlib import Path
@@ -16,19 +16,10 @@ def get_version_from_cmake():
 VERSION = get_version_from_cmake()
 
 # Build Settings
-CLEAN_BUILD = True      # Clean build artifacts before building for release
+CLEAN_BUILD = False     # Set to True to clean build artifacts before building
 
 # Installer Settings
-BUILD_INSTALLER = True   # Build installer for release
-
-# Factory content pkg cache (outside dist to avoid clean deletion)
-CONTENT_PKG_CACHE_DIR = "content-cache"  # Relative to project root or absolute path
-
-# Preset Packaging
-PRESET_LIMIT = None      # Include all presets for release builds
-
-# Factory Content Version (separate from plugin VERSION)
-FACTORY_CONTENT_VERSION = VERSION
+BUILD_INSTALLER = False  # Set to False to skip installer creation
 
 # Plugin Formats (must match CMakeLists.txt)
 PLUGIN_FORMATS = ["VST3", "AU", "AAX"]
@@ -37,14 +28,11 @@ PLUGIN_FORMATS = ["VST3", "AU", "AAX"]
 SIGN_AAX = True  # Set to False to skip AAX signing (requires PACE configuration)
 
 # macOS Plugin Signing (VST3/AU)
-SIGN_MAC_PLUGINS = True  # Set to False to skip macOS plugin signing
+SIGN_MAC_PLUGINS = False  # Set to True to sign macOS plugins in dev builds
 MAC_CODE_SIGN_IDENTITY = "Developer ID Application: Marian Plosch (4V59UK4A32)"  # Developer ID Application identity string
 
-# macOS Installer PKG Signing
-INSTALLER_CODE_SIGN_IDENTITY = "Developer ID Installer: Marian Plosch (4V59UK4A32)"  # Developer ID Installer identity string
-
 # Component PKG Notarization (VST3/AU/AAX)
-NOTARIZE_COMPONENT_PKGS = True  # Set to True to notarize component pkgs only
+NOTARIZE_COMPONENT_PKGS = False  # Set to True to notarize component pkgs only
 NOTARYTOOL_PROFILE = "DrumEngine01Notary"  # Keychain profile name for notarytool (preferred)
 APPLE_ID = None
 TEAM_ID = None

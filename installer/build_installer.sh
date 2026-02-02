@@ -19,7 +19,7 @@ echo ""
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$SCRIPT_DIR/.."
 BUILD_DIR="$PROJECT_ROOT/build"
-FACTORY_CONTENT_DIR="$PROJECT_ROOT/dist/factory-content"
+FACTORY_CONTENT_DIR="$PROJECT_ROOT/presets"
 INSTALLER_DIR="$SCRIPT_DIR"
 OUTPUT_DIR="$PROJECT_ROOT/dist/installer"
 TEMP_DIR="$OUTPUT_DIR/temp"
@@ -28,6 +28,11 @@ TEMP_DIR="$OUTPUT_DIR/temp"
 VERSION="${DRUMENGINE_VERSION:-0.0.1}"
 CONTENT_VERSION="${FACTORY_CONTENT_VERSION:-$VERSION}"
 BUILD_TYPE="${DRUMENGINE_BUILD_TYPE:-release}"
+BUILD_PLUGINS_INSTALLER="${BUILD_PLUGINS_INSTALLER:-true}"
+BUILD_CONTENT_INSTALLER="${BUILD_CONTENT_INSTALLER:-true}"
+BUILD_CONTENT_PKG="${BUILD_CONTENT_PKG:-$BUILD_CONTENT_INSTALLER}"
+NOTARIZE_CONTENT_INSTALLER="${NOTARIZE_CONTENT_INSTALLER:-false}"
+CONTENT_INSTALLER_PATH="${CONTENT_INSTALLER_PATH:-}"
 
 # Determine plugin name based on build type
 if [ "$BUILD_TYPE" = "dev" ]; then
@@ -48,50 +53,54 @@ VST3_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/$CMAKE_BUILD/VST3/$PLUGIN_NAME.vs
 AU_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/$CMAKE_BUILD/AU/$PLUGIN_NAME.component"
 AAX_SOURCE="$BUILD_DIR/DrumEngine01_artefacts/$CMAKE_BUILD/AAX/$PLUGIN_NAME.aaxplugin"
 
-# Check if build exists
-if [ ! -d "$BUILD_DIR" ]; then
-    echo -e "${RED}Error: Build directory not found at $BUILD_DIR${NC}"
-    echo "Please build the project first with CMake"
-    exit 1
-fi
-
-# Check if plugins exist
-PLUGINS_FOUND=0
-if [ -d "$VST3_SOURCE" ]; then
-    echo -e "${GREEN}✓ Found VST3 plugin${NC}"
-    PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
-else
-    echo -e "${YELLOW}⚠ VST3 plugin not found at $VST3_SOURCE${NC}"
-fi
-
-if [ -d "$AU_SOURCE" ]; then
-    echo -e "${GREEN}✓ Found AU plugin${NC}"
-    PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
-else
-    echo -e "${YELLOW}⚠ AU plugin not found at $AU_SOURCE${NC}"
-fi
-
-if [ -d "$AAX_SOURCE" ]; then
-    echo -e "${GREEN}✓ Found AAX plugin${NC}"
-    PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
-else
-    echo -e "${YELLOW}⚠ AAX plugin not found at $AAX_SOURCE${NC}"
-fi
-
-if [ $PLUGINS_FOUND -eq 0 ]; then
-    echo -e "${RED}Error: No plugins found to package${NC}"
-    echo "Build the project first: cd build && cmake --build ."
-    exit 1
-fi
-
-# Check if dist folder exists (presets only)
-if [ ! -d "$FACTORY_CONTENT_DIR/presets" ]; then
-    echo -e "${YELLOW}⚠ Warning: dist/factory-content/presets not found${NC}"
-    echo "Run: python generators/package_presets_for_installer.py"
-    read -p "Continue without content? (y/N) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
+    # Check if build exists
+    if [ ! -d "$BUILD_DIR" ]; then
+        echo -e "${RED}Error: Build directory not found at $BUILD_DIR${NC}"
+        echo "Please build the project first with CMake"
         exit 1
+    fi
+fi
+
+if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
+    # Check if plugins exist
+    PLUGINS_FOUND=0
+    if [ -d "$VST3_SOURCE" ]; then
+        echo -e "${GREEN}✓ Found VST3 plugin${NC}"
+        PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
+    else
+        echo -e "${YELLOW}⚠ VST3 plugin not found at $VST3_SOURCE${NC}"
+    fi
+
+    if [ -d "$AU_SOURCE" ]; then
+        echo -e "${GREEN}✓ Found AU plugin${NC}"
+        PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
+    else
+        echo -e "${YELLOW}⚠ AU plugin not found at $AU_SOURCE${NC}"
+    fi
+
+    if [ -d "$AAX_SOURCE" ]; then
+        echo -e "${GREEN}✓ Found AAX plugin${NC}"
+        PLUGINS_FOUND=$((PLUGINS_FOUND + 1))
+    else
+        echo -e "${YELLOW}⚠ AAX plugin not found at $AAX_SOURCE${NC}"
+    fi
+
+    if [ $PLUGINS_FOUND -eq 0 ]; then
+        echo -e "${RED}Error: No plugins found to package${NC}"
+        echo "Build the project first: cd build && cmake --build ."
+        exit 1
+    fi
+fi
+
+if [ "$BUILD_CONTENT_INSTALLER" = "true" ] || [ "$BUILD_CONTENT_PKG" = "true" ]; then
+    if [ ! -d "$FACTORY_CONTENT_DIR" ]; then
+        echo -e "${YELLOW}⚠ Warning: presets folder not found at $FACTORY_CONTENT_DIR${NC}"
+        read -p "Continue without content? (y/N) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
     fi
 fi
 
@@ -190,42 +199,46 @@ create_component_pkg() {
     echo -e "${GREEN}✓ Created $PKG_NAME.pkg${NC}"
 }
 
-# Create VST3 package
-if [ -d "$VST3_SOURCE" ]; then
-    create_component_pkg "VST3" "$VST3_SOURCE" "/Library/Audio/Plug-Ins/VST3" "vst3"
-fi
-
-# Create VST package
-if [ -d "$VST_SOURCE" ]; then
-    create_component_pkg "VST" "$VST_SOURCE" "/Library/Audio/Plug-Ins/VST" "vst"
-fi
-
-# Create AU package
-if [ -d "$AU_SOURCE" ]; then
-    create_component_pkg "AU" "$AU_SOURCE" "/Library/Audio/Plug-Ins/Components" "au"
-fi
-
-# Create AAX package
-if [ -d "$AAX_SOURCE" ]; then
-    create_component_pkg "AAX" "$AAX_SOURCE" "/Library/Application Support/Avid/Audio/Plug-Ins" "aax"
-fi
-
-# Notarize component pkgs only (skip content pkg)
-if [ "$NOTARIZE_COMPONENT_PKGS" = "true" ]; then
-    echo ""
-    echo "Notarizing component packages..."
-    if [ -z "$INSTALLER_CODE_SIGN_IDENTITY" ]; then
-        echo -e "${RED}Error: INSTALLER_CODE_SIGN_IDENTITY is required to notarize component pkgs.${NC}"
-        exit 1
+if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
+    # Create VST3 package
+    if [ -d "$VST3_SOURCE" ]; then
+        create_component_pkg "VST3" "$VST3_SOURCE" "/Library/Audio/Plug-Ins/VST3" "vst3"
     fi
-    notarize_pkg "$OUTPUT_DIR/packages/vst3.pkg"
-    notarize_pkg "$OUTPUT_DIR/packages/au.pkg"
-    notarize_pkg "$OUTPUT_DIR/packages/aax.pkg"
-    echo -e "${GREEN}✓ Component packages notarized${NC}"
+
+    # Create VST package
+    if [ -d "$VST_SOURCE" ]; then
+        create_component_pkg "VST" "$VST_SOURCE" "/Library/Audio/Plug-Ins/VST" "vst"
+    fi
+
+    # Create AU package
+    if [ -d "$AU_SOURCE" ]; then
+        create_component_pkg "AU" "$AU_SOURCE" "/Library/Audio/Plug-Ins/Components" "au"
+    fi
+
+    # Create AAX package
+    if [ -d "$AAX_SOURCE" ]; then
+        create_component_pkg "AAX" "$AAX_SOURCE" "/Library/Application Support/Avid/Audio/Plug-Ins" "aax"
+    fi
+fi
+
+if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
+    # Notarize component pkgs only (skip content pkg)
+    if [ "$NOTARIZE_COMPONENT_PKGS" = "true" ]; then
+        echo ""
+        echo "Notarizing component packages..."
+        if [ -z "$INSTALLER_CODE_SIGN_IDENTITY" ]; then
+            echo -e "${RED}Error: INSTALLER_CODE_SIGN_IDENTITY is required to notarize component pkgs.${NC}"
+            exit 1
+        fi
+        notarize_pkg "$OUTPUT_DIR/packages/vst3.pkg"
+        notarize_pkg "$OUTPUT_DIR/packages/au.pkg"
+        notarize_pkg "$OUTPUT_DIR/packages/aax.pkg"
+        echo -e "${GREEN}✓ Component packages notarized${NC}"
+    fi
 fi
 
 # Create content package (presets only)
-if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
+if [ "$BUILD_CONTENT_PKG" = "true" ] && [ -d "$FACTORY_CONTENT_DIR" ]; then
     CACHED_CONTENT_PKG=""
     if [ -n "$CONTENT_PKG_CACHE_DIR" ]; then
         mkdir -p "$CONTENT_PKG_CACHE_DIR"
@@ -238,15 +251,19 @@ if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
 
     if [ ! -f "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" ]; then
     echo "Creating content package..."
-    
-    CONTENT_PAYLOAD="$TEMP_DIR/content_payload"
-    mkdir -p "$CONTENT_PAYLOAD/tmp/DrumEngine01_install"
-    
-    # Copy presets to temp location for postinstall script
-    cp -R "$FACTORY_CONTENT_DIR/presets" "$CONTENT_PAYLOAD/tmp/DrumEngine01_install/"
 
-    # Write factory content version for installation tracking
-    echo "$CONTENT_VERSION" > "$CONTENT_PAYLOAD/tmp/DrumEngine01_install/version.txt"
+    CONTENT_ROOT="$FACTORY_CONTENT_DIR"
+    CONTENT_VERSION_FILE="$CONTENT_ROOT/version.txt"
+    RESTORE_VERSION_FILE=false
+    ORIGINAL_VERSION_CONTENT=""
+
+    if [ -f "$CONTENT_VERSION_FILE" ]; then
+        ORIGINAL_VERSION_CONTENT="$(cat "$CONTENT_VERSION_FILE")"
+    else
+        RESTORE_VERSION_FILE=true
+    fi
+
+    echo "$CONTENT_VERSION" > "$CONTENT_VERSION_FILE"
     
     # Make postinstall script executable
     chmod +x "$INSTALLER_DIR/postinstall"
@@ -258,14 +275,20 @@ if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
     
     # Build content package with postinstall script
     pkgbuild \
-        --root "$CONTENT_PAYLOAD" \
+        --root "$CONTENT_ROOT" \
         --identifier "com.mari.drumengine01.content" \
         --version "$CONTENT_VERSION" \
         --scripts "$SCRIPTS_DIR" \
-        --install-location "/" \
+        --install-location "/tmp/DrumEngine01_install" \
         "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg"
     
     echo -e "${GREEN}✓ Created content-${CONTENT_VERSION}.pkg${NC}"
+
+    if [ "$RESTORE_VERSION_FILE" = true ]; then
+        rm -f "$CONTENT_VERSION_FILE"
+    else
+        echo "$ORIGINAL_VERSION_CONTENT" > "$CONTENT_VERSION_FILE"
+    fi
     fi
 
     if [ -n "$CACHED_CONTENT_PKG" ] && [ -f "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" ]; then
@@ -274,43 +297,90 @@ if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
     fi
 fi
 
-# Create final product installer
-echo ""
-echo "Building final installer..."
-
 BUILD_NUMBER="${DRUMENGINE_BUILD_NUMBER:-0}"
-INSTALLER_NAME="${PLUGIN_NAME}-${VERSION}-b${BUILD_NUMBER}-Installer.pkg"
-
-# Prepare distribution.xml with content versioned pkg filename
-DISTRIBUTION_SRC="$INSTALLER_DIR/distribution.xml"
-DISTRIBUTION_PATH="$OUTPUT_DIR/distribution.xml"
-cp "$DISTRIBUTION_SRC" "$DISTRIBUTION_PATH"
 CONTENT_PKG_NAME="content-${CONTENT_VERSION}.pkg"
 
-if [ -f "$OUTPUT_DIR/packages/$CONTENT_PKG_NAME" ]; then
-    sed -i '' -E "s@(com\.mari\.drumengine01\.content\" version=\")[^"]*(\" onConclusion=\"none\">)content\.pkg@\1${CONTENT_VERSION}\2${CONTENT_PKG_NAME}@" "$DISTRIBUTION_PATH"
+if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
+    echo ""
+    echo "Building plugins installer..."
+
+    PLUGINS_INSTALLER_NAME="${PLUGIN_NAME}-${VERSION}-b${BUILD_NUMBER}-Plugins.pkg"
+    DISTRIBUTION_SRC="$INSTALLER_DIR/distribution.xml"
+    PLUGINS_DISTRIBUTION_PATH="$OUTPUT_DIR/distribution-plugins.xml"
+    cp "$DISTRIBUTION_SRC" "$PLUGINS_DISTRIBUTION_PATH"
+
+    sed -i '' -E '/<line choice="content"\/>/d' "$PLUGINS_DISTRIBUTION_PATH"
+    sed -i '' -E '/<choice id="content"/,/<\/choice>/d' "$PLUGINS_DISTRIBUTION_PATH"
+    sed -i '' -E '/com\.mari\.drumengine01\.content/d' "$PLUGINS_DISTRIBUTION_PATH"
+
+    productbuild \
+        --distribution "$PLUGINS_DISTRIBUTION_PATH" \
+        --package-path "$OUTPUT_DIR/packages" \
+        --resources "$INSTALLER_DIR" \
+        "$OUTPUT_DIR/$PLUGINS_INSTALLER_NAME"
+
+    sign_pkg "$OUTPUT_DIR/$PLUGINS_INSTALLER_NAME"
 fi
 
-productbuild \
-    --distribution "$DISTRIBUTION_PATH" \
-    --package-path "$OUTPUT_DIR/packages" \
-    --resources "$INSTALLER_DIR" \
-    "$OUTPUT_DIR/$INSTALLER_NAME"
+if [ "$BUILD_CONTENT_INSTALLER" = "true" ]; then
+    if [ ! -f "$OUTPUT_DIR/packages/$CONTENT_PKG_NAME" ]; then
+        echo -e "${RED}Error: Content pkg not found: $OUTPUT_DIR/packages/$CONTENT_PKG_NAME${NC}"
+        exit 1
+    fi
+    echo ""
+    echo "Building factory content installer..."
 
-sign_pkg "$OUTPUT_DIR/$INSTALLER_NAME"
+    CONTENT_INSTALLER_NAME="DrumEngine01-FactoryContent-${CONTENT_VERSION}.pkg"
+    DISTRIBUTION_SRC="$INSTALLER_DIR/distribution.xml"
+    CONTENT_DISTRIBUTION_PATH="$OUTPUT_DIR/distribution-content.xml"
+    cp "$DISTRIBUTION_SRC" "$CONTENT_DISTRIBUTION_PATH"
+
+    sed -i '' -E '/<line choice="vst3"\/>/d' "$CONTENT_DISTRIBUTION_PATH"
+    sed -i '' -E '/<line choice="au"\/>/d' "$CONTENT_DISTRIBUTION_PATH"
+    sed -i '' -E '/<line choice="aax"\/>/d' "$CONTENT_DISTRIBUTION_PATH"
+    sed -i '' -E '/<choice id="vst3"/,/<\/choice>/d' "$CONTENT_DISTRIBUTION_PATH"
+    sed -i '' -E '/<choice id="au"/,/<\/choice>/d' "$CONTENT_DISTRIBUTION_PATH"
+    sed -i '' -E '/<choice id="aax"/,/<\/choice>/d' "$CONTENT_DISTRIBUTION_PATH"
+    sed -i '' -E '/com\.mari\.drumengine01\.(vst3|au|aax)/d' "$CONTENT_DISTRIBUTION_PATH"
+
+    sed -i '' -E "s@(com\.mari\.drumengine01\.content\" version=\")[^"]*(\" onConclusion=\"none\">)content\.pkg@\1${CONTENT_VERSION}\2${CONTENT_PKG_NAME}@" "$CONTENT_DISTRIBUTION_PATH"
+
+    productbuild \
+        --distribution "$CONTENT_DISTRIBUTION_PATH" \
+        --package-path "$OUTPUT_DIR/packages" \
+        --resources "$INSTALLER_DIR" \
+        "$OUTPUT_DIR/$CONTENT_INSTALLER_NAME"
+
+    sign_pkg "$OUTPUT_DIR/$CONTENT_INSTALLER_NAME"
+fi
+
+if [ "$NOTARIZE_CONTENT_INSTALLER" = "true" ]; then
+    echo ""
+    echo "Notarizing factory content installer..."
+
+    if [ -n "$CONTENT_INSTALLER_PATH" ]; then
+        notarize_pkg "$CONTENT_INSTALLER_PATH"
+    else
+        if [ -z "$CONTENT_INSTALLER_NAME" ]; then
+            echo -e "${RED}Error: Content installer not built and CONTENT_INSTALLER_PATH not provided.${NC}"
+            exit 1
+        fi
+        notarize_pkg "$OUTPUT_DIR/$CONTENT_INSTALLER_NAME"
+    fi
+fi
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}✓ Installer created successfully!${NC}"
+echo -e "${GREEN}✓ Installer build completed!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
-echo "Installer location:"
-echo "  $OUTPUT_DIR/$INSTALLER_NAME"
-echo ""
-echo "To test the installer:"
-echo "  sudo installer -pkg \"$OUTPUT_DIR/$INSTALLER_NAME\" -target /"
-echo ""
-echo "Or double-click the .pkg file to install via GUI"
+echo "Installer locations:"
+if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
+    echo "  📦 Plugins Installer: $OUTPUT_DIR/$PLUGINS_INSTALLER_NAME"
+fi
+if [ "$BUILD_CONTENT_INSTALLER" = "true" ]; then
+    echo "  📦 Factory Content Installer: $OUTPUT_DIR/$CONTENT_INSTALLER_NAME"
+fi
 echo ""
 
 # Clean up temp directory

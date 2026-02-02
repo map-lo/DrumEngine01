@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
 """
-DrumEngine01 Build Script
+DrumEngine01 Plugins Build Script
 
-Orchestrates the entire build process based on build configuration:
+Orchestrates the plugin build process based on build configuration:
 1. Build WebView UI (Vite dist)
 2. Configure and build plugins with CMake
 3. Sign macOS plugins (VST3/AU)
 4. Sign AAX plugins with PACE wraptool
-5. Package factory content (presets)
-6. Build macOS installer
+5. Build macOS plugins installer
 
 Usage:
-    python build.py --dev              Build development version (DrumEngine01Dev)
-    python build.py --release          Build release version (DrumEngine01)
-    python build.py --dev --skip-signing    Build dev without AAX signing
+    python build_plugins.py --dev              Build development version (DrumEngine01Dev)
+    python build_plugins.py --release          Build release version (DrumEngine01)
+    python build_plugins.py --dev --skip-signing    Build dev without AAX signing
     
 Options:
-    --dev           Build development version (uses build_config_dev.py, CMAKE_BUILD_TYPE=Debug)
-    --release       Build release version (uses build_config_release.py, CMAKE_BUILD_TYPE=Release)
+    --dev           Build development version (uses build_config_plugins_dev.py, CMAKE_BUILD_TYPE=Debug)
+    --release       Build release version (uses build_config_plugins_release.py, CMAKE_BUILD_TYPE=Release)
     --skip-signing  Skip AAX signing step even if SIGN_AAX=True in config
 """
 
@@ -44,7 +43,6 @@ class BuildOrchestrator:
         build_type: str,
         skip_signing: bool = False,
         run_build: bool = True,
-        run_package: bool = True,
         run_sign: bool = True,
     ):
         self.project_root = Path(__file__).parent
@@ -52,12 +50,11 @@ class BuildOrchestrator:
         self.cmake_build_type = "Debug" if build_type == "dev" else "Release"
         self.skip_signing = skip_signing
         self.run_build = run_build
-        self.run_package = run_package
         self.run_sign = run_sign
         self.build_number_path = self.project_root / "build_number.txt"
         
         # Load appropriate config file
-        config_file = f"build_config_{build_type}.py"
+        config_file = f"build_config_plugins_{build_type}.py"
         self.config = self.load_config(config_file)
         self.build_number = self.increment_build_number()
         self.config.BUILD_NUMBER = self.build_number
@@ -83,7 +80,6 @@ class BuildOrchestrator:
         print(f"  Build Type: {self.build_type.upper()} (CMAKE_BUILD_TYPE={self.cmake_build_type})")
         print(f"  Plugin Name: {'DrumEngine01Dev' if self.build_type == 'dev' else 'DrumEngine01'}")
         print(f"  Plugin Code: {'Den0' if self.build_type == 'dev' else 'Den1'}")
-        print(f"  Preset Limit: {config.PRESET_LIMIT or 'None (all presets)'}")
         print(f"  Clean Build: {config.CLEAN_BUILD}")
         print(f"  Build Installer: {config.BUILD_INSTALLER}")
         print(f"  Sign AAX: {config.SIGN_AAX and not self.skip_signing}")
@@ -473,42 +469,15 @@ class BuildOrchestrator:
         print()
         return True
     
-    def step_package_content(self):
-        """Step 10: Package factory content"""
-        if not self.config.BUILD_INSTALLER:
-            print(f"{Colors.YELLOW}Skipping content packaging (BUILD_INSTALLER=False){Colors.NC}")
-            print()
-            return True
-        
-        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 10: Packaging Factory Content{Colors.NC}")
-        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print()
-        
-        generators_dir = self.project_root / self.config.GENERATORS_DIR
-        script = generators_dir / "package_presets_for_installer.py"
-        
-        cmd = ["python3", str(script)]
-        
-        if self.config.PRESET_LIMIT is not None:
-            cmd.extend(["--limit", str(self.config.PRESET_LIMIT)])
-            print(f"{Colors.YELLOW}Note: Using preset limit of {self.config.PRESET_LIMIT} for testing{Colors.NC}")
-            print()
-        
-        return self.run_command(
-            cmd,
-            description="Packaging presets"
-        )
-    
     def step_build_installer(self):
-        """Step 11: Build installer"""
+        """Step 10: Build plugins installer"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping installer build (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 11: Building Installer{Colors.NC}")
+        print(f"{Colors.GREEN}Step 10: Building Plugins Installer{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -521,20 +490,17 @@ class BuildOrchestrator:
         env['DRUMENGINE_BUILD_TYPE'] = self.build_type
         env['DRUMENGINE_BUILD_NUMBER'] = str(self.config.BUILD_NUMBER)
 
-        if hasattr(self.config, "FACTORY_CONTENT_VERSION") and self.config.FACTORY_CONTENT_VERSION:
-            env['FACTORY_CONTENT_VERSION'] = str(self.config.FACTORY_CONTENT_VERSION)
+        if hasattr(self.config, "BUILD_PLUGINS_INSTALLER"):
+            env['BUILD_PLUGINS_INSTALLER'] = "true" if self.config.BUILD_PLUGINS_INSTALLER else "false"
+
+        env['BUILD_CONTENT_INSTALLER'] = "false"
+        env['BUILD_CONTENT_PKG'] = "false"
 
         if hasattr(self.config, "NOTARIZE_COMPONENT_PKGS"):
             env['NOTARIZE_COMPONENT_PKGS'] = "true" if self.config.NOTARIZE_COMPONENT_PKGS else "false"
 
         if hasattr(self.config, "INSTALLER_CODE_SIGN_IDENTITY") and self.config.INSTALLER_CODE_SIGN_IDENTITY:
             env['INSTALLER_CODE_SIGN_IDENTITY'] = str(self.config.INSTALLER_CODE_SIGN_IDENTITY)
-
-        if hasattr(self.config, "CONTENT_PKG_CACHE_DIR") and self.config.CONTENT_PKG_CACHE_DIR:
-            cache_dir = Path(self.config.CONTENT_PKG_CACHE_DIR)
-            if not cache_dir.is_absolute():
-                cache_dir = self.project_root / cache_dir
-            env['CONTENT_PKG_CACHE_DIR'] = str(cache_dir)
 
         if hasattr(self.config, "NOTARYTOOL_PROFILE") and self.config.NOTARYTOOL_PROFILE:
             env['NOTARYTOOL_PROFILE'] = str(self.config.NOTARYTOOL_PROFILE)
@@ -551,7 +517,7 @@ class BuildOrchestrator:
         return self.run_command(
             [str(script)],
             cwd=installer_dir,
-            description="Building macOS installer package",
+            description="Building macOS plugins installer",
             env=env
         )
     
@@ -583,14 +549,10 @@ class BuildOrchestrator:
             
             if self.config.BUILD_INSTALLER:
                 plugin_name = "DrumEngine01Dev" if self.build_type == "dev" else "DrumEngine01"
-                installer_name = f"{plugin_name}-{self.config.VERSION}-b{self.config.BUILD_NUMBER}-Installer.pkg"
+                installer_name = f"{plugin_name}-{self.config.VERSION}-b{self.config.BUILD_NUMBER}-Plugins.pkg"
                 installer_path = dist_dir / "installer" / installer_name
                 if installer_path.exists():
                     print(f"  📦 Installer: {installer_path}")
-            
-            factory_content = dist_dir / "factory-content"
-            if factory_content.exists():
-                print(f"  📁 Factory Content: {factory_content}")
             
             print()
             return True
@@ -614,9 +576,6 @@ class BuildOrchestrator:
                 self.step_build_plugins,
             ])
 
-        if self.run_package:
-            steps.append(self.step_package_content)
-
         if self.run_sign:
             steps.extend([
                 self.step_sign_macos_plugins,
@@ -638,13 +597,13 @@ class BuildOrchestrator:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Build DrumEngine01 plugin',
+        description='Build DrumEngine01 plugins',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  python build.py --dev              Build development version
-  python build.py --release          Build release version  
-  python build.py --dev --skip-signing    Build dev without AAX signing
+    python build_plugins.py --dev              Build development version
+    python build_plugins.py --release          Build release version  
+    python build_plugins.py --dev --skip-signing    Build dev without AAX signing
         '''
     )
     
@@ -673,12 +632,6 @@ Examples:
     )
 
     parser.add_argument(
-        '--skip-package',
-        action='store_true',
-        help='Skip packaging presets'
-    )
-
-    parser.add_argument(
         '--skip-sign',
         action='store_true',
         help='Skip signing/notarization steps (macOS/AAX/installer)'
@@ -691,7 +644,6 @@ Examples:
         build_type=build_type,
         skip_signing=args.skip_signing,
         run_build=not args.skip_build,
-        run_package=not args.skip_package,
         run_sign=not args.skip_sign,
     )
     return orchestrator.run()
