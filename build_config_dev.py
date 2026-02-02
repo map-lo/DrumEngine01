@@ -30,6 +30,10 @@ PLUGIN_FORMATS = ["VST3", "AU", "AAX"]
 # AAX Signing
 SIGN_AAX = True  # Set to False to skip AAX signing (requires PACE configuration)
 
+# macOS Plugin Signing (VST3/AU)
+SIGN_MAC_PLUGINS = False  # Set to True to sign macOS plugins in dev builds
+MAC_CODE_SIGN_IDENTITY = "2F4Z5GSTCA"  # Developer ID Application identity string
+
 # Paths (usually don't need to change these)
 BUILD_DIR = "build"
 GENERATORS_DIR = "generators"

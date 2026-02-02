@@ -5,9 +5,10 @@ DrumEngine01 Build Script
 Orchestrates the entire build process based on build configuration:
 1. Build WebView UI (Vite dist)
 2. Configure and build plugins with CMake
-3. Sign AAX plugins with PACE wraptool
-4. Package factory content (presets)
-5. Build macOS installer
+3. Sign macOS plugins (VST3/AU)
+4. Sign AAX plugins with PACE wraptool
+5. Package factory content (presets)
+6. Build macOS installer
 
 Usage:
     python build.py --dev              Build development version (DrumEngine01Dev)
@@ -246,8 +247,69 @@ class BuildOrchestrator:
             description=f"Building plugins ({self.cmake_build_type})"
         )
     
+    def step_sign_macos_plugins(self):
+        """Step 6: Sign macOS plugins (VST3/AU)"""
+        if not getattr(self.config, "SIGN_MAC_PLUGINS", False):
+            print(f"{Colors.YELLOW}Skipping macOS plugin signing (SIGN_MAC_PLUGINS=False){Colors.NC}")
+            print()
+            return True
+
+        identity = getattr(self.config, "MAC_CODE_SIGN_IDENTITY", None)
+        if not identity:
+            print(f"{Colors.RED}Error: MAC_CODE_SIGN_IDENTITY not set in build config{Colors.NC}")
+            self.errors.append("MAC_CODE_SIGN_IDENTITY not set")
+            print()
+            return False
+
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print(f"{Colors.GREEN}Step 6: Signing macOS Plugins (VST3/AU){Colors.NC}")
+        print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
+        print()
+
+        if self.build_type == "dev":
+            plugin_name = "DrumEngine01Dev"
+            cmake_build_type = "Debug"
+        else:
+            plugin_name = "DrumEngine01"
+            cmake_build_type = "Release"
+
+        artefacts_dir = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type
+        plugins_to_sign = []
+
+        if "VST3" in self.config.PLUGIN_FORMATS:
+            plugins_to_sign.append(("VST3", artefacts_dir / "VST3" / f"{plugin_name}.vst3"))
+
+        if "AU" in self.config.PLUGIN_FORMATS:
+            plugins_to_sign.append(("AU", artefacts_dir / "AU" / f"{plugin_name}.component"))
+
+        if not plugins_to_sign:
+            print(f"{Colors.YELLOW}No macOS plugin formats configured for signing{Colors.NC}")
+            print()
+            return True
+
+        for fmt, plugin_path in plugins_to_sign:
+            if not plugin_path.exists():
+                print(f"{Colors.YELLOW}{fmt} plugin not found: {plugin_path}{Colors.NC}")
+                print(f"{Colors.YELLOW}Skipping signing for {fmt}{Colors.NC}")
+                print()
+                continue
+
+            print(f"Signing {fmt} plugin:")
+            print(f"  Path: {plugin_path}")
+            print()
+
+            if not self.run_command(
+                ["codesign", "--force", "--deep", "--options", "runtime", "--timestamp", "--sign", identity, str(plugin_path)],
+                description=f"Code signing {fmt} plugin"
+            ):
+                return False
+
+        print(f"{Colors.GREEN}✓ macOS plugin signing completed{Colors.NC}")
+        print()
+        return True
+
     def step_sign_aax(self):
-        """Step 6: Sign AAX plugins with PACE wraptool"""
+        """Step 7: Sign AAX plugins with PACE wraptool"""
         if not self.config.SIGN_AAX or self.skip_signing:
             reason = "skipped by --skip-signing flag" if self.skip_signing else "SIGN_AAX=False"
             print(f"{Colors.YELLOW}Skipping AAX signing ({reason}){Colors.NC}")
@@ -255,7 +317,7 @@ class BuildOrchestrator:
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 6: Signing AAX Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}Step 7: Signing AAX Plugins{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -272,7 +334,7 @@ class BuildOrchestrator:
         )
 
     def step_install_signed_aax(self):
-        """Step 7: Copy signed AAX plugin to system location"""
+        """Step 8: Copy signed AAX plugin to system location"""
         if not self.config.SIGN_AAX or self.skip_signing:
             reason = "skipped by --skip-signing flag" if self.skip_signing else "SIGN_AAX=False"
             print(f"{Colors.YELLOW}Skipping signed AAX install ({reason}){Colors.NC}")
@@ -280,7 +342,7 @@ class BuildOrchestrator:
             return True
 
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 7: Installing Signed AAX Plugin{Colors.NC}")
+        print(f"{Colors.GREEN}Step 8: Installing Signed AAX Plugin{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
 
@@ -330,9 +392,9 @@ class BuildOrchestrator:
         return True
 
     def step_install_vst3_au(self):
-        """Step 8: Copy VST3/AU plugins to system locations"""
+        """Step 9: Copy VST3/AU plugins to system locations"""
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 8: Installing VST3/AU Plugins{Colors.NC}")
+        print(f"{Colors.GREEN}Step 9: Installing VST3/AU Plugins{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
 
@@ -399,14 +461,14 @@ class BuildOrchestrator:
         return True
     
     def step_package_content(self):
-        """Step 9: Package factory content"""
+        """Step 10: Package factory content"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping content packaging (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 9: Packaging Factory Content{Colors.NC}")
+        print(f"{Colors.GREEN}Step 10: Packaging Factory Content{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -426,14 +488,14 @@ class BuildOrchestrator:
         )
     
     def step_build_installer(self):
-        """Step 10: Build installer"""
+        """Step 11: Build installer"""
         if not self.config.BUILD_INSTALLER:
             print(f"{Colors.YELLOW}Skipping installer build (BUILD_INSTALLER=False){Colors.NC}")
             print()
             return True
         
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
-        print(f"{Colors.GREEN}Step 10: Building Installer{Colors.NC}")
+        print(f"{Colors.GREEN}Step 11: Building Installer{Colors.NC}")
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
@@ -481,7 +543,7 @@ class BuildOrchestrator:
             
             if self.config.BUILD_INSTALLER:
                 plugin_name = "DrumEngine01Dev" if self.build_type == "dev" else "DrumEngine01"
-                installer_name = f"{plugin_name}-{self.config.VERSION}-Installer.pkg"
+                installer_name = f"{plugin_name}-{self.config.VERSION}-b{self.config.BUILD_NUMBER}-Installer.pkg"
                 installer_path = dist_dir / "installer" / installer_name
                 if installer_path.exists():
                     print(f"  📦 Installer: {installer_path}")
@@ -507,6 +569,7 @@ class BuildOrchestrator:
             self.step_build_ui,
             self.step_configure_cmake,
             self.step_build_plugins,
+            self.step_sign_macos_plugins,
             self.step_sign_aax,
             self.step_install_signed_aax,
             self.step_install_vst3_au,

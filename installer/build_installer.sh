@@ -187,7 +187,8 @@ fi
 echo ""
 echo "Building final installer..."
 
-INSTALLER_NAME="${PLUGIN_NAME}-${VERSION}-Installer.pkg"
+BUILD_NUMBER="${DRUMENGINE_BUILD_NUMBER:-0}"
+INSTALLER_NAME="${PLUGIN_NAME}-${VERSION}-b${BUILD_NUMBER}-Installer.pkg"
 
 productbuild \
     --distribution "$INSTALLER_DIR/distribution.xml" \
