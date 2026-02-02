@@ -21,8 +21,14 @@ CLEAN_BUILD = True      # Clean build artifacts before building for release
 # Installer Settings
 BUILD_INSTALLER = True   # Build installer for release
 
+# Factory content pkg cache (outside dist to avoid clean deletion)
+CONTENT_PKG_CACHE_DIR = "content-cache"  # Relative to project root or absolute path
+
 # Preset Packaging
 PRESET_LIMIT = None      # Include all presets for release builds
+
+# Factory Content Version (separate from plugin VERSION)
+FACTORY_CONTENT_VERSION = VERSION
 
 # Plugin Formats (must match CMakeLists.txt)
 PLUGIN_FORMATS = ["VST3", "AU", "AAX"]

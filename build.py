@@ -521,11 +521,20 @@ class BuildOrchestrator:
         env['DRUMENGINE_BUILD_TYPE'] = self.build_type
         env['DRUMENGINE_BUILD_NUMBER'] = str(self.config.BUILD_NUMBER)
 
+        if hasattr(self.config, "FACTORY_CONTENT_VERSION") and self.config.FACTORY_CONTENT_VERSION:
+            env['FACTORY_CONTENT_VERSION'] = str(self.config.FACTORY_CONTENT_VERSION)
+
         if hasattr(self.config, "NOTARIZE_COMPONENT_PKGS"):
             env['NOTARIZE_COMPONENT_PKGS'] = "true" if self.config.NOTARIZE_COMPONENT_PKGS else "false"
 
         if hasattr(self.config, "INSTALLER_CODE_SIGN_IDENTITY") and self.config.INSTALLER_CODE_SIGN_IDENTITY:
             env['INSTALLER_CODE_SIGN_IDENTITY'] = str(self.config.INSTALLER_CODE_SIGN_IDENTITY)
+
+        if hasattr(self.config, "CONTENT_PKG_CACHE_DIR") and self.config.CONTENT_PKG_CACHE_DIR:
+            cache_dir = Path(self.config.CONTENT_PKG_CACHE_DIR)
+            if not cache_dir.is_absolute():
+                cache_dir = self.project_root / cache_dir
+            env['CONTENT_PKG_CACHE_DIR'] = str(cache_dir)
 
         if hasattr(self.config, "NOTARYTOOL_PROFILE") and self.config.NOTARYTOOL_PROFILE:
             env['NOTARYTOOL_PROFILE'] = str(self.config.NOTARYTOOL_PROFILE)

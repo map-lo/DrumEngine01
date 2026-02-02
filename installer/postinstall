@@ -51,6 +51,12 @@ if [ -d "$SOURCE_DIR/presets" ]; then
     echo "✓ Presets installed"
 fi
 
+# Copy factory content version marker
+if [ -f "$SOURCE_DIR/version.txt" ]; then
+    cp -f "$SOURCE_DIR/version.txt" "$DEST_DIR/version.txt"
+    echo "✓ Factory content version: $(cat "$DEST_DIR/version.txt")"
+fi
+
 # Clean up temp files
 rm -rf "$SOURCE_DIR" 2>/dev/null || true
 

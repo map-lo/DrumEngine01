@@ -26,6 +26,7 @@ TEMP_DIR="$OUTPUT_DIR/temp"
 
 # Get version from environment variable or default to 0.0.1
 VERSION="${DRUMENGINE_VERSION:-0.0.1}"
+CONTENT_VERSION="${FACTORY_CONTENT_VERSION:-$VERSION}"
 BUILD_TYPE="${DRUMENGINE_BUILD_TYPE:-release}"
 
 # Determine plugin name based on build type
@@ -110,6 +111,7 @@ APPLE_ID="${APPLE_ID:-}"
 TEAM_ID="${TEAM_ID:-}"
 APPLE_APP_SPECIFIC_PASSWORD="${APPLE_APP_SPECIFIC_PASSWORD:-}"
 INSTALLER_CODE_SIGN_IDENTITY="${INSTALLER_CODE_SIGN_IDENTITY:-}"
+CONTENT_PKG_CACHE_DIR="${CONTENT_PKG_CACHE_DIR:-}"
 
 sign_pkg() {
     local PKG_PATH="$1"
@@ -224,6 +226,17 @@ fi
 
 # Create content package (presets only)
 if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
+    CACHED_CONTENT_PKG=""
+    if [ -n "$CONTENT_PKG_CACHE_DIR" ]; then
+        mkdir -p "$CONTENT_PKG_CACHE_DIR"
+        CACHED_CONTENT_PKG="$CONTENT_PKG_CACHE_DIR/content-${CONTENT_VERSION}.pkg"
+        if [ -f "$CACHED_CONTENT_PKG" ]; then
+            echo "Using cached content package: $CACHED_CONTENT_PKG"
+            cp "$CACHED_CONTENT_PKG" "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg"
+        fi
+    fi
+
+    if [ ! -f "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" ]; then
     echo "Creating content package..."
     
     CONTENT_PAYLOAD="$TEMP_DIR/content_payload"
@@ -231,6 +244,9 @@ if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
     
     # Copy presets to temp location for postinstall script
     cp -R "$FACTORY_CONTENT_DIR/presets" "$CONTENT_PAYLOAD/tmp/DrumEngine01_install/"
+
+    # Write factory content version for installation tracking
+    echo "$CONTENT_VERSION" > "$CONTENT_PAYLOAD/tmp/DrumEngine01_install/version.txt"
     
     # Make postinstall script executable
     chmod +x "$INSTALLER_DIR/postinstall"
@@ -244,12 +260,18 @@ if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
     pkgbuild \
         --root "$CONTENT_PAYLOAD" \
         --identifier "com.mari.drumengine01.content" \
-        --version "$VERSION" \
+        --version "$CONTENT_VERSION" \
         --scripts "$SCRIPTS_DIR" \
         --install-location "/" \
-        "$OUTPUT_DIR/packages/content.pkg"
+        "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg"
     
-    echo -e "${GREEN}✓ Created content.pkg${NC}"
+    echo -e "${GREEN}✓ Created content-${CONTENT_VERSION}.pkg${NC}"
+    fi
+
+    if [ -n "$CACHED_CONTENT_PKG" ] && [ -f "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" ]; then
+        cp "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" "$CACHED_CONTENT_PKG"
+        echo -e "${GREEN}✓ Cached content package: $CACHED_CONTENT_PKG${NC}"
+    fi
 fi
 
 # Create final product installer
@@ -259,8 +281,18 @@ echo "Building final installer..."
 BUILD_NUMBER="${DRUMENGINE_BUILD_NUMBER:-0}"
 INSTALLER_NAME="${PLUGIN_NAME}-${VERSION}-b${BUILD_NUMBER}-Installer.pkg"
 
+# Prepare distribution.xml with content versioned pkg filename
+DISTRIBUTION_SRC="$INSTALLER_DIR/distribution.xml"
+DISTRIBUTION_PATH="$OUTPUT_DIR/distribution.xml"
+cp "$DISTRIBUTION_SRC" "$DISTRIBUTION_PATH"
+CONTENT_PKG_NAME="content-${CONTENT_VERSION}.pkg"
+
+if [ -f "$OUTPUT_DIR/packages/$CONTENT_PKG_NAME" ]; then
+    sed -i '' -E "s@(com\.mari\.drumengine01\.content\" version=\")[^"]*(\" onConclusion=\"none\">)content\.pkg@\1${CONTENT_VERSION}\2${CONTENT_PKG_NAME}@" "$DISTRIBUTION_PATH"
+fi
+
 productbuild \
-    --distribution "$INSTALLER_DIR/distribution.xml" \
+    --distribution "$DISTRIBUTION_PATH" \
     --package-path "$OUTPUT_DIR/packages" \
     --resources "$INSTALLER_DIR" \
     "$OUTPUT_DIR/$INSTALLER_NAME"

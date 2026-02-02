@@ -17,3 +17,4 @@ src/tci-reverse-engineering/**/ghidra_*
 presets/**/*_WAVS
 presets/**/*.preset/**
 !presets/**/*.preset/preset.json
+content-cache
