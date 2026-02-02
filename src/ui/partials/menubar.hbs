@@ -168,12 +168,11 @@
       </button>
       <hr class="border-t border-neutral-700 my-1" />
       <div
-        class="w-full text-left px-4 py-2 text-gray-400 font-semibold text-[8px]"
+        class="w-full text-left px-4 py-2 text-gray-400 font-normal text-[8px]"
       >
         <span x-text="`Version ${version}`"></span>
         <span x-text="`Build ${buildNumber}`"></span>
-        <br />
-        <span x-show="buildTimestamp" x-text="`(${buildTimestamp})`"></span>
+        <span x-show="buildTimestamp" x-text="`/ ${buildTimestamp}`"></span>
       </div>
     </div>
   </div>

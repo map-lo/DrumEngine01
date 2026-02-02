@@ -337,6 +337,11 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
         float semitones = obj->getProperty("semitones");
         processorRef.setPitchShift(semitones);
     }
+    else if (action == "setOutputVolume")
+    {
+        float db = obj->getProperty("db");
+        processorRef.setOutputVolumeDb(db);
+    }
     else if (action == "setResamplingMode")
     {
         juce::String mode = obj->getProperty("mode").toString();
@@ -402,6 +407,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("dawOctaveOffset", DrumEngine::MidiNoteUtils::getHostOctaveOffset());
     presetInfoObj->setProperty("pitchShift", processorRef.getPitchShift());
     state->setProperty("resamplingMode", resamplingModeToString(processorRef.getResamplingMode()));
+    state->setProperty("outputVolumeDb", processorRef.getOutputVolumeDb());
 
     // Version / build metadata
     state->setProperty("version", DRUMENGINE_VERSION);

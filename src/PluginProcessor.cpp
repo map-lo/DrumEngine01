@@ -177,6 +177,13 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
     // So we can just process directly into the buffer!
     engine.processBlock(buffer, midiMessages, multiOutEnabled);
+
+    // Apply output volume to main bus (channels 1-2 only)
+    const float outputGain = juce::Decibels::decibelsToGain(outputVolumeDb);
+    auto numSamples = buffer.getNumSamples();
+    buffer.applyGain(0, 0, numSamples, outputGain);
+    if (buffer.getNumChannels() > 1)
+        buffer.applyGain(1, 0, numSamples, outputGain);
 }
 
 //==============================================================================
@@ -211,6 +218,9 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 
     // Save output mode
     xml.setAttribute("outputMode", static_cast<int>(outputMode));
+
+    // Save output volume (dB)
+    xml.setAttribute("outputVolumeDb", outputVolumeDb);
 
     // Save resampling mode
     xml.setAttribute("resamplingMode", static_cast<int>(resamplingMode));
@@ -269,6 +279,13 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     {
         int modeValue = xml->getIntAttribute("outputMode", 0);
         outputMode = static_cast<OutputMode>(modeValue);
+    }
+
+    // Restore output volume (dB)
+    if (xml->hasAttribute("outputVolumeDb"))
+    {
+        float db = static_cast<float>(xml->getDoubleAttribute("outputVolumeDb", -6.0));
+        setOutputVolumeDb(db);
     }
 
     // Restore resampling mode
@@ -608,6 +625,11 @@ void AudioPluginAudioProcessor::setPitchShift(float semitones)
 
     pitchShift = juce::jlimit(-6.0f, 6.0f, semitones);
     engine.setPitchShift(pitchShift);
+}
+
+void AudioPluginAudioProcessor::setOutputVolumeDb(float db)
+{
+    outputVolumeDb = juce::jlimit(-60.0f, 6.0f, db);
 }
 
 void AudioPluginAudioProcessor::setResamplingMode(DrumEngine::ResamplingMode mode)

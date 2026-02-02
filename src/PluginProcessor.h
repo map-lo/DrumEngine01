@@ -97,6 +97,10 @@ public:
     void setPitchShift(float semitones);
     float getPitchShift() const { return pitchShift; }
 
+    // Output volume (main 1-2 only)
+    void setOutputVolumeDb(float db);
+    float getOutputVolumeDb() const { return outputVolumeDb; }
+
     // Resampling mode
     void setResamplingMode(DrumEngine::ResamplingMode mode);
     DrumEngine::ResamplingMode getResamplingMode() const { return resamplingMode; }
@@ -152,6 +156,9 @@ private:
 
     // Pitch shift
     float pitchShift = 0.0f;
+
+    // Output volume (dB) for main output 1-2
+    float outputVolumeDb = -6.0f;
 
     // Resampling mode
     DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::Lanczos3;

@@ -1,6 +1,25 @@
 <!-- Status Bar -->
 <div class="flex gap-3 items-end justify-start mx-2 mb-1">
   <label class="flex items-center gap-1 mb-[2px]">
+    <span class="text-[10px]">Vol</span>
+    <div
+      @pointerdown="handleOutputVolumeDrag($event)"
+      @dblclick="resetOutputVolume()"
+      @click.alt="resetOutputVolume()"
+      class="h-4 w-16 border-2 border-black flex items-center relative cursor-pointer -mr-2"
+    >
+      <div
+        class="output-volume-indicator h-full bg-black pointer-events-none"
+        :style="`width: ${outputVolumePercent()}%`"
+      ></div>
+    </div>
+    <span
+      class="text-[10px] w-12 text-right"
+      x-text="`${formatDb(outputVolumeDb)} dB`"
+    ></span>
+  </label>
+
+  <label class="flex items-center gap-1 mb-[2px]">
     <span
       class="text-[10px]"
       :class="pitchEnabled ? '' : 'opacity-40'"
@@ -18,11 +37,12 @@
       ></div>
     </div>
     <span
-      class="text-[10px] w-8 h-4 text-right"
+      class="text-[10px] w-8 text-right"
       :class="pitchEnabled ? '' : 'opacity-40'"
       x-text="formatPitchShift(presetInfo.pitchShift)"
     ></span>
   </label>
+
   <div class="grow"></div>
   <label class="flex">
     <span class="text-[10px]">Midi Note</span>

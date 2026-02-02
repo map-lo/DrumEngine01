@@ -36,6 +36,9 @@ window.drumEngineApp = function () {
             sampleMap: {}
         },
 
+        // Output volume (dB)
+        outputVolumeDb: -6.0,
+
         // Mixer State
         slots: Array(8).fill(null).map((_, i) => ({
             name: (i + 1).toString(),
@@ -57,6 +60,9 @@ window.drumEngineApp = function () {
 
         // Pitch drag state
         isPitchDragging: false,
+
+        // Output volume drag state
+        isOutputVolumeDragging: false,
 
         // MIDI note input
         midiNoteInput: '-',
@@ -124,12 +130,26 @@ window.drumEngineApp = function () {
                 }
             });
 
+            document.addEventListener('pointermove', (e) => {
+                if (this.isOutputVolumeDragging) {
+                    this.handleOutputVolumeMove(e);
+                }
+            });
+
             document.addEventListener('pointerup', () => {
                 this.isPitchDragging = false;
             });
 
+            document.addEventListener('pointerup', () => {
+                this.isOutputVolumeDragging = false;
+            });
+
             document.addEventListener('pointercancel', () => {
                 this.isPitchDragging = false;
+            });
+
+            document.addEventListener('pointercancel', () => {
+                this.isOutputVolumeDragging = false;
             });
         },
 
@@ -172,18 +192,42 @@ window.drumEngineApp = function () {
             return (db > 0 ? '+' : '') + db.toFixed(1);
         },
 
+        outputVolumeDbToPercent(db) {
+            const clampedDb = Math.max(-80, Math.min(0, db));
+            const linear = this.dbToLinear(clampedDb);
+            const position = this.linearToFaderPosition(linear);
+            return Math.max(0, Math.min(100, (position / 75) * 100));
+        },
+
+        percentToOutputVolumeDb(percent) {
+            const clamped = Math.max(0, Math.min(100, percent));
+            const position = (clamped / 100) * 75;
+            return Math.min(0, this.faderPositionToDb(position));
+        },
+
+        outputVolumePercent() {
+            return this.outputVolumeDbToPercent(this.outputVolumeDb);
+        },
+
         linearToFaderPosition(volume) {
-            const db = 20 * Math.log10(Math.max(0.00001, volume));
+            if (volume <= 0) return 0;
+
+            const minDb = -80;
+            const maxDb = 10;
+            const unityPosition = 75;
+
+            const db = 20 * Math.log10(volume);
+            const clampedDb = Math.max(minDb, Math.min(maxDb, db));
 
             let position;
-            if (db >= 0) {
-                position = 75 + (db / 10) * 25;
-            } else if (db <= -80) {
-                position = 0;
+            if (clampedDb >= 0) {
+                position = unityPosition + (clampedDb / maxDb) * (100 - unityPosition);
             } else {
-                position = 75 * (1 - Math.pow(-db / 80, 1 / 3));
+                const ratio = 1 - Math.pow(clampedDb / minDb, 1 / 3);
+                position = unityPosition * ratio;
             }
-            return Math.round(Math.max(0, Math.min(100, position)));
+
+            return Math.max(0, Math.min(100, position));
         },
 
         // Slot methods
@@ -317,6 +361,10 @@ window.drumEngineApp = function () {
                 this.resamplingMode = state.resamplingMode;
             }
 
+            if (typeof state.outputVolumeDb !== 'undefined') {
+                this.outputVolumeDb = state.outputVolumeDb;
+            }
+
             if (state.version) {
                 this.version = state.version;
             }
@@ -391,6 +439,40 @@ window.drumEngineApp = function () {
         resetPitch() {
             this.presetInfo.pitchShift = 0.0;
             this.sendMessage('setPitchShift', { semitones: 0 });
+        },
+
+        // Output volume methods
+        handleOutputVolumeDrag(event) {
+            if (event.altKey) {
+                this.resetOutputVolume();
+                return;
+            }
+
+            this.isOutputVolumeDragging = true;
+            this.handleOutputVolumeMove(event);
+            event.preventDefault();
+        },
+
+        handleOutputVolumeMove(event) {
+            if (!this.isOutputVolumeDragging) return;
+
+            const container = document.querySelector('.output-volume-indicator')?.parentElement;
+            if (!container) return;
+
+            const rect = container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+
+            const db = this.percentToOutputVolumeDb(percentage);
+            const rounded = Math.round(db * 10) / 10;
+
+            this.outputVolumeDb = rounded;
+            this.sendMessage('setOutputVolume', { db: rounded });
+        },
+
+        resetOutputVolume() {
+            this.outputVolumeDb = -6.0;
+            this.sendMessage('setOutputVolume', { db: -6.0 });
         },
 
         setResamplingMode(mode) {
