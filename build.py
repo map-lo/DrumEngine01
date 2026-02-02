@@ -344,33 +344,7 @@ class BuildOrchestrator:
         ):
             return False
 
-        identity = getattr(self.config, "MAC_CODE_SIGN_IDENTITY", None)
-        if not identity:
-            print(f"{Colors.YELLOW}Skipping AAX Developer ID signing (MAC_CODE_SIGN_IDENTITY not set){Colors.NC}")
-            print()
-            return True
-
-        if self.build_type == "dev":
-            plugin_name = "DrumEngine01Dev"
-            cmake_build_type = "Debug"
-        else:
-            plugin_name = "DrumEngine01"
-            cmake_build_type = "Release"
-
-        aax_path = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
-        if not aax_path.exists():
-            print(f"{Colors.YELLOW}AAX plugin not found for Developer ID signing: {aax_path}{Colors.NC}")
-            print()
-            return True
-
-        print(f"Signing AAX plugin with Developer ID:")
-        print(f"  Path: {aax_path}")
-        print()
-
-        return self.run_command(
-            ["codesign", "--force", "--deep", "--options", "runtime", "--timestamp", "--sign", identity, str(aax_path)],
-            description="Code signing AAX plugin"
-        )
+        return True
 
     def step_install_signed_aax(self):
         """Step 8: Copy signed AAX plugin to system location"""
