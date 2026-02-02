@@ -102,6 +102,39 @@ rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR/packages"
 mkdir -p "$TEMP_DIR"
 
+# Optional notarization for component pkgs (VST3/AU/AAX)
+# Enable with NOTARIZE_COMPONENT_PKGS=true
+NOTARIZE_COMPONENT_PKGS="${NOTARIZE_COMPONENT_PKGS:-false}"
+NOTARYTOOL_PROFILE="${NOTARYTOOL_PROFILE:-}"
+APPLE_ID="${APPLE_ID:-}"
+TEAM_ID="${TEAM_ID:-}"
+APPLE_APP_SPECIFIC_PASSWORD="${APPLE_APP_SPECIFIC_PASSWORD:-}"
+
+notarize_pkg() {
+    local PKG_PATH="$1"
+
+    if [ ! -f "$PKG_PATH" ]; then
+        echo -e "${YELLOW}Skipping notarization (missing): $PKG_PATH${NC}"
+        return
+    fi
+
+    echo "Notarizing: $PKG_PATH"
+
+    if [ -n "$NOTARYTOOL_PROFILE" ]; then
+        xcrun notarytool submit "$PKG_PATH" --keychain-profile "$NOTARYTOOL_PROFILE" --wait
+    else
+        if [ -z "$APPLE_ID" ] || [ -z "$TEAM_ID" ] || [ -z "$APPLE_APP_SPECIFIC_PASSWORD" ]; then
+            echo -e "${RED}Error: Notarytool credentials missing.${NC}"
+            echo -e "${YELLOW}Set NOTARYTOOL_PROFILE or APPLE_ID/TEAM_ID/APPLE_APP_SPECIFIC_PASSWORD.${NC}"
+            exit 1
+        fi
+        xcrun notarytool submit "$PKG_PATH" --apple-id "$APPLE_ID" --team-id "$TEAM_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --wait
+    fi
+
+    echo "Stapling: $PKG_PATH"
+    xcrun stapler staple "$PKG_PATH"
+}
+
 # Function to create a component package
 create_component_pkg() {
     local COMPONENT_NAME=$1
@@ -151,6 +184,16 @@ fi
 # Create AAX package
 if [ -d "$AAX_SOURCE" ]; then
     create_component_pkg "AAX" "$AAX_SOURCE" "/Library/Application Support/Avid/Audio/Plug-Ins" "aax"
+fi
+
+# Notarize component pkgs only (skip content pkg)
+if [ "$NOTARIZE_COMPONENT_PKGS" = "true" ]; then
+    echo ""
+    echo "Notarizing component packages..."
+    notarize_pkg "$OUTPUT_DIR/packages/vst3.pkg"
+    notarize_pkg "$OUTPUT_DIR/packages/au.pkg"
+    notarize_pkg "$OUTPUT_DIR/packages/aax.pkg"
+    echo -e "${GREEN}✓ Component packages notarized${NC}"
 fi
 
 # Create content package (presets only)

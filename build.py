@@ -507,6 +507,21 @@ class BuildOrchestrator:
         env['DRUMENGINE_VERSION'] = self.config.VERSION
         env['DRUMENGINE_BUILD_TYPE'] = self.build_type
         env['DRUMENGINE_BUILD_NUMBER'] = str(self.config.BUILD_NUMBER)
+
+        if hasattr(self.config, "NOTARIZE_COMPONENT_PKGS"):
+            env['NOTARIZE_COMPONENT_PKGS'] = "true" if self.config.NOTARIZE_COMPONENT_PKGS else "false"
+
+        if hasattr(self.config, "NOTARYTOOL_PROFILE") and self.config.NOTARYTOOL_PROFILE:
+            env['NOTARYTOOL_PROFILE'] = str(self.config.NOTARYTOOL_PROFILE)
+
+        if hasattr(self.config, "APPLE_ID") and self.config.APPLE_ID:
+            env['APPLE_ID'] = str(self.config.APPLE_ID)
+
+        if hasattr(self.config, "TEAM_ID") and self.config.TEAM_ID:
+            env['TEAM_ID'] = str(self.config.TEAM_ID)
+
+        if hasattr(self.config, "APPLE_APP_SPECIFIC_PASSWORD") and self.config.APPLE_APP_SPECIFIC_PASSWORD:
+            env['APPLE_APP_SPECIFIC_PASSWORD'] = str(self.config.APPLE_APP_SPECIFIC_PASSWORD)
         
         return self.run_command(
             [str(script)],

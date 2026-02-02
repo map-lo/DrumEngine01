@@ -106,7 +106,7 @@ namespace DrumEngine
         std::atomic<float> pitchShiftSemitones{0.0f};
 
         // Resampling
-        std::atomic<ResamplingMode> resamplingMode{ResamplingMode::Lanczos3};
+        std::atomic<ResamplingMode> resamplingMode{ResamplingMode::CatmullRom};
 
         // Latency contributions
         mutable juce::CriticalSection latencyLock;

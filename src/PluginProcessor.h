@@ -161,7 +161,7 @@ private:
     float outputVolumeDb = -6.0f;
 
     // Resampling mode
-    DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::Lanczos3;
+    DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::CatmullRom;
 
     // Hit listeners
     juce::ListenerList<HitListener> hitListeners;

@@ -3,6 +3,15 @@
 
 namespace DrumEngine
 {
+    static juce::File resolveSamplePath(const juce::String &rootFolder, const juce::String &path)
+    {
+        juce::File file = juce::File::isAbsolutePath(path)
+                              ? juce::File(path)
+                              : juce::File(rootFolder).getChildFile(path);
+
+        return file.getCanonicalFile();
+    }
+
     // Helper function to log to file
     static void logToFile(const juce::String &message)
     {
@@ -88,7 +97,7 @@ namespace DrumEngine
                 for (int rr = 0; rr < juce::jmin(rrCount, wavPaths.size()); ++rr)
                 {
                     juce::String relativePath = wavPaths[rr];
-                    juce::String absolutePath = juce::File(schema.rootFolder).getChildFile(relativePath).getFullPathName();
+                    juce::String absolutePath = resolveSamplePath(schema.rootFolder, relativePath).getFullPathName();
 
                     auto sample = loadOrGetCachedSample(absolutePath);
                     if (!sample || !sample->isValid())

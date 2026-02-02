@@ -291,8 +291,8 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     // Restore resampling mode
     if (xml->hasAttribute("resamplingMode"))
     {
-        int modeValue = xml->getIntAttribute("resamplingMode", static_cast<int>(DrumEngine::ResamplingMode::Lanczos3));
-        DrumEngine::ResamplingMode modeToSet = DrumEngine::ResamplingMode::Lanczos3;
+        int modeValue = xml->getIntAttribute("resamplingMode", static_cast<int>(DrumEngine::ResamplingMode::CatmullRom));
+        DrumEngine::ResamplingMode modeToSet = DrumEngine::ResamplingMode::CatmullRom;
 
         switch (modeValue)
         {
@@ -303,8 +303,10 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
             modeToSet = DrumEngine::ResamplingMode::CatmullRom;
             break;
         case 2:
-        default:
             modeToSet = DrumEngine::ResamplingMode::Lanczos3;
+            break;
+        default:
+            modeToSet = DrumEngine::ResamplingMode::CatmullRom;
             break;
         }
 

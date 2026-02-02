@@ -34,6 +34,13 @@ SIGN_AAX = True  # Set to False to skip AAX signing (requires PACE configuration
 SIGN_MAC_PLUGINS = False  # Set to True to sign macOS plugins in dev builds
 MAC_CODE_SIGN_IDENTITY = "2F4Z5GSTCA"  # Developer ID Application identity string
 
+# Component PKG Notarization (VST3/AU/AAX)
+NOTARIZE_COMPONENT_PKGS = False  # Set to True to notarize component pkgs only
+NOTARYTOOL_PROFILE = None  # Keychain profile name for notarytool (preferred)
+APPLE_ID = None
+TEAM_ID = None
+APPLE_APP_SPECIFIC_PASSWORD = None
+
 # Paths (usually don't need to change these)
 BUILD_DIR = "build"
 GENERATORS_DIR = "generators"
