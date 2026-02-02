@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "useVelocityToVolume": true,
+  "instrumentType": "kick",
+  "slotNames": [
+    "top",
+    "bottom",
+    "oh",
+    "room1",
+    "room2",
+    "extra1",
+    "extra2",
+    "extra3"
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "KICK_D112/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_D112_BURY_THE_BEATER_01.wav",
+          "KICK_D112/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_D112_BURY_THE_BEATER_02.wav",
+          "KICK_D112/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_D112_BURY_THE_BEATER_03.wav",
+          "KICK_D112/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_D112_BURY_THE_BEATER_04.wav",
+          "KICK_D112/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_D112_BURY_THE_BEATER_05.wav"
+        ],
+        "2": [],
+        "3": [
+          "KICK_U195/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_KICK_U195_BURY_THE_BEATER_01.wav",
+          "KICK_U195/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_KICK_U195_BURY_THE_BEATER_02.wav",
+          "KICK_U195/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_KICK_U195_BURY_THE_BEATER_03.wav",
+          "KICK_U195/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_KICK_U195_BURY_THE_BEATER_04.wav",
+          "KICK_U195/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_KICK_U195_BURY_THE_BEATER_05.wav"
+        ],
+        "4": [
+          "KICK_R44/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R44_BURY_THE_BEATER_01.wav",
+          "KICK_R44/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R44_BURY_THE_BEATER_02.wav",
+          "KICK_R44/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R44_BURY_THE_BEATER_03.wav",
+          "KICK_R44/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R44_BURY_THE_BEATER_04.wav",
+          "KICK_R44/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R44_BURY_THE_BEATER_05.wav"
+        ],
+        "5": [
+          "KICK_R88/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R88_BURY_THE_BEATER_01.wav",
+          "KICK_R88/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R88_BURY_THE_BEATER_02.wav",
+          "KICK_R88/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R88_BURY_THE_BEATER_03.wav",
+          "KICK_R88/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R88_BURY_THE_BEATER_04.wav",
+          "KICK_R88/KICK_06_LUDWIG_60s_22x14_3-PLY_8_LUG_R88_BURY_THE_BEATER_05.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 100,
+    "curveName": "soft"
+  }
+}

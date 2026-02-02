@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "useVelocityToVolume": true,
+  "instrumentType": "kick",
+  "slotNames": [
+    "top",
+    "bottom",
+    "oh",
+    "room1",
+    "room2",
+    "extra1",
+    "extra2",
+    "extra3"
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [],
+        "2": [],
+        "3": [],
+        "4": [
+          "KICK_R44/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R44_REGULAR_FEATHERED_01.wav",
+          "KICK_R44/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R44_REGULAR_FEATHERED_02.wav",
+          "KICK_R44/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R44_REGULAR_FEATHERED_03.wav",
+          "KICK_R44/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R44_REGULAR_FEATHERED_04.wav",
+          "KICK_R44/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R44_REGULAR_FEATHERED_05.wav"
+        ],
+        "5": [
+          "KICK_R88/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R88_REGULAR_FEATHERED_01.wav",
+          "KICK_R88/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R88_REGULAR_FEATHERED_02.wav",
+          "KICK_R88/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R88_REGULAR_FEATHERED_03.wav",
+          "KICK_R88/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R88_REGULAR_FEATHERED_04.wav",
+          "KICK_R88/KICK_17_LUDWIG_70s_26x14_3-PLY_10_LUG_R88_REGULAR_FEATHERED_05.wav"
+        ],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 100,
+    "curveName": "soft"
+  }
+}
