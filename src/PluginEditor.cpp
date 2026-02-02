@@ -403,6 +403,11 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("pitchShift", processorRef.getPitchShift());
     state->setProperty("resamplingMode", resamplingModeToString(processorRef.getResamplingMode()));
 
+    // Version / build metadata
+    state->setProperty("version", DRUMENGINE_VERSION);
+    state->setProperty("buildNumber", DRUMENGINE_BUILD_NUMBER);
+    state->setProperty("buildTimestamp", DRUMENGINE_BUILD_TIMESTAMP);
+
     juce::Array<juce::var> slotNamesArray;
     for (const auto &name : info.slotNames)
         slotNamesArray.add(name);

@@ -48,6 +48,9 @@ window.drumEngineApp = function () {
         statusMessage: '',
         outputMode: 'stereo',
         resamplingMode: 'lanczos3',
+        version: '0.0.0',
+        buildNumber: '0',
+        buildTimestamp: '',
 
         // Volume drag state
         volumeDragIndex: -1,
@@ -312,6 +315,18 @@ window.drumEngineApp = function () {
 
             if (state.resamplingMode) {
                 this.resamplingMode = state.resamplingMode;
+            }
+
+            if (state.version) {
+                this.version = state.version;
+            }
+
+            if (typeof state.buildNumber !== 'undefined') {
+                this.buildNumber = state.buildNumber;
+            }
+
+            if (Object.prototype.hasOwnProperty.call(state, 'buildTimestamp')) {
+                this.buildTimestamp = state.buildTimestamp;
             }
 
             if (typeof state.currentPresetIndex !== 'undefined') {

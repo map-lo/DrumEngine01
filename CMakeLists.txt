@@ -16,6 +16,17 @@ cmake_minimum_required(VERSION 3.22)
 
 project(DRUM_ENGINE_01 VERSION 0.0.2)
 
+# Build metadata
+set(BUILD_NUMBER_FILE "${CMAKE_CURRENT_LIST_DIR}/build_number.txt")
+if (EXISTS "${BUILD_NUMBER_FILE}")
+    file(READ "${BUILD_NUMBER_FILE}" DRUMENGINE_BUILD_NUMBER)
+    string(STRIP "${DRUMENGINE_BUILD_NUMBER}" DRUMENGINE_BUILD_NUMBER)
+else()
+    set(DRUMENGINE_BUILD_NUMBER "0")
+endif()
+
+string(TIMESTAMP DRUMENGINE_BUILD_TIMESTAMP "%Y-%m-%d %H:%M")
+
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
 # included JUCE directly in your source tree (perhaps as a submodule), you'll need to tell CMake to
@@ -111,7 +122,9 @@ target_compile_definitions(DrumEngine01
         DRUMENGINE_VERSION="${PROJECT_VERSION}"
         DRUMENGINE_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
         DRUMENGINE_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-        DRUMENGINE_VERSION_PATCH=${PROJECT_VERSION_PATCH})
+        DRUMENGINE_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+        DRUMENGINE_BUILD_NUMBER="${DRUMENGINE_BUILD_NUMBER}"
+        DRUMENGINE_BUILD_TIMESTAMP="${DRUMENGINE_BUILD_TIMESTAMP}")
 
 # If your target needs extra binary assets, you can add them here. The first argument is the name of
 # a new static library target that will include all the binary resources. There is an optional

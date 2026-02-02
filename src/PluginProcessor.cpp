@@ -421,12 +421,16 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
 
     if (result.wasOk())
     {
+        juce::String cleanedPresetName = presetName;
+        if (cleanedPresetName.endsWithIgnoreCase(".preset"))
+            cleanedPresetName = cleanedPresetName.upToLastOccurrenceOf(".preset", false, true);
+
         // Update preset info for UI
         juce::ScopedLock lock(presetInfoLock);
 
         auto info = engine.getCurrentPresetInfo();
         currentPresetInfo.isPresetLoaded = info.isValid;
-        currentPresetInfo.presetName = presetName;
+        currentPresetInfo.presetName = cleanedPresetName;
         currentPresetInfo.instrumentType = info.instrumentType;
         currentPresetInfo.fixedMidiNote = info.fixedMidiNote;
         currentPresetInfo.slotCount = info.slotCount;

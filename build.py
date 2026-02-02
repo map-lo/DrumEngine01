@@ -42,11 +42,17 @@ class BuildOrchestrator:
         self.build_type = build_type  # "dev" or "release"
         self.cmake_build_type = "Debug" if build_type == "dev" else "Release"
         self.skip_signing = skip_signing
+        self.build_number_path = self.project_root / "build_number.txt"
         
         # Load appropriate config file
         config_file = f"build_config_{build_type}.py"
         self.config = self.load_config(config_file)
+        self.build_number = self.increment_build_number()
+        self.config.BUILD_NUMBER = self.build_number
         self.errors = []
+
+        print(f"  Build Number: {self.build_number}")
+        print()
         
     def load_config(self, config_path: str):
         """Load configuration from Python file"""
@@ -72,6 +78,24 @@ class BuildOrchestrator:
         print()
         
         return config
+
+    def read_build_number(self) -> int:
+        if not self.build_number_path.exists():
+            return 0
+
+        try:
+            return int(self.build_number_path.read_text().strip())
+        except ValueError:
+            return 0
+
+    def write_build_number(self, number: int):
+        self.build_number_path.write_text(f"{number}\n")
+
+    def increment_build_number(self) -> int:
+        current = self.read_build_number()
+        next_number = current + 1
+        self.write_build_number(next_number)
+        return next_number
     
     def run_command(self, cmd: list, cwd: Path = None, description: str = None, env: dict = None):
         """Run a shell command and handle errors"""
@@ -400,6 +424,7 @@ class BuildOrchestrator:
         env = os.environ.copy()
         env['DRUMENGINE_VERSION'] = self.config.VERSION
         env['DRUMENGINE_BUILD_TYPE'] = self.build_type
+        env['DRUMENGINE_BUILD_NUMBER'] = str(self.config.BUILD_NUMBER)
         
         return self.run_command(
             [str(script)],
@@ -425,6 +450,8 @@ class BuildOrchestrator:
             print(f"{Colors.GREEN}✓ Build completed successfully!{Colors.NC}")
             print()
             print(f"Build: {Colors.BLUE}{self.build_type.upper()}{Colors.NC}")
+            print(f"Version: {Colors.BLUE}{self.config.VERSION}{Colors.NC}")
+            print(f"Build Number: {Colors.BLUE}{self.config.BUILD_NUMBER}{Colors.NC}")
             print()
             
             # Show output locations

@@ -8,6 +8,14 @@ The version number is defined once in [CMakeLists.txt](CMakeLists.txt):
 project(DRUM_ENGINE_01 VERSION 0.0.1)
 ```
 
+## Build Number
+
+The build number is stored in build_number.txt at the repository root and is
+auto-incremented every time build.py runs. The current value is exposed as:
+
+- DRUMENGINE_BUILD_NUMBER (environment variable for installer scripts)
+- config.BUILD_NUMBER (inside build.py)
+
 ## How It Flows
 
 ```
