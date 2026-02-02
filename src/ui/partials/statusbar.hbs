@@ -23,18 +23,6 @@
       x-text="formatPitchShift(presetInfo.pitchShift)"
     ></span>
   </label>
-  <label class="flex items-center gap-1 mb-[2px]">
-    <span class="text-[10px]">SRC</span>
-    <select
-      x-model="resamplingMode"
-      @change="setResamplingMode($event.target.value)"
-      class="h-4 text-[10px] bg-white border-2 border-black px-1"
-    >
-      <option value="off">Off</option>
-      <option value="catmullrom">Catmull‑Rom</option>
-      <option value="lanczos3">Lanczos‑3</option>
-    </select>
-  </label>
   <div class="grow"></div>
   <label class="flex">
     <span class="text-[10px]">Midi Note</span>
@@ -72,19 +60,6 @@
       class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
     >
       Velocity→Volume
-    </span>
-  </label>
-  <label class="flex">
-    <input
-      type="checkbox"
-      :checked="outputMode === 'multiout'"
-      @change="sendMessage('setOutputMode', { mode: $event.target.checked ? 'multiout' : 'stereo' }); outputMode = $event.target.checked ? 'multiout' : 'stereo'"
-      class="hidden peer"
-    />
-    <span
-      class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
-    >
-      Multi-Out
     </span>
   </label>
 </div>

@@ -469,8 +469,12 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromFile(const juce::File &pre
     if (jsonText.isEmpty())
         return juce::Result::fail("Preset file is empty or cannot be read");
 
+    juce::String presetName = presetFile.getFileNameWithoutExtension();
+    if (presetFile.getFileName().equalsIgnoreCase("preset.json"))
+        presetName = presetFile.getParentDirectory().getFileName();
+
     return loadPresetFromJsonInternal(jsonText,
-                                      presetFile.getFileNameWithoutExtension(),
+                                      presetName,
                                       presetFile.getParentDirectory().getFullPathName());
 }
 
