@@ -172,7 +172,7 @@ window.drumEngineApp = function () {
                 return ratio * maxDb;
             } else {
                 const ratio = position / unityPosition;
-                return minDb * Math.pow(1 - ratio, 3);
+                return minDb * Math.pow(1 - ratio, 2);
             }
         },
 
@@ -223,7 +223,7 @@ window.drumEngineApp = function () {
             if (clampedDb >= 0) {
                 position = unityPosition + (clampedDb / maxDb) * (100 - unityPosition);
             } else {
-                const ratio = 1 - Math.pow(clampedDb / minDb, 1 / 3);
+                const ratio = 1 - Math.pow(clampedDb / minDb, 1 / 2);
                 position = unityPosition * ratio;
             }
 
@@ -288,9 +288,8 @@ window.drumEngineApp = function () {
             const rect = container.getBoundingClientRect();
             const y = event.clientY - rect.top;
             const height = rect.height;
-            let position = Math.round(((height - y) / height) * 100);
+            let position = ((height - y) / height) * 100;
             position = Math.max(0, Math.min(100, position));
-
             const linear = this.faderPositionToLinear(position);
             this.slots[this.volumeDragIndex] = { ...this.slots[this.volumeDragIndex], volume: linear };
             this.sendMessage('setSlotVolume', { slot: this.volumeDragIndex, volume: linear });
@@ -464,10 +463,8 @@ window.drumEngineApp = function () {
             const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
 
             const db = this.percentToOutputVolumeDb(percentage);
-            const rounded = Math.round(db * 10) / 10;
-
-            this.outputVolumeDb = rounded;
-            this.sendMessage('setOutputVolume', { db: rounded });
+            this.outputVolumeDb = db;
+            this.sendMessage('setOutputVolume', { db });
         },
 
         resetOutputVolume() {
