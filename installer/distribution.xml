@@ -28,6 +28,7 @@
     <choices-outline>
         <line choice="vst3"/>
         <line choice="au"/>
+        <line choice="aax"/>
         <line choice="content"/>
     </choices-outline>
     
@@ -44,6 +45,13 @@
             start_selected="true">
         <pkg-ref id="com.mari.drumengine01.au"/>
     </choice>
+
+    <choice id="aax" 
+            title="AAX Plugin" 
+            description="Install the AAX plugin (for Pro Tools)"
+            start_selected="true">
+        <pkg-ref id="com.mari.drumengine01.aax"/>
+    </choice>
     
         <choice id="content" 
             title="Factory Presets" 
@@ -56,6 +64,7 @@
     <!-- Package references -->
     <pkg-ref id="com.mari.drumengine01.vst3" version="0.0.1" onConclusion="none">vst3.pkg</pkg-ref>
     <pkg-ref id="com.mari.drumengine01.au" version="0.0.1" onConclusion="none">au.pkg</pkg-ref>
+    <pkg-ref id="com.mari.drumengine01.aax" version="0.0.1" onConclusion="none">aax.pkg</pkg-ref>
     <pkg-ref id="com.mari.drumengine01.content" version="0.0.1" onConclusion="none">content.pkg</pkg-ref>
     
 </installer-gui-script>
