@@ -4,7 +4,7 @@ import re
 
 # Paths
 ts_cymbals_path = "/Users/marian/Samples/TS DARREN KING DELUXE/04 CYMBALS"
-presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/factory01/ThatSound DarrenKing/Cymbal"
+presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/ThatSound DarrenKing/Cymbal"
 
 # Mapping from mic folder names to slot numbers
 mic_to_slot = {

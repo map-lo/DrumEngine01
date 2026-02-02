@@ -45,9 +45,9 @@
         <pkg-ref id="com.mari.drumengine01.au"/>
     </choice>
     
-    <choice id="content" 
-            title="Presets and Samples" 
-            description="Install factory presets and audio samples"
+        <choice id="content" 
+            title="Factory Presets" 
+            description="Install factory presets"
             start_selected="true"
             customLocationAllowAlternateVolumes="true">
         <pkg-ref id="com.mari.drumengine01.content"/>

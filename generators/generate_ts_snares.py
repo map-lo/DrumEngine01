@@ -4,7 +4,7 @@ import re
 
 # Paths
 ts_snares_path = "/Users/marian/Samples/TS DARREN KING DELUXE/02 SNARES"
-presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/factory01/ThatSound DarrenKing/Snare"
+presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/ThatSound DarrenKing/Snare"
 
 # Mapping from mic folder names to slot numbers
 mic_to_slot = {

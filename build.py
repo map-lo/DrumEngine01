@@ -5,7 +5,7 @@ DrumEngine01 Build Script
 Orchestrates the entire build process based on build configuration:
 1. Configure and build plugins with CMake
 2. Sign AAX plugins with PACE wraptool
-3. Package factory content (presets and samples)
+3. Package factory content (presets)
 4. Build macOS installer
 
 Usage:
@@ -402,7 +402,7 @@ class BuildOrchestrator:
         
         return self.run_command(
             cmd,
-            description="Packaging presets and samples"
+            description="Packaging presets"
         )
     
     def step_build_installer(self):

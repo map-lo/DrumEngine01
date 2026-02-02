@@ -3,7 +3,7 @@ import json
 
 # Paths
 revival_snares_path = "/Users/marian/Samples/YurtRock/RevivalSnares"
-presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/factory01/YurtRock RevivalSnare"
+presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/YurtRock RevivalSnare"
 
 # Mapping from mic folder names to slot numbers
 mic_to_slot = {

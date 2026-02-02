@@ -129,7 +129,7 @@ class UserPresetMigrator:
         
         if original_root_folder:
             # The rootFolder in installed presets typically looks like:
-            # ~/Documents/DrumEngine01/samples/factory01/ThatSound DarrenKing/Kick/BOWSER
+            # ~/Documents/DrumEngine01/samples/ThatSound DarrenKing/Kick/BOWSER
             # We need to resolve ~ and convert to Path
             if original_root_folder.startswith("~"):
                 root_folder_path = Path(os.path.expanduser(original_root_folder))

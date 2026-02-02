@@ -1,6 +1,6 @@
 #!/bin/bash
-# Post-install script for DrumEngine01 presets and samples
-# This script moves presets and samples from temp to the selected installation location
+# Post-install script for DrumEngine01 presets
+# This script moves presets from temp to the selected installation location
 
 set -e
 
@@ -32,14 +32,13 @@ else
     DEST_DIR="$INSTALL_ROOT/DrumEngine01"
 fi
 
-echo "Installing DrumEngine01 presets and samples..."
+echo "Installing DrumEngine01 presets..."
 echo "Installation root: $INSTALL_ROOT"
 echo "Destination: $DEST_DIR"
 echo "User: $ACTUAL_USER"
 
 # Create destination directories
 mkdir -p "$DEST_DIR/presets"
-mkdir -p "$DEST_DIR/samples"
 
 # Source files are always in /tmp (absolute path)
 # The package installs to /tmp/DrumEngine01_install/ regardless of target
@@ -50,13 +49,6 @@ if [ -d "$SOURCE_DIR/presets" ]; then
     echo "Copying presets..."
     cp -R "$SOURCE_DIR/presets/"* "$DEST_DIR/presets/" 2>/dev/null || true
     echo "✓ Presets installed"
-fi
-
-# Copy samples
-if [ -d "$SOURCE_DIR/samples" ]; then
-    echo "Copying samples..."
-    cp -R "$SOURCE_DIR/samples/"* "$DEST_DIR/samples/" 2>/dev/null || true
-    echo "✓ Samples installed"
 fi
 
 # Clean up temp files

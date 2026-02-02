@@ -83,9 +83,9 @@ if [ $PLUGINS_FOUND -eq 0 ]; then
     exit 1
 fi
 
-# Check if dist folder exists (presets and samples)
-if [ ! -d "$FACTORY_CONTENT_DIR/presets" ] || [ ! -d "$FACTORY_CONTENT_DIR/samples" ]; then
-    echo -e "${YELLOW}⚠ Warning: dist/factory-content/presets or dist/factory-content/samples not found${NC}"
+# Check if dist folder exists (presets only)
+if [ ! -d "$FACTORY_CONTENT_DIR/presets" ]; then
+    echo -e "${YELLOW}⚠ Warning: dist/factory-content/presets not found${NC}"
     echo "Run: python generators/package_presets_for_installer.py"
     read -p "Continue without content? (y/N) " -n 1 -r
     echo
@@ -153,16 +153,15 @@ if [ -d "$AAX_SOURCE" ]; then
     create_component_pkg "AAX" "$AAX_SOURCE" "/Library/Application Support/Avid/Audio/Plug-Ins" "aax"
 fi
 
-# Create content package (presets and samples)
-if [ -d "$FACTORY_CONTENT_DIR/presets" ] && [ -d "$FACTORY_CONTENT_DIR/samples" ]; then
+# Create content package (presets only)
+if [ -d "$FACTORY_CONTENT_DIR/presets" ]; then
     echo "Creating content package..."
     
     CONTENT_PAYLOAD="$TEMP_DIR/content_payload"
     mkdir -p "$CONTENT_PAYLOAD/tmp/DrumEngine01_install"
     
-    # Copy presets and samples to temp location for postinstall script
+    # Copy presets to temp location for postinstall script
     cp -R "$FACTORY_CONTENT_DIR/presets" "$CONTENT_PAYLOAD/tmp/DrumEngine01_install/"
-    cp -R "$FACTORY_CONTENT_DIR/samples" "$CONTENT_PAYLOAD/tmp/DrumEngine01_install/"
     
     # Make postinstall script executable
     chmod +x "$INSTALLER_DIR/postinstall"

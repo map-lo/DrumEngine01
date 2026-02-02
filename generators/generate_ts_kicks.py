@@ -4,7 +4,7 @@ import re
 
 # Paths
 ts_kicks_path = "/Users/marian/Samples/TS DARREN KING DELUXE/01 KICKS"
-presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/factory01/ThatSound DarrenKing/Kick"
+presets_path = "/Users/marian/Development/JUCE-Plugins/DrumEngine01/presets/ThatSound DarrenKing/Kick"
 
 # Mapping from mic folder names to slot numbers
 mic_to_slot = {

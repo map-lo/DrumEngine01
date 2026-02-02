@@ -178,7 +178,7 @@ Examples:
     
     if not presets_dir.exists():
         print(f"❌ Error: Presets directory not found: {presets_dir}")
-        print("Please ensure presets/factory01/ exists in the project root")
+        print("Please ensure presets/ exists in the project root")
         return 1
     
     migrator = PresetMigrator(presets_dir, dry_run=args.dry_run)

@@ -8,7 +8,7 @@ The installer system creates a native macOS `.pkg` installer that:
 
 - Allows users to choose which plugin formats to install (VST3, VST, AU)
 - Installs plugins to their standard system locations
-- Copies presets and samples to `~/Documents/DrumEngine01/`
+- Copies factory presets to `~/Documents/DrumEngine01/`
 
 ## Prerequisites
 
@@ -20,7 +20,7 @@ The installer system creates a native macOS `.pkg` installer that:
    cmake --build . --config Release
    ```
 
-2. **Package presets and samples** - Run the packaging script:
+2. **Package presets** - Run the packaging script:
    ```bash
    cd generators
    python package_presets_for_installer.py
@@ -43,21 +43,20 @@ The installer contains these selectable components:
 
 - **VST3 Plugin** - Installs to `/Library/Audio/Plug-Ins/VST3/`
 - **Audio Unit** - Installs to `/Library/Audio/Plug-Ins/Components/`
-- **Presets & Samples** (Optional) - Installs to `~/Documents/DrumEngine01/`
+- **Factory Presets** (Optional) - Installs to `~/Documents/DrumEngine01/`
 
 All components are optional and can be selected during installation.
 
-## Custom Installation Location for Presets/Samples
+## Custom Installation Location for Presets
 
 The standard macOS .pkg installer doesn't support custom directory selection during installation.
-Presets and samples are installed to `~/Documents/DrumEngine01/` by default.
+Presets are installed to `~/Documents/DrumEngine01/` by default.
 
 **To use a custom location:**
 
 1. Install normally (or skip the content installation)
-2. Manually copy the `dist/presets/` and `dist/samples/` folders to your preferred location
+2. Manually copy the `dist/factory-content/presets/` folder to your preferred location
 3. The plugin will still look in `~/Documents/DrumEngine01/presets/` for presets
-4. Each preset's JSON file contains a `rootFolder` path that points to its samples
 
 **Alternative approach:**
 
@@ -67,7 +66,7 @@ Presets and samples are installed to `~/Documents/DrumEngine01/` by default.
 installer/
 ├── build_installer.sh      # Main build script
 ├── distribution.xml        # Installer UI definition
-├── postinstall            # Script to copy presets/samples to user Documents
+├── postinstall            # Script to copy presets to user Documents
 ├── welcome.html           # Installer welcome screen
 ├── conclusion.html        # Installer completion screen
 └── README.md             # This file
@@ -107,7 +106,6 @@ Note: AAX plugins must be signed by PACE iLok for distribution.
 - **VST**: `/Library/Audio/Plug-Ins/VST/DrumEngine01.vst`
 - **AU**: `/Library/Audio/Plug-Ins/Components/DrumEngine01.component`
 - **Presets**: `~/Documents/DrumEngine01/presets/`
-- **Samples**: `~/Documents/DrumEngine01/samples/`
 
 ## Troubleshooting
 
@@ -116,7 +114,7 @@ Note: AAX plugins must be signed by PACE iLok for distribution.
 - Make sure you've built the project first
 - Check that the build succeeded in `build/DrumEngine01_artefacts/`
 
-**"dist/presets or dist/samples not found"**
+**"dist/factory-content/presets not found"**
 
 - Run `python generators/package_presets_for_installer.py` first
 

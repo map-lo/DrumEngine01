@@ -27,7 +27,7 @@ See [VERSIONING.md](VERSIONING.md) for details on accessing version in your code
 - Xcode Command Line Tools installed
 - CMake 3.22 or later
 - Python 3.x
-- Source presets in `presets/factory01/`
+- Source presets in `presets/`
 - Sample libraries accessible at paths referenced in preset JSON files
 
 ## Build Steps
@@ -174,7 +174,7 @@ For faster iteration during testing:
 
 **Preset packaging fails:**
 
-- Verify `presets/factory01/` exists and contains `.json` files
+- Verify `presets/` exists and contains `.json` files
 - Check that sample paths in JSON files are accessible
 - Run with verbose errors: presets that fail show error messages
 

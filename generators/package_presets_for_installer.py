@@ -163,12 +163,12 @@ Examples:
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
     
-    source_presets = project_root / "presets" / "factory01"
+    source_presets = project_root / "presets"
     output_dir = project_root / "dist" / "factory-content"
     
     if not source_presets.exists():
         print(f"❌ Error: Source presets directory not found: {source_presets}")
-        print("Please ensure presets/factory01/ exists in the project root")
+        print("Please ensure presets/ exists in the project root")
         return 1
     
     # Clean factory-content directory if it exists

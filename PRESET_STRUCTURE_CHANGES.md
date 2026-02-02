@@ -139,7 +139,7 @@ Created migration script to convert existing presets:
 1. Create folder: `MyPreset.preset/`
 2. Add `preset.json` inside (no `rootFolder` field needed)
 3. Add sample subfolders: `DRY/`, `OVERHEADS/`, etc.
-4. Copy to `~/Documents/DrumEngine01/presets/factory01/{Category}/`
+4. Copy to `~/Documents/DrumEngine01/presets/{Category}/`
 
 ### Using Generator Scripts
 
@@ -147,7 +147,7 @@ Created migration script to convert existing presets:
 # Generate ThatSound kicks as .preset folders
 python3 generators/generate_ts_kicks.py
 
-# Output: presets/factory01/ThatSound DarrenKing/Kick/BOWSER.preset/
+# Output: presets/ThatSound DarrenKing/Kick/BOWSER.preset/
 ```
 
 ### Packaging for Installer
