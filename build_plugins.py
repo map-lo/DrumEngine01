@@ -12,12 +12,16 @@ Orchestrates the plugin build process based on build configuration:
 Usage:
     python build_plugins.py --dev              Build development version (DrumEngine01Dev)
     python build_plugins.py --release          Build release version (DrumEngine01)
-    python build_plugins.py --dev --skip-signing    Build dev without AAX signing
+    python build_plugins.py --dev --skip-aax-signing    Build dev without AAX signing
     
 Options:
     --dev           Build development version (uses build_config_plugins_dev.py, CMAKE_BUILD_TYPE=Debug)
     --release       Build release version (uses build_config_plugins_release.py, CMAKE_BUILD_TYPE=Release)
-    --skip-signing  Skip AAX signing step even if SIGN_AAX=True in config
+    --skip-aax-signing  Skip AAX signing step even if SIGN_AAX=True in config
+    --skip-pkg-signing  Skip pkg signing (productsign)
+    --skip-notarization Skip notarization for installers
+    --skip-sign     Skip all signing steps (macOS plugins and AAX)
+    --skip-build    Skip the build step (useful for testing signing/install only)
 """
 
 import argparse
@@ -41,14 +45,18 @@ class BuildOrchestrator:
     def __init__(
         self,
         build_type: str,
-        skip_signing: bool = False,
+        skip_aax_signing: bool = False,
+        skip_pkg_signing: bool = False,
+        skip_notarization: bool = False,
         run_build: bool = True,
         run_sign: bool = True,
     ):
         self.project_root = Path(__file__).parent
         self.build_type = build_type  # "dev" or "release"
         self.cmake_build_type = "Debug" if build_type == "dev" else "Release"
-        self.skip_signing = skip_signing
+        self.skip_signing = skip_aax_signing
+        self.skip_pkg_signing = skip_pkg_signing
+        self.skip_notarization = skip_notarization
         self.run_build = run_build
         self.run_sign = run_sign
         self.build_number_path = self.project_root / "build_number.txt"
@@ -83,6 +91,8 @@ class BuildOrchestrator:
         print(f"  Clean Build: {config.CLEAN_BUILD}")
         print(f"  Build Installer: {config.BUILD_INSTALLER}")
         print(f"  Sign AAX: {config.SIGN_AAX and not self.skip_signing}")
+        print(f"  Sign PKGs: {not self.skip_pkg_signing}")
+        print(f"  Notarize: {not self.skip_notarization}")
         print()
         
         return config
@@ -125,8 +135,6 @@ class BuildOrchestrator:
             return True
         except subprocess.CalledProcessError as e:
             error_msg = f"Command failed with exit code {e.returncode}"
-            print(f"{Colors.RED}✗ {error_msg}{Colors.NC}")
-            self.errors.append(error_msg)
             return False
     
     def step_clean_build(self):
@@ -151,7 +159,6 @@ class BuildOrchestrator:
         
         if dist_dir.exists():
             print(f"Removing: {dist_dir}")
-            import shutil
             shutil.rmtree(dist_dir)
         
         print(f"{Colors.GREEN}✓ Clean complete{Colors.NC}")
@@ -317,7 +324,7 @@ class BuildOrchestrator:
     def step_sign_aax(self):
         """Step 7: Sign AAX plugins with PACE wraptool"""
         if not self.config.SIGN_AAX or self.skip_signing:
-            reason = "skipped by --skip-signing flag" if self.skip_signing else "SIGN_AAX=False"
+            reason = "skipped by --skip-aax-signing flag" if self.skip_signing else "SIGN_AAX=False"
             print(f"{Colors.YELLOW}Skipping AAX signing ({reason}){Colors.NC}")
             print()
             return True
@@ -345,7 +352,7 @@ class BuildOrchestrator:
     def step_install_signed_aax(self):
         """Step 8: Copy signed AAX plugin to system location"""
         if not self.config.SIGN_AAX or self.skip_signing:
-            reason = "skipped by --skip-signing flag" if self.skip_signing else "SIGN_AAX=False"
+            reason = "skipped by --skip-aax-signing flag" if self.skip_signing else "SIGN_AAX=False"
             print(f"{Colors.YELLOW}Skipping signed AAX install ({reason}){Colors.NC}")
             print()
             return True
@@ -499,6 +506,17 @@ class BuildOrchestrator:
         if hasattr(self.config, "NOTARIZE_COMPONENT_PKGS"):
             env['NOTARIZE_COMPONENT_PKGS'] = "true" if self.config.NOTARIZE_COMPONENT_PKGS else "false"
 
+        if hasattr(self.config, "NOTARIZE_FINAL_INSTALLER"):
+            env['NOTARIZE_FINAL_INSTALLER'] = "true" if self.config.NOTARIZE_FINAL_INSTALLER else "false"
+
+        if self.skip_pkg_signing:
+            env['SKIP_PKG_SIGNING'] = "true"
+
+        env['SKIP_COMPONENT_PKG_SIGNING'] = "true"
+
+        if self.skip_notarization:
+            env['SKIP_NOTARIZATION'] = "true"
+
         if hasattr(self.config, "INSTALLER_CODE_SIGN_IDENTITY") and self.config.INSTALLER_CODE_SIGN_IDENTITY:
             env['INSTALLER_CODE_SIGN_IDENTITY'] = str(self.config.INSTALLER_CODE_SIGN_IDENTITY)
 
@@ -603,7 +621,7 @@ def main():
 Examples:
     python build_plugins.py --dev              Build development version
     python build_plugins.py --release          Build release version  
-    python build_plugins.py --dev --skip-signing    Build dev without AAX signing
+    python build_plugins.py --dev --skip-aax-signing    Build dev without AAX signing
         '''
     )
     
@@ -620,10 +638,23 @@ Examples:
     )
     
     parser.add_argument(
-        '--skip-signing',
+        '--skip-aax-signing',
         action='store_true',
         help='Skip AAX signing step (useful for testing builds without PACE config)'
     )
+
+    parser.add_argument(
+        '--skip-pkg-signing',
+        action='store_true',
+        help='Skip pkg signing (productsign)'
+    )
+
+    parser.add_argument(
+        '--skip-notarization',
+        action='store_true',
+        help='Skip notarization for installers'
+    )
+
 
     parser.add_argument(
         '--skip-build',
@@ -642,7 +673,9 @@ Examples:
     build_type = "dev" if args.dev else "release"
     orchestrator = BuildOrchestrator(
         build_type=build_type,
-        skip_signing=args.skip_signing,
+        skip_aax_signing=args.skip_aax_signing,
+        skip_pkg_signing=args.skip_pkg_signing,
+        skip_notarization=args.skip_notarization,
         run_build=not args.skip_build,
         run_sign=not args.skip_sign,
     )

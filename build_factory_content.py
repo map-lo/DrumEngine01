@@ -8,6 +8,8 @@ Usage:
     python build_factory_content.py --only-pkg
     python build_factory_content.py --only-installer
     python build_factory_content.py --only-notarize --installer-path /path/to/DrumEngine01-FactoryContent-1.2.3.pkg
+    python build_factory_content.py --skip-pkg-signing
+    python build_factory_content.py --skip-notarization
 """
 
 import argparse
@@ -58,6 +60,8 @@ def main():
     group.add_argument("--only-installer", action="store_true", help="Only build installer from existing content pkg")
     group.add_argument("--only-notarize", action="store_true", help="Only notarize an existing content installer")
     parser.add_argument("--installer-path", type=str, help="Path to existing content installer for notarization")
+    parser.add_argument("--skip-pkg-signing", action="store_true", help="Skip pkg signing (productsign)")
+    parser.add_argument("--skip-notarization", action="store_true", help="Skip notarization")
 
     args = parser.parse_args()
     project_root = Path(__file__).parent
@@ -105,11 +109,11 @@ def main():
             print(f"{Colors.RED}Error: --installer-path is required with --only-notarize{Colors.NC}")
             return 1
 
-    if hasattr(config, "CONTENT_PKG_CACHE_DIR") and config.CONTENT_PKG_CACHE_DIR:
-        cache_dir = Path(config.CONTENT_PKG_CACHE_DIR)
-        if not cache_dir.is_absolute():
-            cache_dir = project_root / cache_dir
-        env["CONTENT_PKG_CACHE_DIR"] = str(cache_dir)
+    if args.skip_pkg_signing:
+        env["SKIP_PKG_SIGNING"] = "true"
+
+    if args.skip_notarization:
+        env["SKIP_NOTARIZATION"] = "true"
 
     if hasattr(config, "INSTALLER_CODE_SIGN_IDENTITY") and config.INSTALLER_CODE_SIGN_IDENTITY:
         env["INSTALLER_CODE_SIGN_IDENTITY"] = str(config.INSTALLER_CODE_SIGN_IDENTITY)

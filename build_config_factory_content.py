@@ -18,9 +18,6 @@ VERSION = get_version_from_cmake()
 # Factory content version (separate from plugin VERSION)
 FACTORY_CONTENT_VERSION = VERSION
 
-# Factory content pkg cache (outside dist to avoid clean deletion)
-CONTENT_PKG_CACHE_DIR = "factory-content-installer"  # Relative to project root or absolute path
-
 # macOS Installer PKG Signing
 INSTALLER_CODE_SIGN_IDENTITY = "Developer ID Installer: Marian Plosch (4V59UK4A32)"  # Developer ID Installer identity string
 
@@ -31,5 +28,5 @@ TEAM_ID = None
 APPLE_APP_SPECIFIC_PASSWORD = None
 
 # Paths (usually don't need to change these)
-INSTALLER_DIR = "installer"
+INSTALLER_DIR = "content-factory"
 DIST_DIR = "dist"

@@ -108,9 +108,14 @@ echo ""
 echo "Preparing installer..."
 
 # Clean and create output directories
-rm -rf "$OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR/packages"
-mkdir -p "$TEMP_DIR"
+if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
+    rm -rf "$OUTPUT_DIR"
+    mkdir -p "$OUTPUT_DIR/packages"
+    mkdir -p "$TEMP_DIR"
+else
+    mkdir -p "$OUTPUT_DIR/packages"
+    mkdir -p "$TEMP_DIR"
+fi
 
 # Optional notarization for component pkgs (VST3/AU/AAX)
 # Enable with NOTARIZE_COMPONENT_PKGS=true
@@ -120,10 +125,21 @@ APPLE_ID="${APPLE_ID:-}"
 TEAM_ID="${TEAM_ID:-}"
 APPLE_APP_SPECIFIC_PASSWORD="${APPLE_APP_SPECIFIC_PASSWORD:-}"
 INSTALLER_CODE_SIGN_IDENTITY="${INSTALLER_CODE_SIGN_IDENTITY:-}"
-CONTENT_PKG_CACHE_DIR="${CONTENT_PKG_CACHE_DIR:-}"
+NOTARIZE_FINAL_INSTALLER="${NOTARIZE_FINAL_INSTALLER:-false}"
+SKIP_PKG_SIGNING="${SKIP_PKG_SIGNING:-false}"
+SKIP_NOTARIZATION="${SKIP_NOTARIZATION:-false}"
+SKIP_COMPONENT_PKG_SIGNING="${SKIP_COMPONENT_PKG_SIGNING:-false}"
 
 sign_pkg() {
     local PKG_PATH="$1"
+
+    if [ "$SKIP_PKG_SIGNING" = "true" ]; then
+        return 0
+    fi
+
+    if [ "$SKIP_COMPONENT_PKG_SIGNING" = "true" ]; then
+        return 0
+    fi
 
     if [ -z "$INSTALLER_CODE_SIGN_IDENTITY" ]; then
         return 0
@@ -143,6 +159,10 @@ sign_pkg() {
 
 notarize_pkg() {
     local PKG_PATH="$1"
+
+    if [ "$SKIP_NOTARIZATION" = "true" ]; then
+        return 0
+    fi
 
     if [ ! -f "$PKG_PATH" ]; then
         echo -e "${YELLOW}Skipping notarization (missing): $PKG_PATH${NC}"
@@ -239,17 +259,7 @@ fi
 
 # Create content package (presets only)
 if [ "$BUILD_CONTENT_PKG" = "true" ] && [ -d "$FACTORY_CONTENT_DIR" ]; then
-    CACHED_CONTENT_PKG=""
-    if [ -n "$CONTENT_PKG_CACHE_DIR" ]; then
-        mkdir -p "$CONTENT_PKG_CACHE_DIR"
-        CACHED_CONTENT_PKG="$CONTENT_PKG_CACHE_DIR/content-${CONTENT_VERSION}.pkg"
-        if [ -f "$CACHED_CONTENT_PKG" ]; then
-            echo "Using cached content package: $CACHED_CONTENT_PKG"
-            cp "$CACHED_CONTENT_PKG" "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg"
-        fi
-    fi
-
-    if [ ! -f "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" ]; then
+    if [ ! -f "$OUTPUT_DIR/packages/factory-content-${CONTENT_VERSION}.pkg" ]; then
     echo "Creating content package..."
 
     CONTENT_ROOT="$FACTORY_CONTENT_DIR"
@@ -280,9 +290,9 @@ if [ "$BUILD_CONTENT_PKG" = "true" ] && [ -d "$FACTORY_CONTENT_DIR" ]; then
         --version "$CONTENT_VERSION" \
         --scripts "$SCRIPTS_DIR" \
         --install-location "/tmp/DrumEngine01_install" \
-        "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg"
+        "$OUTPUT_DIR/packages/factory-content-${CONTENT_VERSION}.pkg"
     
-    echo -e "${GREEN}✓ Created content-${CONTENT_VERSION}.pkg${NC}"
+    echo -e "${GREEN}✓ Created factory-content-${CONTENT_VERSION}.pkg${NC}"
 
     if [ "$RESTORE_VERSION_FILE" = true ]; then
         rm -f "$CONTENT_VERSION_FILE"
@@ -291,14 +301,14 @@ if [ "$BUILD_CONTENT_PKG" = "true" ] && [ -d "$FACTORY_CONTENT_DIR" ]; then
     fi
     fi
 
-    if [ -n "$CACHED_CONTENT_PKG" ] && [ -f "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" ]; then
-        cp "$OUTPUT_DIR/packages/content-${CONTENT_VERSION}.pkg" "$CACHED_CONTENT_PKG"
+    if [ -n "$CACHED_CONTENT_PKG" ] && [ -f "$OUTPUT_DIR/packages/factory-content-${CONTENT_VERSION}.pkg" ]; then
+        cp "$OUTPUT_DIR/packages/factory-content-${CONTENT_VERSION}.pkg" "$CACHED_CONTENT_PKG"
         echo -e "${GREEN}✓ Cached content package: $CACHED_CONTENT_PKG${NC}"
     fi
 fi
 
 BUILD_NUMBER="${DRUMENGINE_BUILD_NUMBER:-0}"
-CONTENT_PKG_NAME="content-${CONTENT_VERSION}.pkg"
+CONTENT_PKG_NAME="factory-content-${CONTENT_VERSION}.pkg"
 
 if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
     echo ""
@@ -319,7 +329,16 @@ if [ "$BUILD_PLUGINS_INSTALLER" = "true" ]; then
         --resources "$INSTALLER_DIR" \
         "$OUTPUT_DIR/$PLUGINS_INSTALLER_NAME"
 
-    sign_pkg "$OUTPUT_DIR/$PLUGINS_INSTALLER_NAME"
+    if [ "$SKIP_PKG_SIGNING" != "true" ]; then
+        productsign --sign "$INSTALLER_CODE_SIGN_IDENTITY" "$OUTPUT_DIR/$PLUGINS_INSTALLER_NAME" "$OUTPUT_DIR/${PLUGINS_INSTALLER_NAME%.pkg}-signed.pkg"
+        mv -f "$OUTPUT_DIR/${PLUGINS_INSTALLER_NAME%.pkg}-signed.pkg" "$OUTPUT_DIR/$PLUGINS_INSTALLER_NAME"
+    fi
+
+    if [ "$NOTARIZE_FINAL_INSTALLER" = "true" ]; then
+        echo ""
+        echo "Notarizing plugins installer..."
+        notarize_pkg "$OUTPUT_DIR/$PLUGINS_INSTALLER_NAME"
+    fi
 fi
 
 if [ "$BUILD_CONTENT_INSTALLER" = "true" ]; then
