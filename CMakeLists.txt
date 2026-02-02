@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.22)
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
 
-project(DRUM_ENGINE_01 VERSION 0.0.3)
+project(DRUM_ENGINE_01 VERSION 0.0.4)
 
 # Build metadata
 set(BUILD_NUMBER_FILE "${CMAKE_CURRENT_LIST_DIR}/build_plugin_number.txt")
@@ -47,9 +47,11 @@ add_subdirectory(modules/JUCE)              # If you've put JUCE in a subdirecto
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(PLUGIN_NAME "DrumEngine01Dev")
     set(PLUGIN_ID "Den0")
+    set(BUNDLE_ID "com.Mari.DrumEngine01Dev")
 else()
     set(PLUGIN_NAME "DrumEngine01")
     set(PLUGIN_ID "Den1")
+    set(BUNDLE_ID "com.Mari.DrumEngine01")
 endif()
 
 # `juce_add_plugin` adds a static library target with the name passed as the first argument
@@ -75,6 +77,7 @@ juce_add_plugin(DrumEngine01
     COPY_PLUGIN_AFTER_BUILD FALSE               # Disable auto-copy; signed install handled by build script
     PLUGIN_MANUFACTURER_CODE Mari               # A four-character manufacturer id with at least one upper-case character
     PLUGIN_CODE ${PLUGIN_ID}                    # A unique four-character plugin id with exactly one upper-case character
+    JUCE_PRODUCT_BUNDLE_IDENTIFIER ${BUNDLE_ID} # Unique bundle identifier per build
                                                 # GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
     FORMATS VST3 AU AAX                         # The formats to build. Other valid formats are: AAX Unity AUv3
                                                 # VST (VST2) requires legacy SDK (set with juce_set_vst2_sdk_path)

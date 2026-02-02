@@ -541,8 +541,7 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
 
     // Use user Documents directory
     juce::File kitsFolder = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
-                                .getChildFile("DrumEngine01")
-                                .getChildFile("presets");
+                                .getChildFile("DrumEngine01");
 
     if (!kitsFolder.exists() || !kitsFolder.isDirectory())
         return;

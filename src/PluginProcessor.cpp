@@ -109,8 +109,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
         // Load a test preset from user Documents directory
         juce::File presetFile = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
                                     .getChildFile("DrumEngine01")
-                                    .getChildFile("presets")
-                                    .getChildFile("factory01")
+                                    .getChildFile("factory")
                                     .getChildFile("ThatSound DarrenKing")
                                     .getChildFile("Snare")
                                     .getChildFile("BITE.json");
