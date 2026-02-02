@@ -109,6 +109,26 @@ NOTARYTOOL_PROFILE="${NOTARYTOOL_PROFILE:-}"
 APPLE_ID="${APPLE_ID:-}"
 TEAM_ID="${TEAM_ID:-}"
 APPLE_APP_SPECIFIC_PASSWORD="${APPLE_APP_SPECIFIC_PASSWORD:-}"
+INSTALLER_CODE_SIGN_IDENTITY="${INSTALLER_CODE_SIGN_IDENTITY:-}"
+
+sign_pkg() {
+    local PKG_PATH="$1"
+
+    if [ -z "$INSTALLER_CODE_SIGN_IDENTITY" ]; then
+        return 0
+    fi
+
+    if [ ! -f "$PKG_PATH" ]; then
+        echo -e "${YELLOW}Skipping pkg signing (missing): $PKG_PATH${NC}"
+        return 0
+    fi
+
+    echo "Signing pkg: $PKG_PATH"
+    local SIGNED_PATH="${PKG_PATH%.pkg}-signed.pkg"
+
+    productsign --sign "$INSTALLER_CODE_SIGN_IDENTITY" "$PKG_PATH" "$SIGNED_PATH"
+    mv -f "$SIGNED_PATH" "$PKG_PATH"
+}
 
 notarize_pkg() {
     local PKG_PATH="$1"
@@ -162,6 +182,8 @@ create_component_pkg() {
         --version "$VERSION" \
         --install-location "/" \
         "$OUTPUT_DIR/packages/$PKG_NAME.pkg"
+
+    sign_pkg "$OUTPUT_DIR/packages/$PKG_NAME.pkg"
     
     echo -e "${GREEN}✓ Created $PKG_NAME.pkg${NC}"
 }
@@ -190,6 +212,10 @@ fi
 if [ "$NOTARIZE_COMPONENT_PKGS" = "true" ]; then
     echo ""
     echo "Notarizing component packages..."
+    if [ -z "$INSTALLER_CODE_SIGN_IDENTITY" ]; then
+        echo -e "${RED}Error: INSTALLER_CODE_SIGN_IDENTITY is required to notarize component pkgs.${NC}"
+        exit 1
+    fi
     notarize_pkg "$OUTPUT_DIR/packages/vst3.pkg"
     notarize_pkg "$OUTPUT_DIR/packages/au.pkg"
     notarize_pkg "$OUTPUT_DIR/packages/aax.pkg"
@@ -238,6 +264,8 @@ productbuild \
     --package-path "$OUTPUT_DIR/packages" \
     --resources "$INSTALLER_DIR" \
     "$OUTPUT_DIR/$INSTALLER_NAME"
+
+sign_pkg "$OUTPUT_DIR/$INSTALLER_NAME"
 
 echo ""
 echo -e "${GREEN}========================================${NC}"

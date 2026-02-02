@@ -34,6 +34,9 @@ SIGN_AAX = True  # Set to False to skip AAX signing (requires PACE configuration
 SIGN_MAC_PLUGINS = True  # Set to False to skip macOS plugin signing
 MAC_CODE_SIGN_IDENTITY = "Developer ID Application: Marian Plosch (4V59UK4A32)"  # Developer ID Application identity string
 
+# macOS Installer PKG Signing
+INSTALLER_CODE_SIGN_IDENTITY = "Developer ID Installer: Marian Plosch (4V59UK4A32)"  # Developer ID Installer identity string
+
 # Component PKG Notarization (VST3/AU/AAX)
 NOTARIZE_COMPONENT_PKGS = True  # Set to True to notarize component pkgs only
 NOTARYTOOL_PROFILE = "DrumEngine01Notary"  # Keychain profile name for notarytool (preferred)

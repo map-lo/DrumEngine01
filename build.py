@@ -39,11 +39,21 @@ class Colors:
 
 
 class BuildOrchestrator:
-    def __init__(self, build_type: str, skip_signing: bool = False):
+    def __init__(
+        self,
+        build_type: str,
+        skip_signing: bool = False,
+        run_build: bool = True,
+        run_package: bool = True,
+        run_sign: bool = True,
+    ):
         self.project_root = Path(__file__).parent
         self.build_type = build_type  # "dev" or "release"
         self.cmake_build_type = "Debug" if build_type == "dev" else "Release"
         self.skip_signing = skip_signing
+        self.run_build = run_build
+        self.run_package = run_package
+        self.run_sign = run_sign
         self.build_number_path = self.project_root / "build_number.txt"
         
         # Load appropriate config file
@@ -328,9 +338,38 @@ class BuildOrchestrator:
             print()
             return True
         
-        return self.run_command(
+        if not self.run_command(
             ["python3", str(sign_script), f"--build-type={self.build_type}"],
             description="Signing AAX plugins with PACE wraptool"
+        ):
+            return False
+
+        identity = getattr(self.config, "MAC_CODE_SIGN_IDENTITY", None)
+        if not identity:
+            print(f"{Colors.YELLOW}Skipping AAX Developer ID signing (MAC_CODE_SIGN_IDENTITY not set){Colors.NC}")
+            print()
+            return True
+
+        if self.build_type == "dev":
+            plugin_name = "DrumEngine01Dev"
+            cmake_build_type = "Debug"
+        else:
+            plugin_name = "DrumEngine01"
+            cmake_build_type = "Release"
+
+        aax_path = self.project_root / "build" / "DrumEngine01_artefacts" / cmake_build_type / "AAX" / f"{plugin_name}.aaxplugin"
+        if not aax_path.exists():
+            print(f"{Colors.YELLOW}AAX plugin not found for Developer ID signing: {aax_path}{Colors.NC}")
+            print()
+            return True
+
+        print(f"Signing AAX plugin with Developer ID:")
+        print(f"  Path: {aax_path}")
+        print()
+
+        return self.run_command(
+            ["codesign", "--force", "--deep", "--options", "runtime", "--timestamp", "--sign", identity, str(aax_path)],
+            description="Code signing AAX plugin"
         )
 
     def step_install_signed_aax(self):
@@ -511,6 +550,9 @@ class BuildOrchestrator:
         if hasattr(self.config, "NOTARIZE_COMPONENT_PKGS"):
             env['NOTARIZE_COMPONENT_PKGS'] = "true" if self.config.NOTARIZE_COMPONENT_PKGS else "false"
 
+        if hasattr(self.config, "INSTALLER_CODE_SIGN_IDENTITY") and self.config.INSTALLER_CODE_SIGN_IDENTITY:
+            env['INSTALLER_CODE_SIGN_IDENTITY'] = str(self.config.INSTALLER_CODE_SIGN_IDENTITY)
+
         if hasattr(self.config, "NOTARYTOOL_PROFILE") and self.config.NOTARYTOOL_PROFILE:
             env['NOTARYTOOL_PROFILE'] = str(self.config.NOTARYTOOL_PROFILE)
 
@@ -578,19 +620,28 @@ class BuildOrchestrator:
         print(f"{Colors.BLUE}{'='*70}{Colors.NC}")
         print()
         
-        steps = [
-            self.step_clean_build,
-            self.step_remove_installed_plugins,
-            self.step_build_ui,
-            self.step_configure_cmake,
-            self.step_build_plugins,
-            self.step_sign_macos_plugins,
-            self.step_sign_aax,
-            self.step_install_signed_aax,
-            self.step_install_vst3_au,
-            self.step_package_content,
-            self.step_build_installer,
-        ]
+        steps = []
+
+        if self.run_build:
+            steps.extend([
+                self.step_clean_build,
+                self.step_remove_installed_plugins,
+                self.step_build_ui,
+                self.step_configure_cmake,
+                self.step_build_plugins,
+            ])
+
+        if self.run_package:
+            steps.append(self.step_package_content)
+
+        if self.run_sign:
+            steps.extend([
+                self.step_sign_macos_plugins,
+                self.step_sign_aax,
+                self.step_install_signed_aax,
+                self.step_install_vst3_au,
+                self.step_build_installer,
+            ])
         
         for step in steps:
             if not step():
@@ -631,11 +682,35 @@ Examples:
         action='store_true',
         help='Skip AAX signing step (useful for testing builds without PACE config)'
     )
+
+    parser.add_argument(
+        '--skip-build',
+        action='store_true',
+        help='Skip build steps (clean, UI, configure, compile)'
+    )
+
+    parser.add_argument(
+        '--skip-package',
+        action='store_true',
+        help='Skip packaging presets'
+    )
+
+    parser.add_argument(
+        '--skip-sign',
+        action='store_true',
+        help='Skip signing/notarization steps (macOS/AAX/installer)'
+    )
     
     args = parser.parse_args()
     
     build_type = "dev" if args.dev else "release"
-    orchestrator = BuildOrchestrator(build_type=build_type, skip_signing=args.skip_signing)
+    orchestrator = BuildOrchestrator(
+        build_type=build_type,
+        skip_signing=args.skip_signing,
+        run_build=not args.skip_build,
+        run_package=not args.skip_package,
+        run_sign=not args.skip_sign,
+    )
     return orchestrator.run()
 
 
