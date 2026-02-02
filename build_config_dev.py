@@ -32,11 +32,11 @@ SIGN_AAX = True  # Set to False to skip AAX signing (requires PACE configuration
 
 # macOS Plugin Signing (VST3/AU)
 SIGN_MAC_PLUGINS = False  # Set to True to sign macOS plugins in dev builds
-MAC_CODE_SIGN_IDENTITY = "2F4Z5GSTCA"  # Developer ID Application identity string
+MAC_CODE_SIGN_IDENTITY = "Developer ID Application: Marian Plosch (4V59UK4A32)"  # Developer ID Application identity string
 
 # Component PKG Notarization (VST3/AU/AAX)
 NOTARIZE_COMPONENT_PKGS = False  # Set to True to notarize component pkgs only
-NOTARYTOOL_PROFILE = None  # Keychain profile name for notarytool (preferred)
+NOTARYTOOL_PROFILE = "DrumEngine01Notary"  # Keychain profile name for notarytool (preferred)
 APPLE_ID = None
 TEAM_ID = None
 APPLE_APP_SPECIFIC_PASSWORD = None

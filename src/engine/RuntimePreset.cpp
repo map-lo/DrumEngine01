@@ -5,11 +5,24 @@ namespace DrumEngine
 {
     static juce::File resolveSamplePath(const juce::String &rootFolder, const juce::String &path)
     {
-        juce::File file = juce::File::isAbsolutePath(path)
-                              ? juce::File(path)
-                              : juce::File(rootFolder).getChildFile(path);
+        if (juce::File::isAbsolutePath(path))
+            return juce::File(path);
 
-        return file.getCanonicalFile();
+        juce::File current(rootFolder);
+        auto tokens = juce::StringArray::fromTokens(path, "/\\", "");
+
+        for (const auto &token : tokens)
+        {
+            if (token.isEmpty() || token == ".")
+                continue;
+
+            if (token == "..")
+                current = current.getParentDirectory();
+            else
+                current = current.getChildFile(token);
+        }
+
+        return current;
     }
 
     // Helper function to log to file
