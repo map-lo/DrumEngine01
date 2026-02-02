@@ -42,5 +42,5 @@ APPLE_APP_SPECIFIC_PASSWORD = None
 # Paths (usually don't need to change these)
 BUILD_DIR = "build"
 GENERATORS_DIR = "generators"
-INSTALLER_DIR = "installer"
+INSTALLER_DIR = "installer/plugins"
 DIST_DIR = "dist"

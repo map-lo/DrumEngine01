@@ -53,6 +53,27 @@ def run_command(cmd, cwd: Path, description: str, env: dict | None = None):
         return False
 
 
+def read_build_number(path: Path) -> int:
+    if not path.exists():
+        return 0
+
+    try:
+        return int(path.read_text().strip())
+    except ValueError:
+        return 0
+
+
+def write_build_number(path: Path, number: int):
+    path.write_text(f"{number}\n")
+
+
+def increment_build_number(path: Path) -> int:
+    current = read_build_number(path)
+    next_number = current + 1
+    write_build_number(path, next_number)
+    return next_number
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build factory content installer only")
     group = parser.add_mutually_exclusive_group()
@@ -66,11 +87,15 @@ def main():
     args = parser.parse_args()
     project_root = Path(__file__).parent
     config = load_config(project_root)
+    build_number_path = project_root / "build_factory_content_number.txt"
+    build_number = increment_build_number(build_number_path)
 
     print()
     print(f"{Colors.BLUE}{'='*70}{Colors.NC}")
     print(f"{Colors.BLUE}DrumEngine01 Factory Content Build (Release Config){Colors.NC}")
     print(f"{Colors.BLUE}{'='*70}{Colors.NC}")
+    print()
+    print(f"  Build Number: {build_number}")
     print()
 
     presets_dir = project_root / "presets"
@@ -81,12 +106,20 @@ def main():
     print(f"Using presets directly from: {presets_dir}")
     print()
 
-    installer_dir = project_root / config.INSTALLER_DIR / "factory-content"
+    installer_dir = project_root / config.INSTALLER_DIR
     script = installer_dir / "build_factory_content_installer.sh"
+
+    if not script.exists():
+        print(f"{Colors.RED}Error: Installer script not found: {script}{Colors.NC}")
+        return 1
+
+    # Ensure the script is executable
+    script.chmod(script.stat().st_mode | 0o111)
 
     env = os.environ.copy()
     env["DRUMENGINE_VERSION"] = config.VERSION
     env["DRUMENGINE_BUILD_NUMBER"] = "0"
+    env["FACTORY_CONTENT_BUILD_NUMBER"] = str(build_number)
     env["FACTORY_CONTENT_VERSION"] = str(getattr(config, "FACTORY_CONTENT_VERSION", config.VERSION))
     env["BUILD_CONTENT_PKG"] = "true"
     env["BUILD_CONTENT_INSTALLER"] = "true"

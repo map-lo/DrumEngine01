@@ -19,13 +19,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 INSTALLER_ROOT="$SCRIPT_DIR/.."
 PROJECT_ROOT="$INSTALLER_ROOT/.."
 FACTORY_CONTENT_DIR="$PROJECT_ROOT/presets"
-INSTALLER_DIR="$INSTALLER_ROOT"
+INSTALLER_DIR="$SCRIPT_DIR"
 OUTPUT_DIR="$PROJECT_ROOT/dist/installer-content"
 TEMP_DIR="$OUTPUT_DIR/temp"
 
 # Get version from environment variable or default to 0.0.1
 VERSION="${DRUMENGINE_VERSION:-0.0.1}"
 CONTENT_VERSION="${FACTORY_CONTENT_VERSION:-$VERSION}"
+CONTENT_BUILD_NUMBER="${FACTORY_CONTENT_BUILD_NUMBER:-0}"
 
 INSTALLER_CODE_SIGN_IDENTITY="${INSTALLER_CODE_SIGN_IDENTITY:-}"
 NOTARYTOOL_PROFILE="${NOTARYTOOL_PROFILE:-}"
@@ -135,7 +136,7 @@ if [ "$BUILD_CONTENT_PKG" = "true" ]; then
             RESTORE_VERSION_FILE=true
         fi
 
-        echo "$CONTENT_VERSION" > "$CONTENT_VERSION_FILE"
+        echo "${CONTENT_VERSION}-b${CONTENT_BUILD_NUMBER}" > "$CONTENT_VERSION_FILE"
 
         chmod +x "$SCRIPT_DIR/postinstall"
 
@@ -175,8 +176,8 @@ if [ "$BUILD_CONTENT_INSTALLER" = "true" ]; then
     echo ""
     echo "Building factory content installer..."
 
-    CONTENT_INSTALLER_NAME="DrumEngine01-FactoryContent-${CONTENT_VERSION}.pkg"
-    DISTRIBUTION_TEMPLATE="$SCRIPT_DIR/distribution_factory_content.xml.in"
+    CONTENT_INSTALLER_NAME="DrumEngine01-FactoryContent-${CONTENT_VERSION}-b${CONTENT_BUILD_NUMBER}.pkg"
+    DISTRIBUTION_TEMPLATE="$SCRIPT_DIR/distribution.xml.in"
     DISTRIBUTION_PATH="$OUTPUT_DIR/distribution-content.xml"
 
     sed -e "s/@CONTENT_VERSION@/$CONTENT_VERSION/g" -e "s/@CONTENT_PKG@/$CONTENT_PKG_NAME/g" "$DISTRIBUTION_TEMPLATE" > "$DISTRIBUTION_PATH"
@@ -188,6 +189,10 @@ if [ "$BUILD_CONTENT_INSTALLER" = "true" ]; then
         "$OUTPUT_DIR/$CONTENT_INSTALLER_NAME"
 
     sign_pkg "$OUTPUT_DIR/$CONTENT_INSTALLER_NAME"
+
+    # Clean up intermediate component package after building the installer
+    rm -f "$OUTPUT_DIR/packages/$CONTENT_PKG_NAME"
+    rmdir "$OUTPUT_DIR/packages" 2>/dev/null || true
 fi
 
 if [ "$NOTARIZE_CONTENT_INSTALLER" = "true" ]; then

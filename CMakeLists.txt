@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.22)
 project(DRUM_ENGINE_01 VERSION 0.0.3)
 
 # Build metadata
-set(BUILD_NUMBER_FILE "${CMAKE_CURRENT_LIST_DIR}/build_number.txt")
+set(BUILD_NUMBER_FILE "${CMAKE_CURRENT_LIST_DIR}/build_plugin_number.txt")
 if (EXISTS "${BUILD_NUMBER_FILE}")
     file(READ "${BUILD_NUMBER_FILE}" DRUMENGINE_BUILD_NUMBER)
     string(STRIP "${DRUMENGINE_BUILD_NUMBER}" DRUMENGINE_BUILD_NUMBER)

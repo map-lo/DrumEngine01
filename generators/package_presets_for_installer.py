@@ -2,10 +2,8 @@
 """
 Preset Packager for DrumEngine01
 
-This script packages .preset folders for installer distribution:
-- Copies .preset folders (containing preset.json and sample WAV files) to dist/factory-content/presets/
-- Maintains folder structure and organization
-- No JSON rewriting needed since rootFolder is auto-resolved to preset folder location
+This script packages presets for installer distribution:
+- Copies the full presets folder (including all subfolders) to dist/factory-content/presets/
 
 Usage:
     python package_presets_for_installer.py [--limit N]
@@ -48,95 +46,24 @@ class PresetPackager:
         self.errors: List[str] = []
     
     def process_all_presets(self):
-        """Main entry point - scan and process all .preset folders"""
-        print(f"Starting preset packaging...")
+        """Main entry point - copy full presets folder"""
+        print("Starting preset packaging...")
         print(f"Source: {self.source_presets_dir}")
         print(f"Output: {self.output_dir}")
-        if self.limit_per_folder:
-            print(f"Limit: {self.limit_per_folder} presets per folder")
         print()
-        
-        # Create output directories
-        self.presets_output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Find all .preset folders recursively
-        preset_folders = [p for p in self.source_presets_dir.rglob("*") 
-                         if p.is_dir() and p.name.endswith(".preset")]
-        print(f"Found {len(preset_folders)} preset folders")
-        print()
-        
-        # Group folders by parent directory if limiting
-        if self.limit_per_folder:
-            folders_by_parent = {}
-            for preset_folder in preset_folders:
-                parent = preset_folder.parent
-                if parent not in folders_by_parent:
-                    folders_by_parent[parent] = []
-                folders_by_parent[parent].append(preset_folder)
-            
-            # Limit each parent folder and flatten
-            preset_folders_to_process = []
-            for parent, folders in folders_by_parent.items():
-                limited_folders = folders[:self.limit_per_folder]
-                preset_folders_to_process.extend(limited_folders)
-                skipped = len(folders) - len(limited_folders)
-                if skipped > 0:
-                    self.skipped_count += skipped
-                    print(f"Limiting {parent.name}: processing {len(limited_folders)}/{len(folders)} presets")
-            
-            print(f"\nProcessing {len(preset_folders_to_process)} presets (skipped {self.skipped_count})")
-            print()
-            preset_folders = preset_folders_to_process
-        
-        for preset_folder in preset_folders:
-            try:
-                self.process_preset(preset_folder)
-            except Exception as e:
-                error_msg = f"Error processing {preset_folder}: {e}"
-                self.errors.append(error_msg)
-                self.error_count += 1
-                print(f"❌ {error_msg}")
-        
-        # Print summary
+
+        # Copy the entire presets tree without filtering or inspection
+        shutil.copytree(self.source_presets_dir, self.presets_output_dir, dirs_exist_ok=True)
+
+        print("✅ Copied full presets folder")
         print()
         print("=" * 70)
-        print(f"Processing complete!")
-        print(f"✅ Successfully processed: {self.processed_count} presets")
-        if self.skipped_count > 0:
-            print(f"⏭️  Skipped (limit): {self.skipped_count} presets")
-        if self.error_count > 0:
-            print(f"❌ Errors: {self.error_count}")
-            print()
-            print("Error details:")
-            for error in self.errors:
-                print(f"  - {error}")
+        print("Processing complete!")
         print("=" * 70)
     
     def process_preset(self, preset_folder: Path):
-        """Process a single .preset folder by copying it wholesale"""
-        # Calculate relative path from source directory
-        rel_path = preset_folder.relative_to(self.source_presets_dir)
-        
-        print(f"Processing: {rel_path}")
-        
-        # Verify preset.json exists
-        preset_json = preset_folder / "preset.json"
-        if not preset_json.exists():
-            raise ValueError(f"Missing preset.json in {preset_folder}")
-        
-        # Count WAV files
-        wav_files = list(preset_folder.rglob("*.wav"))
-        
-        # Copy entire .preset folder to output
-        output_preset_folder = self.presets_output_dir / rel_path
-        
-        # Use shutil.copytree to copy the entire folder structure
-        shutil.copytree(preset_folder, output_preset_folder, dirs_exist_ok=True)
-        
-        print(f"  ✅ Copied preset folder with {len(wav_files)} samples")
-        print()
-        
-        self.processed_count += 1
+        """Deprecated: per-preset processing is no longer used."""
+        pass
 
 
 def main():

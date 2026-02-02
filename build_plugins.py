@@ -59,7 +59,7 @@ class BuildOrchestrator:
         self.skip_notarization = skip_notarization
         self.run_build = run_build
         self.run_sign = run_sign
-        self.build_number_path = self.project_root / "build_number.txt"
+        self.build_number_path = self.project_root / "build_plugin_number.txt"
         
         # Load appropriate config file
         config_file = f"build_config_plugins_{build_type}.py"
@@ -488,7 +488,7 @@ class BuildOrchestrator:
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
-        installer_dir = self.project_root / self.config.INSTALLER_DIR / "plugins"
+        installer_dir = self.project_root / self.config.INSTALLER_DIR
         script = installer_dir / "build_plugins_installer.sh"
         
         # Pass version and build type to installer script

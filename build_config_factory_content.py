@@ -28,5 +28,5 @@ TEAM_ID = None
 APPLE_APP_SPECIFIC_PASSWORD = None
 
 # Paths (usually don't need to change these)
-INSTALLER_DIR = "content-factory"
+INSTALLER_DIR = "installer/factory-content"
 DIST_DIR = "dist"

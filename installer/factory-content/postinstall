@@ -8,13 +8,33 @@ set -e
 # When user selects a custom location, $2 is like /Users/username
 INSTALL_ROOT="$2"
 
-# Get the actual user (not root, even if running with sudo)
+# Installer may pass the staging path as the target; normalize to system root
+if [[ "$INSTALL_ROOT" == /tmp/DrumEngine01_install* ]]; then
+    INSTALL_ROOT="/"
+fi
+
+# Log to a temp file for troubleshooting
+LOG_FILE="/tmp/DrumEngine01_postinstall.log"
+{
+    echo ""
+    echo "==== DrumEngine01 postinstall $(date) ===="
+    echo "Install root: $INSTALL_ROOT"
+} >> "$LOG_FILE"
+exec >> "$LOG_FILE" 2>&1
+
+# Get the actual console user (not root, even if running with sudo)
 if [ -n "$USER" ] && [ "$USER" != "root" ]; then
     ACTUAL_USER="$USER"
 elif [ -n "$SUDO_USER" ]; then
     ACTUAL_USER="$SUDO_USER"
 else
-    ACTUAL_USER=$(stat -f '%Su' "$INSTALL_ROOT")
+    ACTUAL_USER=$(stat -f '%Su' /dev/console 2>/dev/null || true)
+fi
+
+# No fallback: if console user cannot be determined, fail fast
+if [ -z "$ACTUAL_USER" ] || [ "$ACTUAL_USER" = "root" ]; then
+    echo "✗ Error: Could not determine a non-root console user for install."
+    exit 1
 fi
 
 # Determine destination directory
@@ -22,14 +42,9 @@ if [ "$INSTALL_ROOT" = "/" ] || [ -z "$INSTALL_ROOT" ]; then
     # System-wide install - use current user's home
     USER_HOME=$(eval echo ~$ACTUAL_USER)
     DEST_DIR="$USER_HOME/Documents/DrumEngine01"
-elif [[ "$INSTALL_ROOT" == /Users/* ]]; then
-    # User selected a home directory like /Users/marian
-    # Install to Documents/DrumEngine01 within that user's home
-    DEST_DIR="$INSTALL_ROOT/Documents/DrumEngine01"
 else
-    # User selected a custom non-home path like /Hello/Yoyo
-    # Install directly to DrumEngine01 within that path
-    DEST_DIR="$INSTALL_ROOT/DrumEngine01"
+    # User-selected location becomes the root
+    DEST_DIR="$INSTALL_ROOT"
 fi
 
 echo "Installing DrumEngine01 presets..."
@@ -38,26 +53,33 @@ echo "Destination: $DEST_DIR"
 echo "User: $ACTUAL_USER"
 
 # Create destination directories
-mkdir -p "$DEST_DIR/presets"
+mkdir -p "$DEST_DIR"
+FACTORY_DIR="$DEST_DIR/factory"
+
+# Replace factory folder instead of appending
+rm -rf "$FACTORY_DIR"
+mkdir -p "$FACTORY_DIR"
 
 # Source files are always in /tmp (absolute path)
-# The package installs to /tmp/DrumEngine01_install/ regardless of target
-SOURCE_DIR="/tmp/DrumEngine01_install"
+# The package installs to /tmp/DrumEngine01_install/presets regardless of target
+SOURCE_DIR="/tmp/DrumEngine01_install/presets"
 
-# Copy presets
-if [ -d "$SOURCE_DIR/presets" ]; then
-    echo "Copying presets..."
-    cp -R "$SOURCE_DIR/presets/"* "$DEST_DIR/presets/" 2>/dev/null || true
+# Copy presets into factory folder
+if [ -d "$SOURCE_DIR" ]; then
+    echo "Copying presets from $SOURCE_DIR to $FACTORY_DIR..."
+    ditto "$SOURCE_DIR" "$FACTORY_DIR"
+    echo "Verifying copy..."
+    ls -la "$FACTORY_DIR" | head -n 50
     echo "✓ Presets installed"
+else
+    echo "✗ Error: Source presets not found at $SOURCE_DIR"
+    exit 1
 fi
 
 # Copy factory content version marker
 if [ -f "$SOURCE_DIR/version.txt" ]; then
-    cp -f "$SOURCE_DIR/version.txt" "$DEST_DIR/version.txt"
-    echo "✓ Factory content version: $(cat "$DEST_DIR/version.txt")"
-elif [ -f "$SOURCE_DIR/presets/version.txt" ]; then
-    cp -f "$SOURCE_DIR/presets/version.txt" "$DEST_DIR/version.txt"
-    echo "✓ Factory content version: $(cat "$DEST_DIR/version.txt")"
+    cp -f "$SOURCE_DIR/version.txt" "$FACTORY_DIR/version.txt"
+    echo "✓ Factory content version: $(cat "$FACTORY_DIR/version.txt")"
 fi
 
 # Clean up temp files
