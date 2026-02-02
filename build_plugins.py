@@ -488,8 +488,8 @@ class BuildOrchestrator:
         print(f"{Colors.GREEN}{'='*70}{Colors.NC}")
         print()
         
-        installer_dir = self.project_root / self.config.INSTALLER_DIR
-        script = installer_dir / "build_installer.sh"
+        installer_dir = self.project_root / self.config.INSTALLER_DIR / "plugins"
+        script = installer_dir / "build_plugins_installer.sh"
         
         # Pass version and build type to installer script
         env = os.environ.copy()

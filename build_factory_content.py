@@ -81,14 +81,13 @@ def main():
     print(f"Using presets directly from: {presets_dir}")
     print()
 
-    installer_dir = project_root / config.INSTALLER_DIR
-    script = installer_dir / "build_installer.sh"
+    installer_dir = project_root / config.INSTALLER_DIR / "factory-content"
+    script = installer_dir / "build_factory_content_installer.sh"
 
     env = os.environ.copy()
     env["DRUMENGINE_VERSION"] = config.VERSION
     env["DRUMENGINE_BUILD_NUMBER"] = "0"
     env["FACTORY_CONTENT_VERSION"] = str(getattr(config, "FACTORY_CONTENT_VERSION", config.VERSION))
-    env["BUILD_PLUGINS_INSTALLER"] = "false"
     env["BUILD_CONTENT_PKG"] = "true"
     env["BUILD_CONTENT_INSTALLER"] = "true"
     env["NOTARIZE_CONTENT_INSTALLER"] = "false"

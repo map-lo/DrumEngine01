@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>DrumEngine01</title>
+    <organization>Mari</organization>
+    <domains enable_localSystem="true" />
+    <options customize="always" require-scripts="false" hostArchitectures="x86_64,arm64"/>
+
+    <welcome file="welcome.html" mime-type="text/html" />
+    <conclusion file="conclusion.html" mime-type="text/html" />
+
+    <installation-check script="pm_install_check();"/>
+
+    <script>
+    function pm_install_check() {
+        if(system.compareVersions(system.version.ProductVersion, '10.13') &lt; 0) {
+            my.result.title = 'Unable to install';
+            my.result.message = 'DrumEngine01 requires macOS 10.13 or later.';
+            my.result.type = 'Fatal';
+            return false;
+        }
+        return true;
+    }
+    </script>
+
+    <choices-outline>
+        <line choice="vst3"/>
+        <line choice="au"/>
+        <line choice="aax"/>
+    </choices-outline>
+
+    <choice id="vst3"
+            title="VST3 Plugin"
+            description="Install the VST3 plugin (recommended for most DAWs)"
+            start_selected="true">
+        <pkg-ref id="com.mari.drumengine01.vst3"/>
+    </choice>
+
+    <choice id="au"
+            title="Audio Unit Plugin"
+            description="Install the Audio Unit plugin (for Logic Pro, GarageBand, etc.)"
+            start_selected="true">
+        <pkg-ref id="com.mari.drumengine01.au"/>
+    </choice>
+
+    <choice id="aax"
+            title="AAX Plugin"
+            description="Install the AAX plugin (for Pro Tools)"
+            start_selected="true">
+        <pkg-ref id="com.mari.drumengine01.aax"/>
+    </choice>
+
+    <pkg-ref id="com.mari.drumengine01.vst3" version="@VERSION@" onConclusion="none">vst3.pkg</pkg-ref>
+    <pkg-ref id="com.mari.drumengine01.au" version="@VERSION@" onConclusion="none">au.pkg</pkg-ref>
+    <pkg-ref id="com.mari.drumengine01.aax" version="@VERSION@" onConclusion="none">aax.pkg</pkg-ref>
+</installer-gui-script>

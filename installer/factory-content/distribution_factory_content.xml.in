@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>DrumEngine01 Factory Content</title>
+    <organization>Mari</organization>
+    <domains enable_localSystem="true" />
+    <options customize="always" require-scripts="false" hostArchitectures="x86_64,arm64"/>
+
+    <welcome file="welcome.html" mime-type="text/html" />
+    <conclusion file="conclusion.html" mime-type="text/html" />
+
+    <installation-check script="pm_install_check();"/>
+
+    <script>
+    function pm_install_check() {
+        if(system.compareVersions(system.version.ProductVersion, '10.13') &lt; 0) {
+            my.result.title = 'Unable to install';
+            my.result.message = 'DrumEngine01 requires macOS 10.13 or later.';
+            my.result.type = 'Fatal';
+            return false;
+        }
+        return true;
+    }
+    </script>
+
+    <choices-outline>
+        <line choice="content"/>
+    </choices-outline>
+
+    <choice id="content"
+            title="Factory Presets"
+            description="Install factory presets"
+            start_selected="true"
+            customLocationAllowAlternateVolumes="true">
+        <pkg-ref id="com.mari.drumengine01.content"/>
+    </choice>
+
+    <pkg-ref id="com.mari.drumengine01.content" version="@CONTENT_VERSION@" onConclusion="none">@CONTENT_PKG@</pkg-ref>
+</installer-gui-script>

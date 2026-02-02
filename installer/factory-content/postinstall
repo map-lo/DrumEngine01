@@ -55,6 +55,9 @@ fi
 if [ -f "$SOURCE_DIR/version.txt" ]; then
     cp -f "$SOURCE_DIR/version.txt" "$DEST_DIR/version.txt"
     echo "✓ Factory content version: $(cat "$DEST_DIR/version.txt")"
+elif [ -f "$SOURCE_DIR/presets/version.txt" ]; then
+    cp -f "$SOURCE_DIR/presets/version.txt" "$DEST_DIR/version.txt"
+    echo "✓ Factory content version: $(cat "$DEST_DIR/version.txt")"
 fi
 
 # Clean up temp files
