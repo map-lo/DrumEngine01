@@ -75,6 +75,11 @@ public:
     void setSlotSoloed(int slotIndex, bool soloed);
     SlotState getSlotState(int slotIndex) const;
 
+    // UI audition (preview)
+    void auditionSlot(int slotIndex, int velocity);
+    void auditionVelocityLayer(int layerIndex);
+    void auditionIndicatorCell(int layerIndex, int rrIndex);
+
     // Output mode
     enum class OutputMode
     {

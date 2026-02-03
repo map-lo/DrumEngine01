@@ -319,10 +319,24 @@ class BuildOrchestrator:
             print(f"  Path: {plugin_path}")
             print()
 
-            sign_command = ["codesign", "--force", "--deep", "--sign", identity, str(plugin_path)]
-            if sign_macos:
-                sign_command = ["codesign", "--force", "--deep", "--options", "runtime", "--timestamp", "--sign", identity, str(plugin_path)]
-
+            # Use entitlements file for proper Hardened Runtime signing
+            entitlements_file = self.project_root / "plugin.entitlements"
+            
+            sign_command = [
+                "codesign",
+                "--force",
+                "--deep",
+                "--options", "runtime",
+                "--timestamp",
+                "--sign", identity,
+                str(plugin_path)
+            ]
+            
+            # Add entitlements if file exists
+            if entitlements_file.exists():
+                sign_command.insert(-1, "--entitlements")
+                sign_command.insert(-1, str(entitlements_file))
+            
             if not self.run_command(sign_command, description=f"Code signing {fmt} plugin"):
                 return False
 

@@ -277,6 +277,11 @@ window.drumEngineApp = function () {
             this.sendMessage('setSlotSoloed', { slot: index, soloed: this.slots[index].soloed });
         },
 
+        auditionSlot(index) {
+            if (!this.presetInfo.isPresetLoaded) return;
+            this.sendMessage('auditionSlot', { slot: index, velocity: 100 });
+        },
+
         startVolumeDrag(event, index) {
             this.volumeDragIndex = index;
             this.volumeDragStartY = event.clientY;
@@ -324,6 +329,16 @@ window.drumEngineApp = function () {
             const key = `velocity-${velocityLayer}`;
             const sampleMap = this.presetInfo.sampleMap || {};
             return sampleMap[key] && sampleMap[key].includes(rrIndex);
+        },
+
+        auditionVelocityLayer(layerIndex) {
+            if (!this.presetInfo.isPresetLoaded) return;
+            this.sendMessage('auditionVelocityLayer', { layer: layerIndex });
+        },
+
+        auditionIndicatorCell(layerIndex, rrIndex) {
+            if (!this.presetInfo.isPresetLoaded) return;
+            this.sendMessage('auditionIndicatorCell', { layer: layerIndex, rr: rrIndex });
         },
 
         // Preset browser

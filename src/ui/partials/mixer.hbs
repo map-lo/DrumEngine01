@@ -7,8 +7,9 @@
       :class="slot.isActive ? 'opacity-100' : 'opacity-50'"
     >
       <div
-        class="slot-label text-center truncate text-[10px] uppercase font-black mb-1"
+        class="slot-label text-center truncate text-[10px] uppercase font-black mb-1 cursor-pointer"
         x-text="slot.name || (index + 1)"
+        @click="auditionSlot(index)"
       ></div>
       <div
         @mousedown="startVolumeDrag($event, index)"

@@ -387,6 +387,23 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
         bool soloed = obj->getProperty("soloed");
         processorRef.setSlotSoloed(slot, soloed);
     }
+    else if (action == "auditionSlot")
+    {
+        int slot = obj->getProperty("slot");
+        int velocity = obj->getProperty("velocity");
+        processorRef.auditionSlot(slot, velocity);
+    }
+    else if (action == "auditionVelocityLayer")
+    {
+        int layerIndex = obj->getProperty("layer");
+        processorRef.auditionVelocityLayer(layerIndex - 1);
+    }
+    else if (action == "auditionIndicatorCell")
+    {
+        int layerIndex = obj->getProperty("layer");
+        int rrIndex = obj->getProperty("rr");
+        processorRef.auditionIndicatorCell(layerIndex - 1, rrIndex - 1);
+    }
 }
 
 void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()

@@ -597,6 +597,195 @@ namespace DrumEngine
         activeHitGroups.push_back(newGroup);
     }
 
+    void Engine::triggerPreview(int velocity, int slotIndex)
+    {
+        auto *preset = activePreset.load();
+        if (!preset)
+            return;
+
+        int layerIndex = preset->findLayerByVelocity(velocity);
+        if (layerIndex < 0)
+            return;
+
+        triggerPreviewByLayerIndex(layerIndex, velocity, slotIndex, true);
+    }
+
+    void Engine::triggerPreviewLayer(int layerIndex, int slotIndex)
+    {
+        auto *preset = activePreset.load();
+        if (!preset)
+            return;
+
+        const auto &layers = preset->getLayers();
+        if (layerIndex < 0 || layerIndex >= static_cast<int>(layers.size()))
+            return;
+
+        const auto &layer = layers[layerIndex];
+        const int velocity = (layer.lo + layer.hi) / 2;
+
+        triggerPreviewByLayerIndex(layerIndex, velocity, slotIndex, true);
+    }
+
+    void Engine::triggerPreviewExact(int layerIndex, int rrIndex, int velocity, int slotIndex)
+    {
+        triggerPreviewByExactRr(layerIndex, rrIndex, velocity, slotIndex);
+    }
+
+    void Engine::triggerPreviewByLayerIndex(int layerIndex, int velocity, int slotIndex, bool advanceRr)
+    {
+        auto *preset = activePreset.load();
+        if (!preset)
+            return;
+
+        const auto &layers = preset->getLayers();
+        if (layerIndex < 0 || layerIndex >= static_cast<int>(layers.size()))
+            return;
+
+        const auto &layer = layers[layerIndex];
+        if (layer.rrCount <= 0)
+            return;
+
+        int rrIndex = rrCounters[layerIndex] % layer.rrCount;
+        if (advanceRr)
+            rrCounters[layerIndex]++;
+
+        // Notify hit callback (if set)
+        if (hitCallback)
+            hitCallback(layerIndex, rrIndex);
+
+        // Calculate gain from velocity
+        float gain = preset->velocityToGain(velocity);
+
+        // Check if we need to steal a hit group
+        if (activeHitGroups.size() >= kMaxHitGroups)
+        {
+            // Steal oldest hit group
+            auto &oldestGroup = activeHitGroups.front();
+            oldestGroup.beginRelease();
+            activeHitGroups.pop_front();
+        }
+
+        // Create new hit group
+        HitGroup newGroup;
+
+        // Start voices for each slot
+        int slotCount = preset->getSlotCount();
+        for (int slotIdx = 0; slotIdx < slotCount; ++slotIdx)
+        {
+            if (slotIndex >= 0 && slotIdx != slotIndex)
+                continue;
+
+            if (rrIndex >= static_cast<int>(layer.samples.size()))
+                continue;
+
+            if (slotIdx >= static_cast<int>(layer.samples[rrIndex].size()))
+                continue;
+
+            auto sample = layer.samples[rrIndex][slotIdx];
+            if (!sample || !sample->isValid())
+                continue;
+
+            // Allocate voice
+            auto *voice = voicePool.allocateVoice();
+            if (!voice)
+            {
+                DBG("Failed to allocate voice");
+                continue;
+            }
+
+            // Set slot index for routing
+            voice->slotIndex = slotIdx;
+
+            float playbackRate = 1.0f;
+            const auto mode = resamplingMode.load();
+
+            // Start voice with just velocity gain (not slot gain)
+            // Slot gain (volume/mute/solo) will be applied only to mix during render
+            voice->start(sample, gain, fadeLenSamples, playbackRate, mode);
+            newGroup.voices[slotIdx] = voice;
+        }
+
+        // Add to active hit groups
+        activeHitGroups.push_back(newGroup);
+    }
+
+    void Engine::triggerPreviewByExactRr(int layerIndex, int rrIndex, int velocity, int slotIndex)
+    {
+        auto *preset = activePreset.load();
+        if (!preset)
+            return;
+
+        const auto &layers = preset->getLayers();
+        if (layerIndex < 0 || layerIndex >= static_cast<int>(layers.size()))
+            return;
+
+        const auto &layer = layers[layerIndex];
+        if (layer.rrCount <= 0)
+            return;
+
+        if (rrIndex < 0 || rrIndex >= layer.rrCount)
+            return;
+
+        // Notify hit callback (if set)
+        if (hitCallback)
+            hitCallback(layerIndex, rrIndex);
+
+        // Calculate gain from velocity
+        float gain = preset->velocityToGain(velocity);
+
+        // Check if we need to steal a hit group
+        if (activeHitGroups.size() >= kMaxHitGroups)
+        {
+            // Steal oldest hit group
+            auto &oldestGroup = activeHitGroups.front();
+            oldestGroup.beginRelease();
+            activeHitGroups.pop_front();
+        }
+
+        // Create new hit group
+        HitGroup newGroup;
+
+        // Start voices for each slot
+        int slotCount = preset->getSlotCount();
+        for (int slotIdx = 0; slotIdx < slotCount; ++slotIdx)
+        {
+            if (slotIndex >= 0 && slotIdx != slotIndex)
+                continue;
+
+            if (rrIndex >= static_cast<int>(layer.samples.size()))
+                continue;
+
+            if (slotIdx >= static_cast<int>(layer.samples[rrIndex].size()))
+                continue;
+
+            auto sample = layer.samples[rrIndex][slotIdx];
+            if (!sample || !sample->isValid())
+                continue;
+
+            // Allocate voice
+            auto *voice = voicePool.allocateVoice();
+            if (!voice)
+            {
+                DBG("Failed to allocate voice");
+                continue;
+            }
+
+            // Set slot index for routing
+            voice->slotIndex = slotIdx;
+
+            float playbackRate = 1.0f;
+            const auto mode = resamplingMode.load();
+
+            // Start voice with just velocity gain (not slot gain)
+            // Slot gain (volume/mute/solo) will be applied only to mix during render
+            voice->start(sample, gain, fadeLenSamples, playbackRate, mode);
+            newGroup.voices[slotIdx] = voice;
+        }
+
+        // Add to active hit groups
+        activeHitGroups.push_back(newGroup);
+    }
+
     void Engine::render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples,
                         bool multiOutEnabled)
     {

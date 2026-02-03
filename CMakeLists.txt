@@ -90,7 +90,14 @@ set_target_properties(DrumEngine01 PROPERTIES
     JUCE_PRODUCT_NAME "${PLUGIN_NAME}"
     JUCE_PLUGIN_NAME "${PLUGIN_NAME}"
     JUCE_PLUGIN_CODE "${PLUGIN_ID}"
-    JUCE_BUNDLE_ID "${BUNDLE_ID}")
+    JUCE_BUNDLE_ID "${BUNDLE_ID}"
+    # macOS code signing settings
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Developer ID Application"
+    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "4V59UK4A32"
+    XCODE_ATTRIBUTE_CODE_SIGN_INJECT_BASE_ENTITLEMENTS "NO"
+    XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--timestamp --options=runtime"
+    XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME "YES"
+    XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/plugin.entitlements")
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
 # into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for

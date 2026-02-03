@@ -28,9 +28,9 @@ PLUGIN_FORMATS = ["VST3", "AU", "AAX"]
 SIGN_AAX = True  # Set to False to skip AAX signing (requires PACE configuration)
 
 # macOS Plugin Signing (VST3/AU)
-SIGN_MAC_PLUGINS = False  # Set to True to sign macOS plugins in dev builds
+SIGN_MAC_PLUGINS = True  # CHANGED: Must sign with valid identity for distribution
 MAC_CODE_SIGN_IDENTITY = "Developer ID Application: Marian Plosch (4V59UK4A32)"  # Developer ID Application identity string
-ADHOC_SIGN_MAC_PLUGINS = True  # Use ad-hoc signing in dev builds to avoid stale signatures/quarantine
+ADHOC_SIGN_MAC_PLUGINS = False  # CHANGED: Ad-hoc signing won't work on other Macs
 
 # Notarization
 NOTARIZE_COMPONENT_PKGS = False  # Not needed when notarizing final installer

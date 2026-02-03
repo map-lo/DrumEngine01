@@ -583,6 +583,36 @@ AudioPluginAudioProcessor::SlotState AudioPluginAudioProcessor::getSlotState(int
     }
     return SlotState();
 }
+
+void AudioPluginAudioProcessor::auditionSlot(int slotIndex, int velocity)
+{
+    if (slotIndex < 0 || slotIndex >= 8)
+        return;
+
+    const int clampedVelocity = juce::jlimit(1, 127, velocity);
+    engine.triggerPreview(clampedVelocity, slotIndex);
+}
+
+void AudioPluginAudioProcessor::auditionVelocityLayer(int layerIndex)
+{
+    engine.triggerPreviewLayer(layerIndex, -1);
+}
+
+void AudioPluginAudioProcessor::auditionIndicatorCell(int layerIndex, int rrIndex)
+{
+    auto *preset = engine.getActivePreset();
+    if (!preset)
+        return;
+
+    const auto &layers = preset->getLayers();
+    if (layerIndex < 0 || layerIndex >= static_cast<int>(layers.size()))
+        return;
+
+    const auto &layer = layers[layerIndex];
+    const int velocity = (layer.lo + layer.hi) / 2;
+
+    engine.triggerPreviewExact(layerIndex, rrIndex, velocity, -1);
+}
 void AudioPluginAudioProcessor::setOutputMode(OutputMode mode)
 {
     if (outputMode == mode)

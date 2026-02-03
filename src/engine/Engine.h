@@ -58,6 +58,11 @@ namespace DrumEngine
         void setFixedMidiNote(int note);
         int getFixedMidiNote() const;
 
+        // UI audition (preview) helpers
+        void triggerPreview(int velocity, int slotIndex = -1);
+        void triggerPreviewLayer(int layerIndex, int slotIndex = -1);
+        void triggerPreviewExact(int layerIndex, int rrIndex, int velocity, int slotIndex = -1);
+
         // Pitch shift (semitones, -6 to +6)
         void setPitchShift(float semitones);
         float getPitchShift() const { return pitchShiftSemitones.load(); }
@@ -128,6 +133,9 @@ namespace DrumEngine
         // Internal methods
         void handleNoteOn(int note, int velocity);
         void render(juce::AudioBuffer<float> &buffer, int startSample, int numSamples, bool multiOutEnabled);
+
+        void triggerPreviewByLayerIndex(int layerIndex, int velocity, int slotIndex, bool advanceRr);
+        void triggerPreviewByExactRr(int layerIndex, int rrIndex, int velocity, int slotIndex);
     };
 
 } // namespace DrumEngine

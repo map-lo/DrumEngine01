@@ -24,9 +24,10 @@
       <template x-for="rr in [1, 2, 3, 4, 5]" :key="rr">
         <template x-for="vel in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" :key="vel">
           <div
-            :class="`velocity-${vel} rr-${rr} w-[10px] h-[4px] bg-black ${
+            :class="`velocity-${vel} rr-${rr} w-[10px] h-[4px] bg-black cursor-pointer ${
               hasSample(vel, rr) ? 'opacity-100' : 'opacity-20'
             }`"
+            @click="auditionIndicatorCell(vel, rr)"
           ></div>
         </template>
       </template>
