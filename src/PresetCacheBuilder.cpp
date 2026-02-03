@@ -33,9 +33,11 @@ juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &displa
     auto tagCategory = category;
     const auto lastSlashIndex = tagCategory.lastIndexOfChar('/');
     if (lastSlashIndex >= 0)
-        tagCategory = tagCategory.substring(0, lastSlashIndex);
-    else
-        tagCategory = "";
+    {
+        const auto firstSlashIndex = tagCategory.indexOfChar('/');
+        if (firstSlashIndex >= 0 && firstSlashIndex != lastSlashIndex)
+            tagCategory = tagCategory.substring(0, lastSlashIndex);
+    }
 
     juce::String tagSource = tagCategory + " " + instrumentType;
     juce::StringArray tokens;
