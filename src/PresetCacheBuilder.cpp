@@ -30,7 +30,14 @@ juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &displa
             displayTokensNormalized.addIfNotAlreadyThere(normalized);
     }
 
-    juce::String tagSource = category + " " + instrumentType;
+    auto tagCategory = category;
+    const auto lastSlashIndex = tagCategory.lastIndexOfChar('/');
+    if (lastSlashIndex >= 0)
+        tagCategory = tagCategory.substring(0, lastSlashIndex);
+    else
+        tagCategory = "";
+
+    juce::String tagSource = tagCategory + " " + instrumentType;
     juce::StringArray tokens;
     tokens.addTokens(tagSource, " /_-.", "\"'()[]{}:");
     tokens.trim();
