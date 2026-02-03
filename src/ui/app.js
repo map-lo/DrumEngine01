@@ -771,15 +771,31 @@ window.presetBrowser = function () {
         },
 
         get availableTags() {
-            const tags = new Set();
+            const instrumentTags = new Set();
+            const otherTags = new Set();
+
             this.filteredPresets.forEach(preset => {
+                if (preset.instrumentType) {
+                    instrumentTags.add(preset.instrumentType);
+                }
                 const presetTags = Array.isArray(preset.tags) ? preset.tags : [];
-                presetTags.forEach(tag => tags.add(tag));
+                presetTags.forEach(tag => {
+                    if (!instrumentTags.has(tag)) {
+                        otherTags.add(tag);
+                    }
+                });
             });
+
             const root = this.getRoot();
             const selectedTags = root ? new Set(root.presetBrowserTags || []) : new Set();
-            selectedTags.forEach(tag => tags.add(tag));
-            return Array.from(tags).sort();
+            selectedTags.forEach(tag => {
+                if (instrumentTags.has(tag)) return;
+                otherTags.add(tag);
+            });
+
+            const sortedInstrumentTags = Array.from(instrumentTags).sort();
+            const sortedOtherTags = Array.from(otherTags).filter(tag => !instrumentTags.has(tag)).sort();
+            return [...sortedInstrumentTags, ...sortedOtherTags];
         },
 
         toggleTag(tag) {
