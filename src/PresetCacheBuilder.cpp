@@ -39,12 +39,14 @@ juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &displa
             tagCategory = tagCategory.substring(0, lastSlashIndex);
     }
 
-    juce::String tagSource = tagCategory + " " + instrumentType;
     juce::StringArray tokens;
-    tokens.addTokens(tagSource, " /_-.", "\"'()[]{}:");
-    tokens.trim();
-    tokens.removeEmptyStrings();
-    tokens.removeDuplicates(true);
+    if (tagCategory.isNotEmpty())
+    {
+        tokens.addTokens(tagCategory, "/", "");
+        tokens.trim();
+        tokens.removeEmptyStrings();
+        tokens.removeDuplicates(true);
+    }
 
     for (const auto &token : tokens)
     {
