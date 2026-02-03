@@ -622,6 +622,12 @@ window.drumEngineApp = function () {
         // Auto-pitch methods
         toggleAutoPitchMode() {
             this.autoPitchMode = !this.autoPitchMode;
+
+            // When disabling auto-pitch, immediately reset pitch to 0 in UI to avoid flash
+            if (!this.autoPitchMode) {
+                this.presetInfo.pitchShift = 0.0;
+            }
+
             this.sendMessage('setAutoPitchMode', { enabled: this.autoPitchMode });
         },
 
