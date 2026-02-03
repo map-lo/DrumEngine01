@@ -5,16 +5,30 @@ juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &displa
                                                       const juce::String &instrumentType)
 {
     juce::StringArray tags;
-    const auto instrumentTypeLower = instrumentType.trim().toLowerCase();
+    auto normalizeToken = [](juce::String value)
+    {
+        return value.trim().toLowerCase().removeCharacters(" \t\r\n");
+    };
+
+    const auto instrumentTypeLower = normalizeToken(instrumentType);
     const auto pluralInstrumentTypeLower = instrumentTypeLower.isEmpty() || instrumentTypeLower.endsWith("s")
                                                ? instrumentTypeLower
                                                : instrumentTypeLower + "s";
+    const auto drumEngineLower = normalizeToken("drumengine01");
 
     juce::StringArray displayTokens;
     displayTokens.addTokens(displayName, " /_-.", "\"'()[]{}:");
     displayTokens.trim();
     displayTokens.removeEmptyStrings();
     displayTokens.removeDuplicates(true);
+
+    juce::StringArray displayTokensNormalized;
+    for (const auto &token : displayTokens)
+    {
+        const auto normalized = normalizeToken(token);
+        if (normalized.isNotEmpty())
+            displayTokensNormalized.addIfNotAlreadyThere(normalized);
+    }
 
     juce::String tagSource = category + " " + instrumentType;
     juce::StringArray tokens;
@@ -25,14 +39,14 @@ juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &displa
 
     for (const auto &token : tokens)
     {
-        const auto tokenLower = token.toLowerCase();
-        if (displayTokens.contains(token, true))
+        const auto tokenLower = normalizeToken(token);
+        if (displayTokensNormalized.contains(tokenLower, false))
             continue;
         if (!instrumentTypeLower.isEmpty() && tokenLower == instrumentTypeLower)
             continue;
         if (!pluralInstrumentTypeLower.isEmpty() && tokenLower == pluralInstrumentTypeLower)
             continue;
-        if (tokenLower == "drumengine01")
+        if (tokenLower == drumEngineLower)
             continue;
         tags.addIfNotAlreadyThere(token);
     }
