@@ -600,102 +600,6 @@ juce::File AudioPluginAudioProcessorEditor::getPresetCacheFile() const
         .getChildFile("preset-index.json");
 }
 
-juce::StringArray AudioPluginAudioProcessorEditor::buildPresetTags(const juce::String &displayName,
-                                                                   const juce::String &instrumentType)
-{
-    juce::StringArray tags;
-    if (!instrumentType.isEmpty())
-        tags.addIfNotAlreadyThere(instrumentType.trim());
-
-    juce::String tagSource = displayName + " " + instrumentType;
-    juce::StringArray tokens;
-    tokens.addTokens(tagSource, " /_-.", "\"'()[]{}:");
-    tokens.trim();
-    tokens.removeEmptyStrings();
-    tokens.removeDuplicates(true);
-
-    for (const auto &token : tokens)
-        tags.addIfNotAlreadyThere(token);
-
-    return tags;
-}
-
-std::vector<AudioPluginAudioProcessorEditor::PresetEntry>
-AudioPluginAudioProcessorEditor::buildPresetListFromRoot(const juce::File &rootFolder)
-{
-    std::vector<PresetEntry> results;
-
-    if (!rootFolder.exists() || !rootFolder.isDirectory())
-        return results;
-
-    std::function<void(const juce::File &, const juce::String &)> scanFolder =
-        [&](const juce::File &folder, const juce::String &categoryPath)
-    {
-        auto allFiles = folder.findChildFiles(juce::File::findFilesAndDirectories, false, "*");
-
-        juce::Array<juce::File> subFolders;
-        juce::Array<juce::File> presetFolders;
-
-        for (const auto &file : allFiles)
-        {
-            if (file.isDirectory())
-            {
-                if (file.getFileName().startsWith("."))
-                    continue; // Skip hidden folders
-
-                if (file.getFileName().endsWithIgnoreCase(".preset"))
-                    presetFolders.add(file);
-                else
-                    subFolders.add(file);
-            }
-        }
-
-        subFolders.sort();
-        presetFolders.sort();
-
-        for (const auto &presetFolder : presetFolders)
-        {
-            juce::File jsonFile = presetFolder.getChildFile("preset.json");
-            if (!jsonFile.existsAsFile())
-                continue;
-
-            juce::String presetName = presetFolder.getFileNameWithoutExtension();
-            juce::String category = categoryPath.isEmpty() ? folder.getFileName() : categoryPath;
-            juce::String fullDisplayName = category + " / " + presetName;
-
-            juce::String instrumentType = "Unknown";
-            auto jsonText = jsonFile.loadFileAsString();
-            if (!jsonText.isEmpty())
-            {
-                juce::var json;
-                auto result = juce::JSON::parse(jsonText, json);
-                if (result.wasOk() && json.isObject())
-                {
-                    if (auto *obj = json.getDynamicObject())
-                    {
-                        if (obj->hasProperty("instrumentType"))
-                            instrumentType = obj->getProperty("instrumentType").toString();
-                        else if (obj->hasProperty("instrument_type"))
-                            instrumentType = obj->getProperty("instrument_type").toString();
-                    }
-                }
-            }
-
-            auto tags = buildPresetTags(fullDisplayName, instrumentType);
-            results.push_back({fullDisplayName, category, instrumentType, jsonFile, tags});
-        }
-
-        for (const auto &subFolder : subFolders)
-        {
-            juce::String newCategoryPath = categoryPath.isEmpty() ? folder.getFileName() + "/" + subFolder.getFileName() : categoryPath + "/" + subFolder.getFileName();
-            scanFolder(subFolder, newCategoryPath);
-        }
-    };
-
-    scanFolder(rootFolder, "");
-    return results;
-}
-
 void AudioPluginAudioProcessorEditor::startPresetScanAsync()
 {
     if (isScanningPresets)
@@ -709,7 +613,7 @@ void AudioPluginAudioProcessorEditor::startPresetScanAsync()
 
     std::thread([safeThis, rootFolder]() mutable
                 {
-                    auto results = AudioPluginAudioProcessorEditor::buildPresetListFromRoot(rootFolder);
+                    auto results = PresetCacheBuilder::buildPresetListFromRoot(rootFolder);
                     juce::MessageManager::callAsync([safeThis, results = std::move(results)]() mutable
                                                     {
                                                         if (!safeThis)
@@ -733,8 +637,12 @@ bool AudioPluginAudioProcessorEditor::loadPresetCache()
         return false;
 
     const auto cacheFile = getPresetCacheFile();
+    logToFile("Preset cache path: " + cacheFile.getFullPathName());
     if (!cacheFile.existsAsFile())
+    {
+        logToFile("Preset cache file missing");
         return false;
+    }
 
     const auto jsonText = cacheFile.loadFileAsString();
     if (jsonText.isEmpty())
@@ -813,7 +721,11 @@ void AudioPluginAudioProcessorEditor::savePresetCache() const
     auto cacheFile = getPresetCacheFile();
     auto cacheDir = cacheFile.getParentDirectory();
     if (!cacheDir.exists())
-        cacheDir.createDirectory();
+    {
+        const auto created = cacheDir.createDirectory();
+        logToFile("Created cache directory: " + cacheDir.getFullPathName() + " => " + juce::String(created ? "OK" : "FAILED"));
+    }
+    logToFile("Writing preset cache: " + cacheFile.getFullPathName());
 
     juce::DynamicObject::Ptr rootObj = new juce::DynamicObject();
     rootObj->setProperty("schemaVersion", presetCacheSchemaVersion);
@@ -843,7 +755,8 @@ void AudioPluginAudioProcessorEditor::savePresetCache() const
     rootObj->setProperty("presets", juce::var(presetsArray));
 
     juce::String jsonText = juce::JSON::toString(juce::var(rootObj.get()), true);
-    cacheFile.replaceWithText(jsonText);
+    const auto wrote = cacheFile.replaceWithText(jsonText);
+    logToFile("Preset cache write: " + juce::String(wrote ? "OK" : "FAILED"));
 }
 
 //==============================================================================
@@ -852,7 +765,7 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
     isScanningPresets = true;
     sendStateUpdateToWebView();
 
-    presetList = buildPresetListFromRoot(getPresetRootFolder());
+    presetList = PresetCacheBuilder::buildPresetListFromRoot(getPresetRootFolder());
     currentPresetIndex = resolvePresetIndexFromState();
     savePresetCache();
 

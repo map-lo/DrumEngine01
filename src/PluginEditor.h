@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "PresetCacheBuilder.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor,
@@ -38,14 +39,7 @@ private:
     juce::String htmlContent; // Store HTML for resource provider
 
     // Preset management
-    struct PresetEntry
-    {
-        juce::String displayName;
-        juce::String category;
-        juce::String instrumentType;
-        juce::File file;
-        juce::StringArray tags;
-    };
+    using PresetEntry = PresetCacheBuilder::PresetEntry;
     std::vector<PresetEntry> presetList;
     int currentPresetIndex = -1;
 
@@ -54,8 +48,6 @@ private:
     juce::File getPresetCacheFile() const;
     bool loadPresetCache();
     void savePresetCache() const;
-    static juce::StringArray buildPresetTags(const juce::String &displayName, const juce::String &instrumentType);
-    static std::vector<PresetEntry> buildPresetListFromRoot(const juce::File &rootFolder);
     void startPresetScanAsync();
     void scanPresetsFolder();
     void loadPresetByIndex(int index);

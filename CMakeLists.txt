@@ -107,6 +107,7 @@ set_target_properties(DrumEngine01 PROPERTIES
 
 target_sources(DrumEngine01
     PRIVATE
+        src/PresetCacheBuilder.cpp
         src/PluginEditor.cpp
         src/PluginProcessor.cpp
         src/engine/PresetSchema.cpp
