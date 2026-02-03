@@ -337,6 +337,60 @@ window.drumEngineApp = function () {
             }
         },
 
+        getFilteredPresetList() {
+            let filtered = this.presetList || [];
+
+            const query = (this.presetBrowserSearchTerm || '').trim().toLowerCase();
+            if (query) {
+                filtered = filtered.filter(preset =>
+                    preset.displayName.toLowerCase().includes(query)
+                );
+            }
+
+            const selectedTags = new Set(this.presetBrowserTags || []);
+            if (selectedTags.size > 0) {
+                filtered = filtered.filter(preset =>
+                    selectedTags.has(preset.instrumentType)
+                );
+            }
+
+            return filtered;
+        },
+
+        loadNextPreset() {
+            const filtered = this.getFilteredPresetList();
+            if (filtered.length === 0) return;
+
+            const currentIndex = this.currentPresetIndex;
+            const filteredIndex = filtered.findIndex(preset => preset.index === currentIndex);
+            const nextIndex = filteredIndex >= 0
+                ? Math.min(filteredIndex + 1, filtered.length - 1)
+                : 0;
+
+            const nextPreset = filtered[nextIndex];
+            if (nextPreset) {
+                this.currentPresetIndex = nextPreset.index;
+                this.sendMessage('loadPresetByIndex', { index: nextPreset.index });
+            }
+        },
+
+        loadPrevPreset() {
+            const filtered = this.getFilteredPresetList();
+            if (filtered.length === 0) return;
+
+            const currentIndex = this.currentPresetIndex;
+            const filteredIndex = filtered.findIndex(preset => preset.index === currentIndex);
+            const prevIndex = filteredIndex >= 0
+                ? Math.max(filteredIndex - 1, 0)
+                : filtered.length - 1;
+
+            const prevPreset = filtered[prevIndex];
+            if (prevPreset) {
+                this.currentPresetIndex = prevPreset.index;
+                this.sendMessage('loadPresetByIndex', { index: prevPreset.index });
+            }
+        },
+
         // Update methods
         updatePresetList(presets) {
             this.presetList = presets.map((preset, index) => ({
@@ -658,6 +712,12 @@ window.presetBrowser = function () {
             if (root && typeof root.presetBrowserSearchTerm === 'string') {
                 this.searchTerm = root.presetBrowserSearchTerm;
             }
+
+            this.$watch(() => this.getRoot()?.presetBrowserSearchTerm, value => {
+                if (typeof value === 'string' && value !== this.searchTerm) {
+                    this.searchTerm = value;
+                }
+            });
 
             this.$watch('searchTerm', value => {
                 const owner = this.getRoot();
