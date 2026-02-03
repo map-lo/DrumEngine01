@@ -58,6 +58,22 @@ juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &displa
         tags.addIfNotAlreadyThere(token);
     }
 
+    const auto instrumentTypeTrimmed = instrumentType.trim();
+    if (instrumentTypeTrimmed.isNotEmpty())
+    {
+        bool hasInstrumentTag = false;
+        for (const auto &tag : tags)
+        {
+            if (normalizeToken(tag) == instrumentTypeLower)
+            {
+                hasInstrumentTag = true;
+                break;
+            }
+        }
+        if (!hasInstrumentTag)
+            tags.addIfNotAlreadyThere(instrumentTypeTrimmed);
+    }
+
     return tags;
 }
 
