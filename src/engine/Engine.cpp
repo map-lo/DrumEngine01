@@ -402,6 +402,21 @@ namespace DrumEngine
         if (!preset)
             return;
 
+        const int fixedNote = preset->getFixedMidiNote();
+        bool hasRelevantNoteOn = false;
+        for (const auto metadata : midiMessages)
+        {
+            auto message = metadata.getMessage();
+            if (message.isNoteOn() && message.getNoteNumber() == fixedNote)
+            {
+                hasRelevantNoteOn = true;
+                break;
+            }
+        }
+
+        if (buffer.hasBeenCleared() && activeHitGroups.empty() && !hasRelevantNoteOn)
+            return;
+
         const auto mode = resamplingMode.load();
         const double hostRate = currentSampleRate > 0.0 ? currentSampleRate : 44100.0;
         const double sourceRate = preset->getSourceSampleRate();
