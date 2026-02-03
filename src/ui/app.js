@@ -747,26 +747,6 @@ window.presetBrowser = function () {
             return this.optionId(activeIndex);
         },
 
-        moveSelection(delta) {
-            if (!this.filteredPresets.length) return;
-            const root = this.getRoot();
-            if (!root) return;
-
-            const currentIndex = root.currentPresetIndex;
-            const currentFilteredIndex = this.filteredPresets.findIndex(p => p.index === currentIndex);
-
-            let nextFilteredIndex = currentFilteredIndex + delta;
-            if (currentFilteredIndex === -1) {
-                nextFilteredIndex = delta > 0 ? 0 : this.filteredPresets.length - 1;
-            }
-
-            nextFilteredIndex = Math.max(0, Math.min(this.filteredPresets.length - 1, nextFilteredIndex));
-            const nextPreset = this.filteredPresets[nextFilteredIndex];
-            if (nextPreset) {
-                this.loadPreset(nextPreset.index);
-            }
-        },
-
         loadPreset(index) {
             const root = this.getRoot();
             if (root) {
@@ -776,11 +756,31 @@ window.presetBrowser = function () {
         },
 
         navigateDown(currentIndex) {
-            this.moveSelection(1);
+            if (currentIndex < this.filteredPresets.length - 1) {
+                const nextPreset = this.filteredPresets[currentIndex + 1];
+                this.loadPreset(nextPreset.index);
+                // Focus the next button element
+                this.$nextTick(() => {
+                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
+                    if (buttons[currentIndex + 1]) {
+                        buttons[currentIndex + 1].focus();
+                    }
+                });
+            }
         },
 
         navigateUp(currentIndex) {
-            this.moveSelection(-1);
+            if (currentIndex > 0) {
+                const prevPreset = this.filteredPresets[currentIndex - 1];
+                this.loadPreset(prevPreset.index);
+                // Focus the previous button element
+                this.$nextTick(() => {
+                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
+                    if (buttons[currentIndex - 1]) {
+                        buttons[currentIndex - 1].focus();
+                    }
+                });
+            }
         },
 
         getPresetPrefix(displayName) {
