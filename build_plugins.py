@@ -28,6 +28,7 @@ import argparse
 import subprocess
 import sys
 import os
+import shutil
 from pathlib import Path
 import importlib.util
 
@@ -155,7 +156,6 @@ class BuildOrchestrator:
         
         if build_artefacts.exists():
             print(f"Removing: {build_artefacts}")
-            import shutil
             shutil.rmtree(build_artefacts)
         
         if dist_dir.exists():

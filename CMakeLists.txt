@@ -13,11 +13,14 @@ cmake_minimum_required(VERSION 3.22)
 # Set minimum macOS version for compatibility
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version" FORCE)
 
+# Build universal binaries (arm64 + x86_64) for maximum compatibility
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "macOS architectures" FORCE)
+
 # The top-level CMakeLists.txt file for a project must contain a literal, direct call to the
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
 
-project(DRUM_ENGINE_01 VERSION 0.0.6)
+project(DRUM_ENGINE_01 VERSION 0.0.7)
 
 # Build metadata
 set(BUILD_NUMBER_FILE "${CMAKE_CURRENT_LIST_DIR}/build_plugin_number.txt")
