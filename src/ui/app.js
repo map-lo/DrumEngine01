@@ -70,23 +70,12 @@ window.drumEngineApp = function () {
         volumeDragStartPosition: 0,
         volumeDragFineActive: false,
 
-        // Pitch drag state
-        isPitchDragging: false,
-        pitchDragStartX: 0,
-        pitchDragStartPercent: 0,
-        pitchFineActive: false,
-
-        // Hz drag state
-        isHzDragging: false,
-        hzDragStartX: 0,
-        hzDragStartPercent: 0,
-        hzFineActive: false,
-
-        // Output volume drag state
-        isOutputVolumeDragging: false,
-        outputVolumeDragStartX: 0,
-        outputVolumeDragStartPercent: 0,
-        outputVolumeFineActive: false,
+        // Generic horizontal slider state (pitch, Hz, output volume)
+        sliders: {
+            pitch: { isDragging: false, startX: 0, startPercent: 0, fineActive: false },
+            hz: { isDragging: false, startX: 0, startPercent: 0, fineActive: false },
+            outputVolume: { isDragging: false, startX: 0, startPercent: 0, fineActive: false }
+        },
 
         // MIDI note input
         midiNoteInput: '-',
@@ -149,46 +138,88 @@ window.drumEngineApp = function () {
 
             // Set up pitch drag handlers
             document.addEventListener('pointermove', (e) => {
-                if (this.isPitchDragging) {
+                if (this.sliders.pitch.isDragging) {
                     this.handlePitchMove(e);
                 }
             });
 
             document.addEventListener('pointermove', (e) => {
-                if (this.isHzDragging) {
+                if (this.sliders.hz.isDragging) {
                     this.handleHzMove(e);
                 }
             });
 
             document.addEventListener('pointermove', (e) => {
-                if (this.isOutputVolumeDragging) {
+                if (this.sliders.outputVolume.isDragging) {
                     this.handleOutputVolumeMove(e);
                 }
             });
 
             document.addEventListener('pointerup', () => {
-                this.isPitchDragging = false;
-            });
-
-            document.addEventListener('pointerup', () => {
-                this.isHzDragging = false;
-            });
-
-            document.addEventListener('pointerup', () => {
-                this.isOutputVolumeDragging = false;
+                this.sliders.pitch.isDragging = false;
+                this.sliders.hz.isDragging = false;
+                this.sliders.outputVolume.isDragging = false;
             });
 
             document.addEventListener('pointercancel', () => {
-                this.isPitchDragging = false;
+                this.sliders.pitch.isDragging = false;
+                this.sliders.hz.isDragging = false;
+                this.sliders.outputVolume.isDragging = false;
             });
+        },
 
-            document.addEventListener('pointercancel', () => {
-                this.isHzDragging = false;
-            });
+        // Generic horizontal slider helper methods
+        createSliderHandler(sliderKey, config) {
+            return {
+                start: (event) => {
+                    if (config.canDrag && !config.canDrag()) return;
+                    if (event.altKey && config.onReset) {
+                        config.onReset();
+                        return;
+                    }
 
-            document.addEventListener('pointercancel', () => {
-                this.isOutputVolumeDragging = false;
-            });
+                    const slider = this.sliders[sliderKey];
+                    slider.isDragging = true;
+                    slider.startX = event.clientX;
+                    slider.startPercent = config.getCurrentPercent();
+                    slider.fineActive = false;
+                    this.moveSlider(sliderKey, event, config);
+                    event.preventDefault();
+                },
+
+                move: (event) => this.moveSlider(sliderKey, event, config),
+
+                isActive: () => this.sliders[sliderKey].isDragging
+            };
+        },
+
+        moveSlider(sliderKey, event, config) {
+            const slider = this.sliders[sliderKey];
+            if (!slider.isDragging || (config.canDrag && !config.canDrag())) return;
+
+            const container = document.querySelector(config.indicator)?.parentElement;
+            if (!container) return;
+
+            const rect = container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            let percentage;
+
+            if (event.metaKey) {
+                // Fine control mode (Cmd+drag)
+                if (!slider.fineActive) {
+                    slider.startX = event.clientX;
+                    slider.startPercent = config.getCurrentPercent();
+                    slider.fineActive = true;
+                }
+                const delta = (event.clientX - slider.startX) / rect.width;
+                percentage = slider.startPercent + (delta * 100) / 4;
+            } else {
+                slider.fineActive = false;
+                percentage = (x / rect.width) * 100;
+            }
+
+            percentage = Math.max(0, Math.min(100, percentage));
+            config.onUpdate(percentage);
         },
 
         // Computed property for preset display
@@ -553,51 +584,34 @@ window.drumEngineApp = function () {
         },
 
         handlePitchDrag(event) {
-            if (!this.pitchEnabled) return;
-            if (event.altKey) {
-                this.resetPitch();
-                return;
-            }
-
-            this.isPitchDragging = true;
-            this.pitchDragStartX = event.clientX;
-            this.pitchDragStartPercent = ((this.presetInfo.pitchShift + 6) / 12) * 100;
-            this.pitchFineActive = false;
-            this.handlePitchMove(event);
-            event.preventDefault();
+            const handler = this.createSliderHandler('pitch', {
+                canDrag: () => this.pitchEnabled,
+                onReset: () => this.resetPitch(),
+                indicator: '.pitch-indicator',
+                getCurrentPercent: () => ((this.presetInfo.pitchShift + 6) / 12) * 100,
+                onUpdate: (percentage) => {
+                    const semitones = (percentage / 100) * 12 - 6;
+                    const rounded = Math.round(semitones * 10) / 10;
+                    this.presetInfo.pitchShift = rounded;
+                    this.sendMessage('setPitchShift', { semitones: rounded });
+                }
+            });
+            handler.start(event);
         },
 
         handlePitchMove(event) {
-            if (!this.isPitchDragging || !this.pitchEnabled) return;
-
-            // Find the pitch fader container
-            const container = document.querySelector('.pitch-indicator')?.parentElement;
-            if (!container) return;
-
-            const rect = container.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            let percentage;
-            if (event.metaKey) {
-                // Fine control mode (Cmd+drag)
-                if (!this.pitchFineActive) {
-                    this.pitchDragStartX = event.clientX;
-                    this.pitchDragStartPercent = ((this.presetInfo.pitchShift + 6) / 12) * 100;
-                    this.pitchFineActive = true;
+            const handler = this.createSliderHandler('pitch', {
+                canDrag: () => this.pitchEnabled,
+                indicator: '.pitch-indicator',
+                getCurrentPercent: () => ((this.presetInfo.pitchShift + 6) / 12) * 100,
+                onUpdate: (percentage) => {
+                    const semitones = (percentage / 100) * 12 - 6;
+                    const rounded = Math.round(semitones * 10) / 10;
+                    this.presetInfo.pitchShift = rounded;
+                    this.sendMessage('setPitchShift', { semitones: rounded });
                 }
-                const delta = (event.clientX - this.pitchDragStartX) / rect.width;
-                percentage = this.pitchDragStartPercent + (delta * 100) / 4;
-            } else {
-                this.pitchFineActive = false;
-                percentage = (x / rect.width) * 100;
-            }
-            percentage = Math.max(0, Math.min(100, percentage));
-
-            // Map 0-100% to -6 to +6 semitones
-            const semitones = (percentage / 100) * 12 - 6;
-            const rounded = Math.round(semitones * 10) / 10;
-
-            this.presetInfo.pitchShift = rounded;
-            this.sendMessage('setPitchShift', { semitones: rounded });
+            });
+            handler.move(event);
         },
 
         resetPitch() {
@@ -627,50 +641,34 @@ window.drumEngineApp = function () {
         },
 
         handleHzDrag(event) {
-            if (!this.hzSliderEnabled) return;
-            if (event.altKey) {
-                this.resetTargetFrequency();
-                return;
-            }
-
-            this.isHzDragging = true;
-            this.hzDragStartX = event.clientX;
-            this.hzDragStartPercent = this.getHzSliderPosition();
-            this.hzFineActive = false;
-            this.handleHzMove(event);
-            event.preventDefault();
+            const handler = this.createSliderHandler('hz', {
+                canDrag: () => this.hzSliderEnabled,
+                onReset: () => this.resetTargetFrequency(),
+                indicator: '.hz-indicator',
+                getCurrentPercent: () => this.getHzSliderPosition(),
+                onUpdate: (percentage) => {
+                    const hz = 20 + (percentage / 100) * 480;
+                    const rounded = Math.round(hz * 10) / 10;
+                    this.targetFrequencyHz = rounded;
+                    this.sendMessage('setTargetFrequency', { hz: rounded });
+                }
+            });
+            handler.start(event);
         },
 
         handleHzMove(event) {
-            if (!this.isHzDragging || !this.hzSliderEnabled) return;
-
-            const container = document.querySelector('.hz-indicator')?.parentElement;
-            if (!container) return;
-
-            const rect = container.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            let percentage;
-            if (event.metaKey) {
-                // Fine control mode (Cmd+drag)
-                if (!this.hzFineActive) {
-                    this.hzDragStartX = event.clientX;
-                    this.hzDragStartPercent = this.getHzSliderPosition();
-                    this.hzFineActive = true;
+            const handler = this.createSliderHandler('hz', {
+                canDrag: () => this.hzSliderEnabled,
+                indicator: '.hz-indicator',
+                getCurrentPercent: () => this.getHzSliderPosition(),
+                onUpdate: (percentage) => {
+                    const hz = 20 + (percentage / 100) * 480;
+                    const rounded = Math.round(hz * 10) / 10;
+                    this.targetFrequencyHz = rounded;
+                    this.sendMessage('setTargetFrequency', { hz: rounded });
                 }
-                const delta = (event.clientX - this.hzDragStartX) / rect.width;
-                percentage = this.hzDragStartPercent + (delta * 100) / 4;
-            } else {
-                this.hzFineActive = false;
-                percentage = (x / rect.width) * 100;
-            }
-            percentage = Math.max(0, Math.min(100, percentage));
-
-            // Map 0-100% to 20-500 Hz
-            const hz = 20 + (percentage / 100) * 480;
-            const rounded = Math.round(hz * 10) / 10;
-
-            this.targetFrequencyHz = rounded;
-            this.sendMessage('setTargetFrequency', { hz: rounded });
+            });
+            handler.move(event);
         },
 
         resetTargetFrequency() {
@@ -686,45 +684,30 @@ window.drumEngineApp = function () {
 
         // Output volume methods
         handleOutputVolumeDrag(event) {
-            if (event.altKey) {
-                this.resetOutputVolume();
-                return;
-            }
-
-            this.isOutputVolumeDragging = true;
-            this.outputVolumeDragStartX = event.clientX;
-            this.outputVolumeDragStartPercent = this.outputVolumePercent();
-            this.outputVolumeFineActive = false;
-            this.handleOutputVolumeMove(event);
-            event.preventDefault();
+            const handler = this.createSliderHandler('outputVolume', {
+                onReset: () => this.resetOutputVolume(),
+                indicator: '.output-volume-indicator',
+                getCurrentPercent: () => this.outputVolumePercent(),
+                onUpdate: (percentage) => {
+                    const db = this.percentToOutputVolumeDb(percentage);
+                    this.outputVolumeDb = db;
+                    this.sendMessage('setOutputVolume', { db });
+                }
+            });
+            handler.start(event);
         },
 
         handleOutputVolumeMove(event) {
-            if (!this.isOutputVolumeDragging) return;
-
-            const container = document.querySelector('.output-volume-indicator')?.parentElement;
-            if (!container) return;
-
-            const rect = container.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            let percentage;
-            if (event.metaKey) {
-                if (!this.outputVolumeFineActive) {
-                    this.outputVolumeDragStartX = event.clientX;
-                    this.outputVolumeDragStartPercent = this.outputVolumePercent();
-                    this.outputVolumeFineActive = true;
+            const handler = this.createSliderHandler('outputVolume', {
+                indicator: '.output-volume-indicator',
+                getCurrentPercent: () => this.outputVolumePercent(),
+                onUpdate: (percentage) => {
+                    const db = this.percentToOutputVolumeDb(percentage);
+                    this.outputVolumeDb = db;
+                    this.sendMessage('setOutputVolume', { db });
                 }
-                const delta = (event.clientX - this.outputVolumeDragStartX) / rect.width;
-                percentage = this.outputVolumeDragStartPercent + (delta * 100) / 4;
-            } else {
-                this.outputVolumeFineActive = false;
-                percentage = (x / rect.width) * 100;
-            }
-            percentage = Math.max(0, Math.min(100, percentage));
-
-            const db = this.percentToOutputVolumeDb(percentage);
-            this.outputVolumeDb = db;
-            this.sendMessage('setOutputVolume', { db });
+            });
+            handler.move(event);
         },
 
         resetOutputVolume() {
