@@ -72,9 +72,15 @@ window.drumEngineApp = function () {
 
         // Pitch drag state
         isPitchDragging: false,
+        pitchDragStartX: 0,
+        pitchDragStartPercent: 0,
+        pitchFineActive: false,
 
         // Hz drag state
         isHzDragging: false,
+        hzDragStartX: 0,
+        hzDragStartPercent: 0,
+        hzFineActive: false,
 
         // Output volume drag state
         isOutputVolumeDragging: false,
@@ -554,6 +560,9 @@ window.drumEngineApp = function () {
             }
 
             this.isPitchDragging = true;
+            this.pitchDragStartX = event.clientX;
+            this.pitchDragStartPercent = ((this.presetInfo.pitchShift + 6) / 12) * 100;
+            this.pitchFineActive = false;
             this.handlePitchMove(event);
             event.preventDefault();
         },
@@ -567,7 +576,21 @@ window.drumEngineApp = function () {
 
             const rect = container.getBoundingClientRect();
             const x = event.clientX - rect.left;
-            const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            let percentage;
+            if (event.metaKey) {
+                // Fine control mode (Cmd+drag)
+                if (!this.pitchFineActive) {
+                    this.pitchDragStartX = event.clientX;
+                    this.pitchDragStartPercent = ((this.presetInfo.pitchShift + 6) / 12) * 100;
+                    this.pitchFineActive = true;
+                }
+                const delta = (event.clientX - this.pitchDragStartX) / rect.width;
+                percentage = this.pitchDragStartPercent + (delta * 100) / 4;
+            } else {
+                this.pitchFineActive = false;
+                percentage = (x / rect.width) * 100;
+            }
+            percentage = Math.max(0, Math.min(100, percentage));
 
             // Map 0-100% to -6 to +6 semitones
             const semitones = (percentage / 100) * 12 - 6;
@@ -594,14 +617,12 @@ window.drumEngineApp = function () {
 
         get hzSliderEnabled() {
             const enabled = this.pitchEnabled && this.presetInfo.freq > 0;
-            if (this.debugMode) {
-                console.log('hzSliderEnabled check:', {
-                    pitchEnabled: this.pitchEnabled,
-                    freq: this.presetInfo.freq,
-                    freqConfidence: this.presetInfo.freqConfidence,
-                    enabled
-                });
-            }
+            console.log('hzSliderEnabled check:', {
+                pitchEnabled: this.pitchEnabled,
+                freq: this.presetInfo.freq,
+                freqConfidence: this.presetInfo.freqConfidence,
+                enabled
+            });
             return enabled;
         },
 
@@ -613,6 +634,9 @@ window.drumEngineApp = function () {
             }
 
             this.isHzDragging = true;
+            this.hzDragStartX = event.clientX;
+            this.hzDragStartPercent = this.getHzSliderPosition();
+            this.hzFineActive = false;
             this.handleHzMove(event);
             event.preventDefault();
         },
@@ -625,7 +649,21 @@ window.drumEngineApp = function () {
 
             const rect = container.getBoundingClientRect();
             const x = event.clientX - rect.left;
-            const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            let percentage;
+            if (event.metaKey) {
+                // Fine control mode (Cmd+drag)
+                if (!this.hzFineActive) {
+                    this.hzDragStartX = event.clientX;
+                    this.hzDragStartPercent = this.getHzSliderPosition();
+                    this.hzFineActive = true;
+                }
+                const delta = (event.clientX - this.hzDragStartX) / rect.width;
+                percentage = this.hzDragStartPercent + (delta * 100) / 4;
+            } else {
+                this.hzFineActive = false;
+                percentage = (x / rect.width) * 100;
+            }
+            percentage = Math.max(0, Math.min(100, percentage));
 
             // Map 0-100% to 20-500 Hz
             const hz = 20 + (percentage / 100) * 480;
