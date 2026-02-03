@@ -134,7 +134,8 @@ class BuildOrchestrator:
             )
             return True
         except subprocess.CalledProcessError as e:
-            error_msg = f"Command failed with exit code {e.returncode}"
+            error_msg = f"{description or 'Command'} failed with exit code {e.returncode}"
+            self.errors.append(error_msg)
             return False
     
     def step_clean_build(self):

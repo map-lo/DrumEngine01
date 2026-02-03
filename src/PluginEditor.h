@@ -31,18 +31,6 @@ private:
     void setupWebViewForProduction();
     juce::File getUIDirectory();
 
-    // Preset management
-    juce::File getPresetRootFolder() const;
-    juce::File getPresetCacheFile() const;
-    bool loadPresetCache();
-    void savePresetCache() const;
-    juce::StringArray buildPresetTags(const juce::String &displayName, const juce::String &instrumentType) const;
-    void scanPresetsFolder();
-    void loadPresetByIndex(int index);
-    void loadNextPreset();
-    void loadPrevPreset();
-    void browseForPreset();
-
     AudioPluginAudioProcessor &processorRef;
 
     // WebView component
@@ -60,6 +48,20 @@ private:
     };
     std::vector<PresetEntry> presetList;
     int currentPresetIndex = -1;
+
+    // Preset management
+    juce::File getPresetRootFolder() const;
+    juce::File getPresetCacheFile() const;
+    bool loadPresetCache();
+    void savePresetCache() const;
+    static juce::StringArray buildPresetTags(const juce::String &displayName, const juce::String &instrumentType);
+    static std::vector<PresetEntry> buildPresetListFromRoot(const juce::File &rootFolder);
+    void startPresetScanAsync();
+    void scanPresetsFolder();
+    void loadPresetByIndex(int index);
+    void loadNextPreset();
+    void loadPrevPreset();
+    void browseForPreset();
 
     // File chooser (must persist for async callback)
     std::unique_ptr<juce::FileChooser> fileChooser;
