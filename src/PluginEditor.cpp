@@ -455,7 +455,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("midiNoteLocked", processorRef.getMidiNoteLocked());
     presetInfoObj->setProperty("dawOctaveOffset", DrumEngine::MidiNoteUtils::getHostOctaveOffset());
     presetInfoObj->setProperty("pitchShift", processorRef.getPitchShift());
-    presetInfoObj->setProperty("fundamentalFrequency", info.fundamentalFrequency);
+    presetInfoObj->setProperty("freq", info.freq);
     presetInfoObj->setProperty("freqConfidence", info.freqConfidence);
     presetInfoObj->setProperty("autoPitchMode", processorRef.getAutoPitchMode());
     presetInfoObj->setProperty("targetFrequencyHz", processorRef.getTargetFrequency());

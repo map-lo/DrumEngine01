@@ -36,8 +36,14 @@ window.drumEngineApp = function () {
             useVelocityToVolume: false,
             midiNoteLocked: false,
             pitchShift: 0,
-            sampleMap: {}
+            sampleMap: {},
+            freq: 0,
+            freqConfidence: 0
         },
+
+        // Auto-pitch mode
+        autoPitchMode: false,
+        targetFrequencyHz: 60.0,
 
         // Output volume (dB)
         outputVolumeDb: -6.0,
@@ -66,6 +72,9 @@ window.drumEngineApp = function () {
 
         // Pitch drag state
         isPitchDragging: false,
+
+        // Hz drag state
+        isHzDragging: false,
 
         // Output volume drag state
         isOutputVolumeDragging: false,
@@ -140,6 +149,12 @@ window.drumEngineApp = function () {
             });
 
             document.addEventListener('pointermove', (e) => {
+                if (this.isHzDragging) {
+                    this.handleHzMove(e);
+                }
+            });
+
+            document.addEventListener('pointermove', (e) => {
                 if (this.isOutputVolumeDragging) {
                     this.handleOutputVolumeMove(e);
                 }
@@ -150,11 +165,19 @@ window.drumEngineApp = function () {
             });
 
             document.addEventListener('pointerup', () => {
+                this.isHzDragging = false;
+            });
+
+            document.addEventListener('pointerup', () => {
                 this.isOutputVolumeDragging = false;
             });
 
             document.addEventListener('pointercancel', () => {
                 this.isPitchDragging = false;
+            });
+
+            document.addEventListener('pointercancel', () => {
+                this.isHzDragging = false;
             });
 
             document.addEventListener('pointercancel', () => {
@@ -479,6 +502,14 @@ window.drumEngineApp = function () {
                 this.isScanningPresets = state.isScanningPresets;
             }
 
+            if (typeof state.autoPitchMode !== 'undefined') {
+                this.autoPitchMode = state.autoPitchMode;
+            }
+
+            if (typeof state.targetFrequencyHz !== 'undefined') {
+                this.targetFrequencyHz = state.targetFrequencyHz;
+            }
+
             if (typeof state.isPresetBrowserOpen !== 'undefined') {
                 this.isPresetBrowserOpen = state.isPresetBrowserOpen;
             }
@@ -549,6 +580,70 @@ window.drumEngineApp = function () {
         resetPitch() {
             this.presetInfo.pitchShift = 0.0;
             this.sendMessage('setPitchShift', { semitones: 0 });
+        },
+
+        // Auto-pitch methods
+        toggleAutoPitchMode() {
+            this.autoPitchMode = !this.autoPitchMode;
+            this.sendMessage('setAutoPitchMode', { enabled: this.autoPitchMode });
+        },
+
+        formatHz(hz) {
+            return hz.toFixed(1) + ' Hz';
+        },
+
+        get hzSliderEnabled() {
+            const enabled = this.pitchEnabled && this.presetInfo.freq > 0;
+            if (this.debugMode) {
+                console.log('hzSliderEnabled check:', {
+                    pitchEnabled: this.pitchEnabled,
+                    freq: this.presetInfo.freq,
+                    freqConfidence: this.presetInfo.freqConfidence,
+                    enabled
+                });
+            }
+            return enabled;
+        },
+
+        handleHzDrag(event) {
+            if (!this.hzSliderEnabled) return;
+            if (event.altKey) {
+                this.resetTargetFrequency();
+                return;
+            }
+
+            this.isHzDragging = true;
+            this.handleHzMove(event);
+            event.preventDefault();
+        },
+
+        handleHzMove(event) {
+            if (!this.isHzDragging || !this.hzSliderEnabled) return;
+
+            const container = document.querySelector('.hz-indicator')?.parentElement;
+            if (!container) return;
+
+            const rect = container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+
+            // Map 0-100% to 20-500 Hz
+            const hz = 20 + (percentage / 100) * 480;
+            const rounded = Math.round(hz * 10) / 10;
+
+            this.targetFrequencyHz = rounded;
+            this.sendMessage('setTargetFrequency', { hz: rounded });
+        },
+
+        resetTargetFrequency() {
+            this.targetFrequencyHz = 60.0;
+            this.sendMessage('setTargetFrequency', { hz: 60.0 });
+        },
+
+        getHzSliderPosition() {
+            // Map 20-500 Hz to 0-100%
+            const hz = Math.max(20, Math.min(500, this.targetFrequencyHz));
+            return ((hz - 20) / 480) * 100;
         },
 
         // Output volume methods

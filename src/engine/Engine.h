@@ -36,7 +36,7 @@ namespace DrumEngine
             int layerCount = 0;
             juce::StringArray slotNames;
             std::array<bool, 8> activeSlots = {}; // Which slots have samples
-            float fundamentalFrequency = 0.0f;    // Hz, 0 = not detected
+            float freq = 0.0f;                    // Hz, 0 = not detected
             float freqConfidence = 0.0f;          // 0-1, detection confidence
         };
 

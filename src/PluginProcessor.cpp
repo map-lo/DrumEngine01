@@ -504,7 +504,7 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
         currentPresetInfo.slotNames = info.slotNames;
         currentPresetInfo.activeSlots = info.activeSlots;
         currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
-        currentPresetInfo.fundamentalFrequency = info.fundamentalFrequency;
+        currentPresetInfo.freq = info.freq;
         currentPresetInfo.freqConfidence = info.freqConfidence;
 
         // Store preset JSON data
@@ -528,10 +528,10 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
         }
 
         // Auto-pitch: calculate and apply pitch shift to match target frequency
-        if (autoPitchMode && info.fundamentalFrequency > 0.0f)
+        if (autoPitchMode && info.freq > 0.0f)
         {
             // Calculate semitones needed: semitones = 12 * log2(targetHz / presetHz)
-            float semitones = 12.0f * std::log2(targetFrequencyHz / info.fundamentalFrequency);
+            float semitones = 12.0f * std::log2(targetFrequencyHz / info.freq);
             setPitchShift(semitones);
         }
         else
@@ -776,9 +776,9 @@ void AudioPluginAudioProcessor::setAutoPitchMode(bool enabled)
     if (enabled)
     {
         auto info = getPresetInfo();
-        if (info.fundamentalFrequency > 0.0f)
+        if (info.freq > 0.0f)
         {
-            float semitones = 12.0f * std::log2(targetFrequencyHz / info.fundamentalFrequency);
+            float semitones = 12.0f * std::log2(targetFrequencyHz / info.freq);
             setPitchShift(semitones);
         }
     }
@@ -797,9 +797,9 @@ void AudioPluginAudioProcessor::setTargetFrequency(float hz)
     if (autoPitchMode)
     {
         auto info = getPresetInfo();
-        if (info.fundamentalFrequency > 0.0f)
+        if (info.freq > 0.0f)
         {
-            float semitones = 12.0f * std::log2(targetFrequencyHz / info.fundamentalFrequency);
+            float semitones = 12.0f * std::log2(targetFrequencyHz / info.freq);
             setPitchShift(semitones);
         }
     }

@@ -19,17 +19,34 @@
     ></span>
   </label>
 
+  <!-- Auto-pitch toggle -->
   <label class="flex items-center gap-1 mb-[2px]">
+    <input
+      type="checkbox"
+      :checked="autoPitchMode"
+      @click="toggleAutoPitchMode()"
+      class="hidden peer"
+    />
     <span
-      class="text-[10px]"
-      :class="pitchEnabled ? '' : 'opacity-40'"
-    >Pitch</span>
+      class="text-[10px] px-2 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100 cursor-pointer"
+      :class="pitchEnabled ? '' : 'opacity-40 pointer-events-none'"
+    >
+      Auto Hz
+    </span>
+  </label>
+
+  <!-- Pitch slider (shown when auto-pitch is OFF) -->
+  <label
+    class="flex items-center gap-1 mb-[2px]"
+    x-show="!autoPitchMode"
+    :class="pitchEnabled ? '' : 'opacity-40 pointer-events-none'"
+  >
+    <span class="text-[10px]">Pitch</span>
     <div
       @pointerdown="handlePitchDrag($event)"
       @dblclick="resetPitch()"
       @click.alt="resetPitch()"
       class="h-4 w-16 border-2 border-black flex items-center relative cursor-pointer"
-      :class="pitchEnabled ? '' : 'opacity-40 pointer-events-none'"
     >
       <div
         class="pitch-indicator h-full bg-black pointer-events-none"
@@ -38,8 +55,31 @@
     </div>
     <span
       class="text-[10px] w-8 text-right"
-      :class="pitchEnabled ? '' : 'opacity-40'"
       x-text="formatPitchShift(presetInfo.pitchShift)"
+    ></span>
+  </label>
+
+  <!-- Hz slider (shown when auto-pitch is ON) -->
+  <label
+    class="flex items-center gap-1 mb-[2px]"
+    x-show="autoPitchMode"
+    :class="hzSliderEnabled ? '' : 'opacity-40 pointer-events-none'"
+  >
+    <span class="text-[10px]">Hz</span>
+    <div
+      @pointerdown="handleHzDrag($event)"
+      @dblclick="resetTargetFrequency()"
+      @click.alt="resetTargetFrequency()"
+      class="h-4 w-16 border-2 border-black flex items-center relative cursor-pointer"
+    >
+      <div
+        class="hz-indicator h-full bg-black pointer-events-none"
+        :style="`width: ${getHzSliderPosition()}%`"
+      ></div>
+    </div>
+    <span
+      class="text-[10px] w-12 text-right"
+      x-text="formatHz(targetFrequencyHz)"
     ></span>
   </label>
 
