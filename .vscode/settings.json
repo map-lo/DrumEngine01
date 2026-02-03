@@ -1,0 +1,13 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "sysctl": true,
+        "npm install": true,
+        "/^python build\\.py$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    },
+    "cmake.configureOnEdit": false,
+    "cmake.configureOnOpen": false,
+    "cmake.automaticReconfigure": false
+}

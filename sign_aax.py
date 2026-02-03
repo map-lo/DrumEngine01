@@ -107,11 +107,12 @@ def sign_aax_plugin(aax_path: Path, config, build_type: str) -> bool:
         "--password", config.ACCOUNT_PASSWORD,
         "--wcguid", config.WCGUID,
         "--signid", signid,
+        "--dsigharden",  # Enable runtime hardening (Hardened Runtime)
         "--in", str(aax_path),
         "--out", str(aax_path)  # Sign in-place
     ]
     
-    print(f"  Command: {config.WRAPTOOL_PATH} sign --account *** --password *** --wcguid *** --signid *** --in {aax_path.name} --out {aax_path.name}")
+    print(f"  Command: {config.WRAPTOOL_PATH} sign --account *** --password *** --wcguid *** --signid *** --dsigharden --in {aax_path.name} --out {aax_path.name}")
     print()
     
     try:
