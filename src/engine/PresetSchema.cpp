@@ -108,6 +108,18 @@ namespace DrumEngine
             outSchema.useVelocityToVolume = obj->getProperty("useVelocityToVolume");
         }
 
+        // fundamentalFrequency (optional)
+        if (obj->hasProperty("freq"))
+        {
+            outSchema.fundamentalFrequency = static_cast<float>(obj->getProperty("freq"));
+        }
+
+        // freqConfidence (optional)
+        if (obj->hasProperty("freqConfidence"))
+        {
+            outSchema.freqConfidence = static_cast<float>(obj->getProperty("freqConfidence"));
+        }
+
         // Validate the schema
         return outSchema.validate();
     }

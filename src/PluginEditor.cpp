@@ -359,6 +359,16 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
         float semitones = obj->getProperty("semitones");
         processorRef.setPitchShift(semitones);
     }
+    else if (action == "setAutoPitchMode")
+    {
+        bool enabled = obj->getProperty("enabled");
+        processorRef.setAutoPitchMode(enabled);
+    }
+    else if (action == "setTargetFrequency")
+    {
+        float hz = obj->getProperty("hz");
+        processorRef.setTargetFrequency(hz);
+    }
     else if (action == "setOutputVolume")
     {
         float db = obj->getProperty("db");
@@ -445,6 +455,10 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("midiNoteLocked", processorRef.getMidiNoteLocked());
     presetInfoObj->setProperty("dawOctaveOffset", DrumEngine::MidiNoteUtils::getHostOctaveOffset());
     presetInfoObj->setProperty("pitchShift", processorRef.getPitchShift());
+    presetInfoObj->setProperty("fundamentalFrequency", info.fundamentalFrequency);
+    presetInfoObj->setProperty("freqConfidence", info.freqConfidence);
+    presetInfoObj->setProperty("autoPitchMode", processorRef.getAutoPitchMode());
+    presetInfoObj->setProperty("targetFrequencyHz", processorRef.getTargetFrequency());
     state->setProperty("resamplingMode", resamplingModeToString(processorRef.getResamplingMode()));
     state->setProperty("outputVolumeDb", processorRef.getOutputVolumeDb());
 

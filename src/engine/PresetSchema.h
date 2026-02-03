@@ -39,8 +39,10 @@ namespace DrumEngine
         juce::String rootFolder;
         std::vector<VelocityLayer> velocityLayers;
         VelToVol velToVol;
-        int fixedMidiNote = 38;           // default to snare; can be overridden by JSON
-        bool useVelocityToVolume = false; // whether velocity affects volume (default off)
+        int fixedMidiNote = 38;            // default to snare; can be overridden by JSON
+        bool useVelocityToVolume = false;  // whether velocity affects volume (default off)
+        float fundamentalFrequency = 0.0f; // Hz, 0 = not detected (optional field from JSON)
+        float freqConfidence = 0.0f;       // 0-1, detection confidence (optional field from JSON)
 
         PresetSchema() = default;
 

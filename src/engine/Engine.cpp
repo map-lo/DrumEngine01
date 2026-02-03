@@ -210,6 +210,8 @@ namespace DrumEngine
             info.slotCount = juce::jmin(8, currentSchema.slotNames.size());
             info.layerCount = static_cast<int>(currentSchema.velocityLayers.size());
             info.slotNames = currentSchema.slotNames;
+            info.fundamentalFrequency = currentSchema.fundamentalFrequency;
+            info.freqConfidence = currentSchema.freqConfidence;
 
             // Determine which slots are active (have samples in any velocity layer)
             auto *preset = activePreset.load();

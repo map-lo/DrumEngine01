@@ -238,6 +238,10 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
     // Save pitch shift
     xml.setAttribute("pitchShift", pitchShift);
 
+    // Save auto-pitch mode
+    xml.setAttribute("autoPitchMode", autoPitchMode);
+    xml.setAttribute("targetFrequencyHz", targetFrequencyHz);
+
     // Save UI state (preset browser)
     {
         juce::ScopedLock lock(uiStateLock);
@@ -386,6 +390,18 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
                     DrumEngine::debugLog("Restored pitch shift: " + juce::String(pitch));
                 }
 
+                // Restore auto-pitch mode
+                if (xml->hasAttribute("autoPitchMode"))
+                {
+                    autoPitchMode = xml->getBoolAttribute("autoPitchMode", false);
+                    DrumEngine::debugLog("Restored auto-pitch mode: " + juce::String(autoPitchMode ? "enabled" : "disabled"));
+                }
+                if (xml->hasAttribute("targetFrequencyHz"))
+                {
+                    targetFrequencyHz = static_cast<float>(xml->getDoubleAttribute("targetFrequencyHz", 60.0));
+                    DrumEngine::debugLog("Restored target frequency: " + juce::String(targetFrequencyHz) + " Hz");
+                }
+
                 // Debug: log active slots
                 juce::String activeSlotsLine("Active slots: ");
                 for (int i = 0; i < 8; ++i)
@@ -488,6 +504,8 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
         currentPresetInfo.slotNames = info.slotNames;
         currentPresetInfo.activeSlots = info.activeSlots;
         currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
+        currentPresetInfo.fundamentalFrequency = info.fundamentalFrequency;
+        currentPresetInfo.freqConfidence = info.freqConfidence;
 
         // Store preset JSON data
         currentPresetJsonData = jsonText;
@@ -509,8 +527,18 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
             currentPresetInfo.fixedMidiNote = customMidiNote;
         }
 
-        // Reset pitch shift when loading preset
-        setPitchShift(0.0f);
+        // Auto-pitch: calculate and apply pitch shift to match target frequency
+        if (autoPitchMode && info.fundamentalFrequency > 0.0f)
+        {
+            // Calculate semitones needed: semitones = 12 * log2(targetHz / presetHz)
+            float semitones = 12.0f * std::log2(targetFrequencyHz / info.fundamentalFrequency);
+            setPitchShift(semitones);
+        }
+        else
+        {
+            // Reset pitch shift when loading preset (if auto-pitch is off)
+            setPitchShift(0.0f);
+        }
     }
 
     return result;
@@ -738,6 +766,43 @@ void AudioPluginAudioProcessor::setPitchShift(float semitones)
 
     pitchShift = juce::jlimit(-6.0f, 6.0f, semitones);
     engine.setPitchShift(pitchShift);
+}
+
+void AudioPluginAudioProcessor::setAutoPitchMode(bool enabled)
+{
+    autoPitchMode = enabled;
+
+    // When enabling auto-pitch mode, recalculate pitch for current preset
+    if (enabled)
+    {
+        auto info = getPresetInfo();
+        if (info.fundamentalFrequency > 0.0f)
+        {
+            float semitones = 12.0f * std::log2(targetFrequencyHz / info.fundamentalFrequency);
+            setPitchShift(semitones);
+        }
+    }
+    else
+    {
+        // Reset pitch when disabling auto-pitch
+        setPitchShift(0.0f);
+    }
+}
+
+void AudioPluginAudioProcessor::setTargetFrequency(float hz)
+{
+    targetFrequencyHz = juce::jlimit(20.0f, 500.0f, hz);
+
+    // If auto-pitch is enabled, update pitch shift immediately
+    if (autoPitchMode)
+    {
+        auto info = getPresetInfo();
+        if (info.fundamentalFrequency > 0.0f)
+        {
+            float semitones = 12.0f * std::log2(targetFrequencyHz / info.fundamentalFrequency);
+            setPitchShift(semitones);
+        }
+    }
 }
 
 void AudioPluginAudioProcessor::setOutputVolumeDb(float db)

@@ -58,6 +58,8 @@ public:
         juce::StringArray slotNames;
         std::array<bool, 8> activeSlots = {}; // Which slots have samples
         bool useVelocityToVolume = false;
+        float fundamentalFrequency = 0.0f; // Hz, 0 = not detected
+        float freqConfidence = 0.0f;       // 0-1, detection confidence
     };
 
     PresetInfo getPresetInfo() const;
@@ -101,6 +103,12 @@ public:
     // Pitch shift
     void setPitchShift(float semitones);
     float getPitchShift() const { return pitchShift; }
+
+    // Auto-pitch mode (automatically adjust pitch to match target frequency)
+    void setAutoPitchMode(bool enabled);
+    bool getAutoPitchMode() const { return autoPitchMode; }
+    void setTargetFrequency(float hz);
+    float getTargetFrequency() const { return targetFrequencyHz; }
 
     // Output volume (main 1-2 only)
     void setOutputVolumeDb(float db);
@@ -171,6 +179,10 @@ private:
 
     // Pitch shift
     float pitchShift = 0.0f;
+
+    // Auto-pitch mode
+    bool autoPitchMode = false;
+    float targetFrequencyHz = 60.0f; // Default target frequency (C2)
 
     // Output volume (dB) for main output 1-2
     float outputVolumeDb = -6.0f;
