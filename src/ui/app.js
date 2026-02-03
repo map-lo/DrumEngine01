@@ -349,9 +349,10 @@ window.drumEngineApp = function () {
 
             const selectedTags = new Set(this.presetBrowserTags || []);
             if (selectedTags.size > 0) {
-                filtered = filtered.filter(preset =>
-                    selectedTags.has(preset.instrumentType)
-                );
+                filtered = filtered.filter(preset => {
+                    const tags = Array.isArray(preset.tags) ? preset.tags : [];
+                    return Array.from(selectedTags).every(tag => tags.includes(tag));
+                });
             }
 
             return filtered;
@@ -397,7 +398,8 @@ window.drumEngineApp = function () {
                 index,
                 displayName: preset.displayName || 'Unnamed Preset',
                 instrumentType: preset.instrumentType || 'Unknown',
-                category: preset.category || ''
+                category: preset.category || '',
+                tags: Array.isArray(preset.tags) ? preset.tags : []
             }));
         },
 
@@ -759,9 +761,10 @@ window.presetBrowser = function () {
 
             // Apply tag filter
             if (selectedTags.size > 0) {
-                filtered = filtered.filter(preset =>
-                    selectedTags.has(preset.instrumentType)
-                );
+                filtered = filtered.filter(preset => {
+                    const tags = Array.isArray(preset.tags) ? preset.tags : [];
+                    return Array.from(selectedTags).every(tag => tags.includes(tag));
+                });
             }
 
             return filtered;
@@ -770,9 +773,8 @@ window.presetBrowser = function () {
         get availableTags() {
             const tags = new Set();
             this.filteredPresets.forEach(preset => {
-                if (preset.instrumentType) {
-                    tags.add(preset.instrumentType);
-                }
+                const presetTags = Array.isArray(preset.tags) ? preset.tags : [];
+                presetTags.forEach(tag => tags.add(tag));
             });
             const root = this.getRoot();
             const selectedTags = root ? new Set(root.presetBrowserTags || []) : new Set();

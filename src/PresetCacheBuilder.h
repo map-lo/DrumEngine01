@@ -14,7 +14,8 @@ public:
         juce::StringArray tags;
     };
 
-    static juce::StringArray buildPresetTags(const juce::String &category,
+    static juce::StringArray buildPresetTags(const juce::String &displayName,
+                                             const juce::String &category,
                                              const juce::String &instrumentType);
     static std::vector<PresetEntry> buildPresetListFromRoot(const juce::File &rootFolder);
 };

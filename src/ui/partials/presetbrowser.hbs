@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <div class="p-2 flex flex-col gap-2 grow overflow-hidden">
+    <div class="pt-0 p-2 flex flex-col grow overflow-hidden">
       <input
         x-model="searchTerm"
         type="text"
@@ -53,25 +53,24 @@
         class="shrink-0 h-10 font-semibold px-2 text-xs border-2 border-black bg-black text-white outline-none focus:outline-none"
       />
 
-      <div class="flex flex-wrap gap-1" aria-label="Preset tags">
-        <template x-if="availableTags.length === 0">
-          <div class="text-[10px] text-white text-opacity-50">
-            No tags available
-          </div>
-        </template>
+      <div
+        x-show="availableTags.length > 0"
+        class="flex flex-wrap shrink-0 gap-1 p-2 pt-0 bg-black max-h-[68px] overflow-x-hidden overflow-y-scroll"
+        aria-label="Preset tags"
+      >
 
         <template x-for="tag in availableTags" :key="tag">
           <button
             @click="toggleTag(tag)"
-            class="px-2 py-1 text-[10px] uppercase tracking-widest hover:bg-white hover:bg-opacity-20"
-            :class="getRoot()?.presetBrowserTags?.includes(tag) ? 'bg-white text-black' : 'bg-black text-white'"
+            class="px-2 py-1 text-[10px] uppercase tracking-widest"
+            :class="getRoot()?.presetBrowserTags?.includes(tag) ? 'bg-white text-black' : 'bg-neutral-800 text-white'"
             x-text="tag"
           ></button>
         </template>
       </div>
 
       <div
-        class="bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
+        class="mt-2 bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
         aria-label="Preset list"
       >
         <template x-if="filteredPresets.length === 0">
@@ -90,10 +89,10 @@
             @keydown.up.prevent="navigateUp(index)"
             tabindex="0"
             class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
-            :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-white !bg-opacity-30' : 'bg-black'"
+            :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
           >
             <div
-              class="text-[8px] -mb-0.5 font-medium text-white tracking-wide text-opacity-70"
+              class="text-[8px] -mb-0.5 font-medium opacity-70 tracking-wide"
               x-text="preset.category"
             ></div>
             <div x-text="preset.displayName"></div>

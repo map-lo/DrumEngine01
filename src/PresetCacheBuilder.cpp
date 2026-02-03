@@ -1,10 +1,20 @@
 #include "PresetCacheBuilder.h"
 
-juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &category,
+juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &displayName,
+                                                      const juce::String &category,
                                                       const juce::String &instrumentType)
 {
     juce::StringArray tags;
     const auto instrumentTypeLower = instrumentType.trim().toLowerCase();
+    const auto pluralInstrumentTypeLower = instrumentTypeLower.isEmpty() || instrumentTypeLower.endsWith("s")
+                                               ? instrumentTypeLower
+                                               : instrumentTypeLower + "s";
+
+    juce::StringArray displayTokens;
+    displayTokens.addTokens(displayName, " /_-.", "\"'()[]{}:");
+    displayTokens.trim();
+    displayTokens.removeEmptyStrings();
+    displayTokens.removeDuplicates(true);
 
     juce::String tagSource = category + " " + instrumentType;
     juce::StringArray tokens;
@@ -16,7 +26,11 @@ juce::StringArray PresetCacheBuilder::buildPresetTags(const juce::String &catego
     for (const auto &token : tokens)
     {
         const auto tokenLower = token.toLowerCase();
+        if (displayTokens.contains(token, true))
+            continue;
         if (!instrumentTypeLower.isEmpty() && tokenLower == instrumentTypeLower)
+            continue;
+        if (!pluralInstrumentTypeLower.isEmpty() && tokenLower == pluralInstrumentTypeLower)
             continue;
         if (tokenLower == "drumengine01")
             continue;
@@ -93,7 +107,7 @@ PresetCacheBuilder::buildPresetListFromRoot(const juce::File &rootFolder)
                 }
             }
 
-            auto tags = buildPresetTags(category, instrumentType);
+            auto tags = buildPresetTags(displayName, category, instrumentType);
             results.push_back({displayName, category, instrumentType, jsonFile, tags});
         }
 
