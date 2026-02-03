@@ -62,6 +62,7 @@ private:
     void loadNextPreset();
     void loadPrevPreset();
     void browseForPreset();
+    int resolvePresetIndexFromState() const;
 
     // File chooser (must persist for async callback)
     std::unique_ptr<juce::FileChooser> fileChooser;

@@ -237,6 +237,22 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
     // Save pitch shift
     xml.setAttribute("pitchShift", pitchShift);
 
+    // Save UI state (preset browser)
+    {
+        juce::ScopedLock lock(uiStateLock);
+        auto *uiElement = xml.createNewChildElement("PresetBrowserState");
+        uiElement->setAttribute("open", presetBrowserOpen);
+        uiElement->setAttribute("selectedPresetIndex", lastSelectedPresetIndex);
+        uiElement->setAttribute("searchTerm", presetBrowserSearchTerm);
+
+        auto *tagsElement = uiElement->createNewChildElement("Tags");
+        for (const auto &tag : presetBrowserSelectedTags)
+        {
+            auto *tagElement = tagsElement->createNewChildElement("Tag");
+            tagElement->setAttribute("value", tag);
+        }
+    }
+
     // Save slot states
     auto *slotsXml = xml.createNewChildElement("SlotStates");
     for (int i = 0; i < 8; ++i)
@@ -409,6 +425,29 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     {
         bool velToVol = xml->getBoolAttribute("useVelocityToVolume", false);
         setUseVelocityToVolume(velToVol);
+    }
+
+    // Restore UI state (preset browser)
+    if (auto *uiElement = xml->getChildByName("PresetBrowserState"))
+    {
+        juce::ScopedLock lock(uiStateLock);
+        presetBrowserOpen = uiElement->getBoolAttribute("open", false);
+        lastSelectedPresetIndex = uiElement->getIntAttribute("selectedPresetIndex", -1);
+        presetBrowserSearchTerm = uiElement->getStringAttribute("searchTerm");
+
+        presetBrowserSelectedTags.clear();
+        if (auto *tagsElement = uiElement->getChildByName("Tags"))
+        {
+            for (auto *tagElement : tagsElement->getChildIterator())
+            {
+                if (tagElement->hasTagName("Tag"))
+                {
+                    const auto value = tagElement->getStringAttribute("value");
+                    if (value.isNotEmpty())
+                        presetBrowserSelectedTags.addIfNotAlreadyThere(value);
+                }
+            }
+        }
     }
 }
 
@@ -613,6 +652,56 @@ void AudioPluginAudioProcessor::setMidiNoteLocked(bool locked)
 bool AudioPluginAudioProcessor::getMidiNoteLocked() const
 {
     return midiNoteLocked;
+}
+
+void AudioPluginAudioProcessor::setPresetBrowserOpen(bool open)
+{
+    juce::ScopedLock lock(uiStateLock);
+    presetBrowserOpen = open;
+}
+
+bool AudioPluginAudioProcessor::getPresetBrowserOpen() const
+{
+    juce::ScopedLock lock(uiStateLock);
+    return presetBrowserOpen;
+}
+
+void AudioPluginAudioProcessor::setPresetBrowserSelectedTags(const juce::StringArray &tags)
+{
+    juce::ScopedLock lock(uiStateLock);
+    presetBrowserSelectedTags = tags;
+    presetBrowserSelectedTags.removeEmptyStrings();
+    presetBrowserSelectedTags.removeDuplicates(true);
+}
+
+void AudioPluginAudioProcessor::setPresetBrowserSearchTerm(const juce::String &term)
+{
+    juce::ScopedLock lock(uiStateLock);
+    presetBrowserSearchTerm = term;
+}
+
+juce::StringArray AudioPluginAudioProcessor::getPresetBrowserSelectedTags() const
+{
+    juce::ScopedLock lock(uiStateLock);
+    return presetBrowserSelectedTags;
+}
+
+juce::String AudioPluginAudioProcessor::getPresetBrowserSearchTerm() const
+{
+    juce::ScopedLock lock(uiStateLock);
+    return presetBrowserSearchTerm;
+}
+
+void AudioPluginAudioProcessor::setLastSelectedPresetIndex(int index)
+{
+    juce::ScopedLock lock(uiStateLock);
+    lastSelectedPresetIndex = index;
+}
+
+int AudioPluginAudioProcessor::getLastSelectedPresetIndex() const
+{
+    juce::ScopedLock lock(uiStateLock);
+    return lastSelectedPresetIndex;
 }
 
 void AudioPluginAudioProcessor::setPitchShift(float semitones)

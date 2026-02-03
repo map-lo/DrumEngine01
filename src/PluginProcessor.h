@@ -109,6 +109,16 @@ public:
     void setMidiNoteLocked(bool locked);
     bool getMidiNoteLocked() const;
 
+    // UI state persistence
+    void setPresetBrowserOpen(bool open);
+    bool getPresetBrowserOpen() const;
+    void setPresetBrowserSelectedTags(const juce::StringArray &tags);
+    juce::StringArray getPresetBrowserSelectedTags() const;
+    void setPresetBrowserSearchTerm(const juce::String &term);
+    juce::String getPresetBrowserSearchTerm() const;
+    void setLastSelectedPresetIndex(int index);
+    int getLastSelectedPresetIndex() const;
+
     // Engine access for editor
     const DrumEngine::Engine &getEngine() const { return engine; }
 
@@ -162,6 +172,13 @@ private:
 
     // Resampling mode
     DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::CatmullRom;
+
+    // UI state (persisted in plugin state)
+    mutable juce::CriticalSection uiStateLock;
+    bool presetBrowserOpen = false;
+    juce::StringArray presetBrowserSelectedTags;
+    juce::String presetBrowserSearchTerm;
+    int lastSelectedPresetIndex = -1;
 
     // Hit listeners
     juce::ListenerList<HitListener> hitListeners;

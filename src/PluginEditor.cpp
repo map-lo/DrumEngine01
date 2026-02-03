@@ -68,7 +68,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     // Start timer to update UI
     startTimer(100); // Update every 100ms
 
-    setSize(660, 440);
+    const bool open = processorRef.getPresetBrowserOpen();
+    setSize(open ? 660 + 300 : 660, 440);
     setResizable(false, false);
 }
 
@@ -296,11 +297,31 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
     {
         // Expand window width by 300px
         setSize(660 + 300, 440);
+        processorRef.setPresetBrowserOpen(true);
     }
     else if (action == "closePresetBrowser")
     {
         // Restore original window size
         setSize(660, 440);
+        processorRef.setPresetBrowserOpen(false);
+    }
+    else if (action == "setPresetBrowserTags")
+    {
+        juce::StringArray tags;
+        auto tagsVar = obj->getProperty("tags");
+        if (tagsVar.isArray())
+        {
+            if (const auto *tagsArray = tagsVar.getArray())
+            {
+                for (const auto &tagVar : *tagsArray)
+                    tags.addIfNotAlreadyThere(tagVar.toString());
+            }
+        }
+        processorRef.setPresetBrowserSelectedTags(tags);
+    }
+    else if (action == "setPresetBrowserSearchTerm")
+    {
+        processorRef.setPresetBrowserSearchTerm(obj->getProperty("term").toString());
     }
     else if (action == "setOutputMode")
     {
@@ -516,6 +537,17 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     // Preset scan state
     state->setProperty("isScanningPresets", isScanningPresets);
 
+    // Preset browser UI state
+    state->setProperty("isPresetBrowserOpen", processorRef.getPresetBrowserOpen());
+    {
+        auto tags = processorRef.getPresetBrowserSelectedTags();
+        juce::Array<juce::var> tagsArray;
+        for (const auto &tag : tags)
+            tagsArray.add(tag);
+        state->setProperty("presetBrowserTags", tagsArray);
+    }
+    state->setProperty("presetBrowserSearchTerm", processorRef.getPresetBrowserSearchTerm());
+
     // Convert to JSON and send to WebView
     juce::String jsonState = juce::JSON::toString(juce::var(state.get()));
 
@@ -684,7 +716,7 @@ void AudioPluginAudioProcessorEditor::startPresetScanAsync()
                                                             return;
 
                                                         safeThis->presetList = std::move(results);
-                                                        safeThis->currentPresetIndex = -1;
+                                                        safeThis->currentPresetIndex = safeThis->resolvePresetIndexFromState();
                                                         safeThis->savePresetCache();
                                                         safeThis->isScanningPresets = false;
                                                         safeThis->sendPresetListToWebView();
@@ -772,7 +804,7 @@ bool AudioPluginAudioProcessorEditor::loadPresetCache()
         presetList.push_back({displayName, category, instrumentType, presetFile, tags});
     }
 
-    currentPresetIndex = -1;
+    currentPresetIndex = resolvePresetIndexFromState();
     return true;
 }
 
@@ -821,7 +853,7 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
     sendStateUpdateToWebView();
 
     presetList = buildPresetListFromRoot(getPresetRootFolder());
-    currentPresetIndex = -1;
+    currentPresetIndex = resolvePresetIndexFromState();
     savePresetCache();
 
     isScanningPresets = false;
@@ -845,6 +877,7 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
         lastStatusMessage = "✓ Loaded: " + entry.displayName;
         statusIsError = false;
         currentPresetIndex = index;
+        processorRef.setLastSelectedPresetIndex(index);
     }
     else
     {
@@ -853,6 +886,14 @@ void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)
     }
 
     sendStateUpdateToWebView();
+}
+
+int AudioPluginAudioProcessorEditor::resolvePresetIndexFromState() const
+{
+    int index = processorRef.getLastSelectedPresetIndex();
+    if (index < 0 || index >= static_cast<int>(presetList.size()))
+        return -1;
+    return index;
 }
 
 void AudioPluginAudioProcessorEditor::loadNextPreset()

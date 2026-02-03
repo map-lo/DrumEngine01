@@ -17,6 +17,8 @@ window.drumEngineApp = function () {
         editor: false,
         isPresetBrowserOpen: false,
         isScanningPresets: false,
+        presetBrowserTags: [],
+        presetBrowserSearchTerm: '',
 
         // Data
         presetList: [],
@@ -405,6 +407,18 @@ window.drumEngineApp = function () {
             if (typeof state.isScanningPresets !== 'undefined') {
                 this.isScanningPresets = state.isScanningPresets;
             }
+
+            if (typeof state.isPresetBrowserOpen !== 'undefined') {
+                this.isPresetBrowserOpen = state.isPresetBrowserOpen;
+            }
+
+            if (Array.isArray(state.presetBrowserTags)) {
+                this.presetBrowserTags = state.presetBrowserTags;
+            }
+
+            if (typeof state.presetBrowserSearchTerm === 'string') {
+                this.presetBrowserSearchTerm = state.presetBrowserSearchTerm;
+            }
         },
 
         // Hit visualization
@@ -634,12 +648,23 @@ window.drumEngineApp = function () {
 window.presetBrowser = function () {
     return {
         searchTerm: '',
-        selectedTags: new Set(),
 
         init() {
             // Request initial data from root component
             this.sendToRoot('requestPresetList');
             this.sendToRoot('requestUpdate');
+
+            const root = this.getRoot();
+            if (root && typeof root.presetBrowserSearchTerm === 'string') {
+                this.searchTerm = root.presetBrowserSearchTerm;
+            }
+
+            this.$watch('searchTerm', value => {
+                const owner = this.getRoot();
+                if (!owner) return;
+                owner.presetBrowserSearchTerm = value;
+                this.sendToRoot('setPresetBrowserSearchTerm', { term: value });
+            });
         },
 
         sendToRoot(action, data = {}) {
@@ -662,6 +687,7 @@ window.presetBrowser = function () {
             const root = this.getRoot();
             if (!root || !root.presetList) return [];
             let filtered = root.presetList;
+            const selectedTags = new Set(root.presetBrowserTags || []);
 
             // Apply search filter
             if (this.searchTerm.trim()) {
@@ -672,9 +698,9 @@ window.presetBrowser = function () {
             }
 
             // Apply tag filter
-            if (this.selectedTags.size > 0) {
+            if (selectedTags.size > 0) {
                 filtered = filtered.filter(preset =>
-                    this.selectedTags.has(preset.instrumentType)
+                    selectedTags.has(preset.instrumentType)
                 );
             }
 
@@ -688,18 +714,57 @@ window.presetBrowser = function () {
                     tags.add(preset.instrumentType);
                 }
             });
-            this.selectedTags.forEach(tag => tags.add(tag));
+            const root = this.getRoot();
+            const selectedTags = root ? new Set(root.presetBrowserTags || []) : new Set();
+            selectedTags.forEach(tag => tags.add(tag));
             return Array.from(tags).sort();
         },
 
         toggleTag(tag) {
-            if (this.selectedTags.has(tag)) {
-                this.selectedTags.delete(tag);
+            const root = this.getRoot();
+            if (!root) return;
+
+            const selectedTags = new Set(root.presetBrowserTags || []);
+            if (selectedTags.has(tag)) {
+                selectedTags.delete(tag);
             } else {
-                this.selectedTags.add(tag);
+                selectedTags.add(tag);
             }
-            // Force reactivity
-            this.selectedTags = new Set(this.selectedTags);
+
+            root.presetBrowserTags = Array.from(selectedTags);
+            this.sendToRoot('setPresetBrowserTags', { tags: root.presetBrowserTags });
+        },
+
+        optionId(index) {
+            return `preset-option-${index}`;
+        },
+
+        getActiveOptionId() {
+            const root = this.getRoot();
+            if (!root) return '';
+            const activeIndex = root.currentPresetIndex;
+            if (typeof activeIndex !== 'number' || activeIndex < 0) return '';
+            return this.optionId(activeIndex);
+        },
+
+        moveSelection(delta) {
+            if (!this.filteredPresets.length) return;
+            const root = this.getRoot();
+            if (!root) return;
+
+            const currentIndex = root.currentPresetIndex;
+            const currentFilteredIndex = this.filteredPresets.findIndex(p => p.index === currentIndex);
+
+            let nextFilteredIndex = currentFilteredIndex + delta;
+            if (currentFilteredIndex === -1) {
+                nextFilteredIndex = delta > 0 ? 0 : this.filteredPresets.length - 1;
+            }
+
+            nextFilteredIndex = Math.max(0, Math.min(this.filteredPresets.length - 1, nextFilteredIndex));
+            const nextPreset = this.filteredPresets[nextFilteredIndex];
+            if (nextPreset) {
+                this.loadPreset(nextPreset.index);
+            }
         },
 
         loadPreset(index) {
@@ -711,31 +776,11 @@ window.presetBrowser = function () {
         },
 
         navigateDown(currentIndex) {
-            if (currentIndex < this.filteredPresets.length - 1) {
-                const nextPreset = this.filteredPresets[currentIndex + 1];
-                this.loadPreset(nextPreset.index);
-                // Focus the next button element
-                this.$nextTick(() => {
-                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
-                    if (buttons[currentIndex + 1]) {
-                        buttons[currentIndex + 1].focus();
-                    }
-                });
-            }
+            this.moveSelection(1);
         },
 
         navigateUp(currentIndex) {
-            if (currentIndex > 0) {
-                const prevPreset = this.filteredPresets[currentIndex - 1];
-                this.loadPreset(prevPreset.index);
-                // Focus the previous button element
-                this.$nextTick(() => {
-                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
-                    if (buttons[currentIndex - 1]) {
-                        buttons[currentIndex - 1].focus();
-                    }
-                });
-            }
+            this.moveSelection(-1);
         },
 
         getPresetPrefix(displayName) {

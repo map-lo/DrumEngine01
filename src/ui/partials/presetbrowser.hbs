@@ -50,7 +50,7 @@
         type="text"
         placeholder="Search presets..."
         autocomplete="off"
-        class="shrink-0 h-10 font-semibold px-2 text-xs border-2 border-black bg-black text-white outline-none"
+        class="shrink-0 h-10 font-semibold px-2 text-xs border-2 border-black bg-black text-white outline-none focus:outline-none"
       />
 
       <div class="flex flex-wrap gap-1" aria-label="Preset tags">
@@ -64,7 +64,7 @@
           <button
             @click="toggleTag(tag)"
             class="px-2 py-1 text-[10px] uppercase tracking-widest hover:bg-white hover:bg-opacity-20"
-            :class="selectedTags.has(tag) ? 'bg-white text-black' : 'bg-black text-white'"
+            :class="getRoot()?.presetBrowserTags?.includes(tag) ? 'bg-white text-black' : 'bg-black text-white'"
             x-text="tag"
           ></button>
         </template>
