@@ -16,6 +16,7 @@ window.drumEngineApp = function () {
         // UI State
         editor: false,
         isPresetBrowserOpen: false,
+        isScanningPresets: false,
 
         // Data
         presetList: [],
@@ -400,6 +401,10 @@ window.drumEngineApp = function () {
             if (typeof state.currentPresetIndex !== 'undefined') {
                 this.currentPresetIndex = state.currentPresetIndex;
             }
+
+            if (typeof state.isScanningPresets !== 'undefined') {
+                this.isScanningPresets = state.isScanningPresets;
+            }
         },
 
         // Hit visualization
@@ -642,6 +647,10 @@ window.presetBrowser = function () {
             if (window.__JUCE__ && window.__JUCE__.backend && window.__JUCE__.backend.emitEvent) {
                 window.__JUCE__.backend.emitEvent('fromWebView', message);
             }
+        },
+
+        refreshPresets() {
+            this.sendToRoot('refreshPresetList');
         },
 
         getRoot() {

@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.22)
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
 
-project(DRUM_ENGINE_01 VERSION 0.0.4)
+project(DRUM_ENGINE_01 VERSION 0.0.5)
 
 # Build metadata
 set(BUILD_NUMBER_FILE "${CMAKE_CURRENT_LIST_DIR}/build_plugin_number.txt")

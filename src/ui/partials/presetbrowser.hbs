@@ -5,25 +5,53 @@
   <div class="m-[2px] h-full flex flex-col">
     <div class="text-white text-xs flex items-center justify-between px-2 py-1">
       <div class="font-semibold tracking-wide uppercase">Presets</div>
-      <button
-        @click="getRoot()?.togglePresetBrowser()"
-        class="p-1 -mr-1.5 hover:opacity-60"
-        aria-label="Close preset browser"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          fill="currentColor"
-          class="size-4"
+      <div class="flex items-center gap-1">
+        <button
+          @click="refreshPresets()"
+          class="p-1 hover:opacity-60"
+          aria-label="Refresh preset list"
         >
-          <path
-            d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z"
-          />
-        </svg>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="size-4"
+          >
+            <path
+              d="M8 2a6 6 0 1 0 5.291 3.167.75.75 0 0 0-1.312.73A4.5 4.5 0 1 1 8 3.5h2.25a.75.75 0 0 0 0-1.5H8Z"
+            />
+            <path
+              d="M12.72 1.72a.75.75 0 0 0-1.06 0l-2 2a.75.75 0 0 0 0 1.06l2 2a.75.75 0 1 0 1.06-1.06L11.81 4.5H14a.75.75 0 0 0 0-1.5h-2.19l.9-.78a.75.75 0 0 0 0-1.06Z"
+            />
+          </svg>
+        </button>
+        <button
+          @click="getRoot()?.togglePresetBrowser()"
+          class="p-1 -mr-1.5 hover:opacity-60"
+          aria-label="Close preset browser"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="size-4"
+          >
+            <path
+              d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="p-2 flex flex-col gap-2 grow overflow-hidden">
+      <template x-if="getRoot()?.isScanningPresets">
+        <div
+          class="text-[10px] text-white text-opacity-70 uppercase tracking-widest"
+        >
+          Scanning...
+        </div>
+      </template>
       <input
         x-model="searchTerm"
         type="text"

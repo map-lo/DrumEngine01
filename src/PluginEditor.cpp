@@ -57,8 +57,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     else
         setupWebViewForProduction();
 
-    // Scan presets folder
-    scanPresetsFolder();
+    // Load preset cache or scan presets folder
+    if (!loadPresetCache())
+        scanPresetsFolder();
 
     // Register for hit notifications
     processorRef.addHitListener(this);
@@ -263,6 +264,11 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
 
     if (action == "requestPresetList")
     {
+        sendPresetListToWebView();
+    }
+    else if (action == "refreshPresetList")
+    {
+        scanPresetsFolder();
         sendPresetListToWebView();
     }
     else if (action == "requestUpdate")
@@ -507,6 +513,9 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     // Current preset index
     state->setProperty("currentPresetIndex", currentPresetIndex);
 
+    // Preset scan state
+    state->setProperty("isScanningPresets", isScanningPresets);
+
     // Convert to JSON and send to WebView
     juce::String jsonState = juce::JSON::toString(juce::var(state.get()));
 
@@ -531,6 +540,13 @@ void AudioPluginAudioProcessorEditor::sendPresetListToWebView()
         presetObj->setProperty("displayName", preset.displayName);
         presetObj->setProperty("category", preset.category);
         presetObj->setProperty("instrumentType", preset.instrumentType);
+        if (!preset.tags.isEmpty())
+        {
+            juce::Array<juce::var> tagsArray;
+            for (const auto &tag : preset.tags)
+                tagsArray.add(tag);
+            presetObj->setProperty("tags", juce::var(tagsArray));
+        }
         presetsArray.add(juce::var(presetObj.get()));
     }
 
@@ -539,16 +555,178 @@ void AudioPluginAudioProcessorEditor::sendPresetListToWebView()
 }
 
 //==============================================================================
-void AudioPluginAudioProcessorEditor::scanPresetsFolder()
+juce::File AudioPluginAudioProcessorEditor::getPresetRootFolder() const
+{
+    return juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+        .getChildFile("DrumEngine01");
+}
+
+juce::File AudioPluginAudioProcessorEditor::getPresetCacheFile() const
+{
+    return juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory)
+        .getChildFile("DrumEngine01")
+        .getChildFile("preset-index.json");
+}
+
+juce::StringArray AudioPluginAudioProcessorEditor::buildPresetTags(const juce::String &displayName,
+                                                                   const juce::String &instrumentType) const
+{
+    juce::StringArray tags;
+    if (!instrumentType.isEmpty())
+        tags.addIfNotAlreadyThere(instrumentType.trim());
+
+    juce::String tagSource = displayName + " " + instrumentType;
+    juce::StringArray tokens;
+    tokens.addTokens(tagSource, " /_-.", "\"'()[]{}:");
+    tokens.trim();
+    tokens.removeEmptyStrings();
+    tokens.removeDuplicates(true);
+
+    for (const auto &token : tokens)
+        tags.addIfNotAlreadyThere(token);
+
+    return tags;
+}
+
+bool AudioPluginAudioProcessorEditor::loadPresetCache()
 {
     presetList.clear();
 
+    if (!getPresetRootFolder().exists())
+        return false;
+
+    const auto cacheFile = getPresetCacheFile();
+    if (!cacheFile.existsAsFile())
+        return false;
+
+    const auto jsonText = cacheFile.loadFileAsString();
+    if (jsonText.isEmpty())
+        return false;
+
+    juce::var json;
+    const auto result = juce::JSON::parse(jsonText, json);
+    if (!result.wasOk() || !json.isObject())
+        return false;
+
+    auto *rootObj = json.getDynamicObject();
+    if (!rootObj)
+        return false;
+
+    const int schemaVersion = static_cast<int>(rootObj->getProperty("schemaVersion"));
+    if (schemaVersion != presetCacheSchemaVersion)
+        return false;
+
+    const auto presetRoot = getPresetRootFolder().getFullPathName();
+    const auto cachedRoot = rootObj->getProperty("presetRoot").toString();
+    if (cachedRoot != presetRoot)
+        return false;
+
+    const auto presetsVar = rootObj->getProperty("presets");
+    if (!presetsVar.isArray())
+        return false;
+
+    const auto *presetsArray = presetsVar.getArray();
+    if (!presetsArray)
+        return false;
+
+    for (const auto &item : *presetsArray)
+    {
+        if (!item.isObject())
+            continue;
+
+        auto *itemObj = item.getDynamicObject();
+        if (!itemObj)
+            continue;
+
+        const auto displayName = itemObj->getProperty("displayName").toString();
+        const auto category = itemObj->getProperty("category").toString();
+        const auto instrumentType = itemObj->getProperty("instrumentType").toString();
+        const auto filePath = itemObj->getProperty("file").toString();
+
+        if (filePath.isEmpty())
+            continue;
+
+        juce::File presetFile(filePath);
+        if (!presetFile.existsAsFile())
+            continue;
+
+        juce::StringArray tags;
+        if (itemObj->hasProperty("tags"))
+        {
+            const auto tagsVar = itemObj->getProperty("tags");
+            if (tagsVar.isArray())
+            {
+                if (const auto *tagsArray = tagsVar.getArray())
+                {
+                    for (const auto &tagVar : *tagsArray)
+                        tags.addIfNotAlreadyThere(tagVar.toString());
+                }
+            }
+        }
+
+        presetList.push_back({displayName, category, instrumentType, presetFile, tags});
+    }
+
+    currentPresetIndex = -1;
+    return true;
+}
+
+void AudioPluginAudioProcessorEditor::savePresetCache() const
+{
+    auto cacheFile = getPresetCacheFile();
+    auto cacheDir = cacheFile.getParentDirectory();
+    if (!cacheDir.exists())
+        cacheDir.createDirectory();
+
+    juce::DynamicObject::Ptr rootObj = new juce::DynamicObject();
+    rootObj->setProperty("schemaVersion", presetCacheSchemaVersion);
+    rootObj->setProperty("presetRoot", getPresetRootFolder().getFullPathName());
+    rootObj->setProperty("generatedAt", juce::Time::getCurrentTime().toISO8601(true));
+
+    juce::Array<juce::var> presetsArray;
+    for (const auto &preset : presetList)
+    {
+        juce::DynamicObject::Ptr presetObj = new juce::DynamicObject();
+        presetObj->setProperty("displayName", preset.displayName);
+        presetObj->setProperty("category", preset.category);
+        presetObj->setProperty("instrumentType", preset.instrumentType);
+        presetObj->setProperty("file", preset.file.getFullPathName());
+
+        if (!preset.tags.isEmpty())
+        {
+            juce::Array<juce::var> tagsArray;
+            for (const auto &tag : preset.tags)
+                tagsArray.add(tag);
+            presetObj->setProperty("tags", juce::var(tagsArray));
+        }
+
+        presetsArray.add(juce::var(presetObj.get()));
+    }
+
+    rootObj->setProperty("presets", juce::var(presetsArray));
+
+    juce::String jsonText = juce::JSON::toString(juce::var(rootObj.get()), true);
+    cacheFile.replaceWithText(jsonText);
+}
+
+//==============================================================================
+void AudioPluginAudioProcessorEditor::scanPresetsFolder()
+{
+    isScanningPresets = true;
+    sendStateUpdateToWebView();
+
+    presetList.clear();
+
     // Use user Documents directory
-    juce::File kitsFolder = juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
-                                .getChildFile("DrumEngine01");
+    juce::File kitsFolder = getPresetRootFolder();
 
     if (!kitsFolder.exists() || !kitsFolder.isDirectory())
+    {
+        savePresetCache();
+        isScanningPresets = false;
+        sendStateUpdateToWebView();
         return;
+    }
 
     int itemId = 2;
 
@@ -612,7 +790,8 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
                 }
             }
 
-            presetList.push_back({fullDisplayName, category, instrumentType, jsonFile});
+            auto tags = buildPresetTags(fullDisplayName, instrumentType);
+            presetList.push_back({fullDisplayName, category, instrumentType, jsonFile, tags});
             itemId++;
         }
 
@@ -626,6 +805,10 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
 
     scanFolder(kitsFolder, "");
     currentPresetIndex = -1;
+    savePresetCache();
+
+    isScanningPresets = false;
+    sendStateUpdateToWebView();
 }
 
 void AudioPluginAudioProcessorEditor::loadPresetByIndex(int index)

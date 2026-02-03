@@ -32,6 +32,11 @@ private:
     juce::File getUIDirectory();
 
     // Preset management
+    juce::File getPresetRootFolder() const;
+    juce::File getPresetCacheFile() const;
+    bool loadPresetCache();
+    void savePresetCache() const;
+    juce::StringArray buildPresetTags(const juce::String &displayName, const juce::String &instrumentType) const;
     void scanPresetsFolder();
     void loadPresetByIndex(int index);
     void loadNextPreset();
@@ -51,6 +56,7 @@ private:
         juce::String category;
         juce::String instrumentType;
         juce::File file;
+        juce::StringArray tags;
     };
     std::vector<PresetEntry> presetList;
     int currentPresetIndex = -1;
@@ -62,9 +68,12 @@ private:
     juce::String lastStatusMessage;
     bool statusIsError = false;
     bool pageLoaded = false;
+    bool isScanningPresets = false;
 
     // Cache last sent state to avoid unnecessary updates
     juce::String lastSentState;
+
+    static constexpr int presetCacheSchemaVersion = 1;
 
 #if JUCE_DEBUG
     bool useLiveReload = true; // Enable hot reload in debug builds

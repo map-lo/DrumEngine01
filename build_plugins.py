@@ -263,12 +263,18 @@ class BuildOrchestrator:
     
     def step_sign_macos_plugins(self):
         """Step 6: Sign macOS plugins (VST3/AU)"""
-        if not getattr(self.config, "SIGN_MAC_PLUGINS", False):
+        sign_macos = getattr(self.config, "SIGN_MAC_PLUGINS", False)
+        ad_hoc_sign = (self.build_type == "dev" and getattr(self.config, "ADHOC_SIGN_MAC_PLUGINS", False))
+
+        if not sign_macos and not ad_hoc_sign:
             print(f"{Colors.YELLOW}Skipping macOS plugin signing (SIGN_MAC_PLUGINS=False){Colors.NC}")
             print()
             return True
 
         identity = getattr(self.config, "MAC_CODE_SIGN_IDENTITY", None)
+        if not sign_macos:
+            identity = "-"
+
         if not identity:
             print(f"{Colors.RED}Error: MAC_CODE_SIGN_IDENTITY not set in build config{Colors.NC}")
             self.errors.append("MAC_CODE_SIGN_IDENTITY not set")
@@ -312,10 +318,11 @@ class BuildOrchestrator:
             print(f"  Path: {plugin_path}")
             print()
 
-            if not self.run_command(
-                ["codesign", "--force", "--deep", "--options", "runtime", "--timestamp", "--sign", identity, str(plugin_path)],
-                description=f"Code signing {fmt} plugin"
-            ):
+            sign_command = ["codesign", "--force", "--deep", "--sign", identity, str(plugin_path)]
+            if sign_macos:
+                sign_command = ["codesign", "--force", "--deep", "--options", "runtime", "--timestamp", "--sign", identity, str(plugin_path)]
+
+            if not self.run_command(sign_command, description=f"Code signing {fmt} plugin"):
                 return False
 
         print(f"{Colors.GREEN}✓ macOS plugin signing completed{Colors.NC}")
@@ -472,6 +479,16 @@ class BuildOrchestrator:
                 description=f"Copying {fmt} plugin to system location"
             ):
                 return False
+
+            if self.build_type == "dev":
+                self.run_command(
+                    ["sudo", "xattr", "-dr", "com.apple.quarantine", str(dest)],
+                    description=f"Clearing quarantine xattr for {fmt} plugin"
+                )
+                self.run_command(
+                    ["sudo", "xattr", "-dr", "com.apple.provenance", str(dest)],
+                    description=f"Clearing provenance xattr for {fmt} plugin"
+                )
 
         print(f"{Colors.GREEN}✓ VST3/AU plugins installed to system locations{Colors.NC}")
         print()
