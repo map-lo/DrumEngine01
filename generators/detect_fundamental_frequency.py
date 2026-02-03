@@ -60,7 +60,7 @@ INSTRUMENT_PARAMS = {
 }
 
 # Detection settings
-CONFIDENCE_THRESHOLD = 0.5
+CONFIDENCE_THRESHOLD = 0.4
 YIN_CONFIDENCE_THRESHOLD = 0.5  # Fallback to FFT if YIN confidence < this
 
 
@@ -240,32 +240,45 @@ def detect_fundamental_frequency(
         
         segment = audio[start_sample:end_sample]
         
-        # Primary method: YIN autocorrelation
-        freq_yin, conf_yin = detect_frequency_yin(
-            segment, sr, params["fmin"], params["fmax"]
-        )
-        
-        # If YIN confidence is good, use it
-        if freq_yin and conf_yin >= YIN_CONFIDENCE_THRESHOLD:
-            return freq_yin, conf_yin
-        
-        # Fallback: FFT peak detection (especially for snares)
-        freq_fft, conf_fft = detect_frequency_fft(
-            segment, sr, params["fmin"], params["fmax"]
-        )
-        
-        # Use whichever method has higher confidence
-        if freq_yin and freq_fft:
-            if conf_yin >= conf_fft:
+        def run_detection(fmax: float) -> Tuple[Optional[float], float]:
+            # Primary method: YIN autocorrelation
+            freq_yin, conf_yin = detect_frequency_yin(
+                segment, sr, params["fmin"], fmax
+            )
+
+            # If YIN confidence is good, use it
+            if freq_yin and conf_yin >= YIN_CONFIDENCE_THRESHOLD:
                 return freq_yin, conf_yin
-            else:
+
+            # Fallback: FFT peak detection (especially for snares)
+            freq_fft, conf_fft = detect_frequency_fft(
+                segment, sr, params["fmin"], fmax
+            )
+
+            # Use whichever method has higher confidence
+            if freq_yin and freq_fft:
+                if conf_yin >= conf_fft:
+                    return freq_yin, conf_yin
+                else:
+                    return freq_fft, conf_fft
+            elif freq_yin:
+                return freq_yin, conf_yin
+            elif freq_fft:
                 return freq_fft, conf_fft
-        elif freq_yin:
-            return freq_yin, conf_yin
-        elif freq_fft:
-            return freq_fft, conf_fft
-        else:
-            return None, 0.0
+            else:
+                return None, 0.0
+
+        # Run initial detection with default fmax
+        freq, conf = run_detection(params["fmax"])
+
+        # If confidence is low, try reducing fmax by 50 Hz
+        if conf < 0.5:
+            reduced_fmax = max(params["fmin"] + 1.0, params["fmax"] - 50.0)
+            freq_alt, conf_alt = run_detection(reduced_fmax)
+            if conf_alt > conf:
+                return freq_alt, conf_alt
+
+        return freq, conf
             
     except Exception as e:
         print(f"    Error analyzing {wav_path}: {e}")

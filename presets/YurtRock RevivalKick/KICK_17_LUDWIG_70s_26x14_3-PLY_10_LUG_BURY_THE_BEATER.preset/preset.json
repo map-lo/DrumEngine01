@@ -45,6 +45,6 @@
     "amount": 100,
     "curveName": "soft"
   },
-  "freq": 100.0,
-  "freqConfidence": 0.515
+  "freq": 52.18,
+  "freqConfidence": 0.412
 }
