@@ -843,19 +843,7 @@ window.presetBrowser = function () {
             }
         },
 
-        getPresetPrefix(displayName) {
-            const lastSlash = displayName.lastIndexOf('/');
-            if (lastSlash !== -1) {
-                return displayName.substring(0, lastSlash).replace('kits/', '');
-            }
-            return '';
-        },
-
         getPresetName(displayName) {
-            const lastSlash = displayName.lastIndexOf('/');
-            if (lastSlash !== -1) {
-                return displayName.substring(lastSlash + 1);
-            }
             return displayName;
         }
     };
