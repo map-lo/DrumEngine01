@@ -10,6 +10,9 @@
 
 cmake_minimum_required(VERSION 3.22)
 
+# Set minimum macOS version for compatibility
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version" FORCE)
+
 # The top-level CMakeLists.txt file for a project must contain a literal, direct call to the
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
@@ -91,6 +94,8 @@ set_target_properties(DrumEngine01 PROPERTIES
     JUCE_PLUGIN_NAME "${PLUGIN_NAME}"
     JUCE_PLUGIN_CODE "${PLUGIN_ID}"
     JUCE_BUNDLE_ID "${BUNDLE_ID}"
+    # Build universal binaries (arm64 + x86_64) for maximum compatibility
+    OSX_ARCHITECTURES "arm64;x86_64"
     # macOS code signing settings
     XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Developer ID Application"
     XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "4V59UK4A32"
