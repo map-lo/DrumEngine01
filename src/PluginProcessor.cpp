@@ -1,4 +1,5 @@
 #include "PluginProcessor.h"
+#include "engine/DebugLog.h"
 #include "PluginEditor.h"
 
 //==============================================================================
@@ -278,16 +279,9 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
         return;
 
     // Debug logging
-    juce::File debugFile = juce::File::getSpecialLocation(juce::File::userHomeDirectory).getChildFile("DrumEngine01_Debug.txt");
-    juce::FileOutputStream debugStream(debugFile, 1024);
-    if (debugStream.openedOk())
-    {
-        debugStream << "[" << juce::Time::getCurrentTime().toString(true, true, true, true) << "] setStateInformation called\n";
-        if (xml->hasAttribute("presetName"))
-        {
-            debugStream << "  Preset name: " << xml->getStringAttribute("presetName") << "\n";
-        }
-    }
+    DrumEngine::debugLog("setStateInformation called");
+    if (xml->hasAttribute("presetName"))
+        DrumEngine::debugLog("Preset name: " + xml->getStringAttribute("presetName"));
 
     // Restore output mode
     if (xml->hasAttribute("outputMode"))
@@ -353,22 +347,21 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     // Restore preset from JSON data stored in child element
     if (auto *presetElement = xml->getChildByName("PresetData"))
     {
-        debugStream << "  Found PresetData element\n";
+        DrumEngine::debugLog("Found PresetData element");
         juce::String presetJson = presetElement->getAllSubText();
         juce::String rootFolder = presetElement->getStringAttribute("rootFolder");
         juce::String presetName = presetElement->getStringAttribute("name", "Unknown");
 
-        debugStream << "  JSON length: " << presetJson.length() << "\n";
-        debugStream << "  Root folder: " << rootFolder << "\n";
-        debugStream << "  First 500 chars of JSON:\n"
-                    << presetJson.substring(0, 500) << "\n";
+        DrumEngine::debugLog("JSON length: " + juce::String(presetJson.length()));
+        DrumEngine::debugLog("Root folder: " + rootFolder);
+        DrumEngine::debugLog("First 500 chars of JSON:\n" + presetJson.substring(0, 500));
 
         if (!presetJson.isEmpty())
         {
-            debugStream << "  Calling loadPresetFromJsonInternal...\n";
+            DrumEngine::debugLog("Calling loadPresetFromJsonInternal...");
             auto result = loadPresetFromJsonInternal(presetJson, presetName, rootFolder);
 
-            debugStream << "  Result: " << (result.wasOk() ? "OK" : result.getErrorMessage()) << "\n";
+            DrumEngine::debugLog("Result: " + juce::String(result.wasOk() ? "OK" : result.getErrorMessage()));
 
             if (result.wasOk())
             {
@@ -381,7 +374,7 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
                     if (midiNoteLocked && customMidiNote >= 0 && customMidiNote <= 127)
                     {
                         setFixedMidiNote(customMidiNote);
-                        debugStream << "  Restored locked custom MIDI note: " << customMidiNote << "\n";
+                        DrumEngine::debugLog("Restored locked custom MIDI note: " + juce::String(customMidiNote));
                     }
                 }
 
@@ -390,34 +383,34 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
                 {
                     float pitch = static_cast<float>(xml->getDoubleAttribute("pitchShift", 0.0));
                     setPitchShift(pitch);
-                    debugStream << "  Restored pitch shift: " << pitch << "\n";
+                    DrumEngine::debugLog("Restored pitch shift: " + juce::String(pitch));
                 }
 
                 // Debug: log active slots
-                debugStream << "  Active slots: ";
+                juce::String activeSlotsLine("Active slots: ");
                 for (int i = 0; i < 8; ++i)
-                    debugStream << (currentPresetInfo.activeSlots[i] ? "1" : "0");
-                debugStream << "\n";
+                    activeSlotsLine += (currentPresetInfo.activeSlots[i] ? "1" : "0");
+                DrumEngine::debugLog(activeSlotsLine);
 
                 // Mark that state was successfully restored
                 stateRestored = true;
 
                 // Debug logging - reuse the same debug stream
-                debugStream << "  Successfully restored preset: " << presetName << "\n";
+                DrumEngine::debugLog("Successfully restored preset: " + presetName);
             }
             else
             {
-                debugStream << "  Failed to restore preset\n";
+                DrumEngine::debugLog("Failed to restore preset");
             }
         }
         else
         {
-            debugStream << "  presetJson is empty\n";
+            DrumEngine::debugLog("presetJson is empty");
         }
     }
     else
     {
-        debugStream << "  No PresetData element found\n";
+        DrumEngine::debugLog("No PresetData element found");
     }
 
     // Restore velocity to volume setting (after preset is loaded)

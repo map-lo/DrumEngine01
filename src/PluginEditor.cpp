@@ -1,23 +1,14 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 #include "engine/MidiNoteUtils.h"
+#include "engine/DebugLog.h"
 #include "BinaryData.h"
 #include <thread>
 
-// Debug logging helper
+// Debug logging helper (shared log file)
 static void logToFile(const juce::String &message)
 {
-#if JUCE_DEBUG
-    juce::File logFile = juce::File::getSpecialLocation(juce::File::userHomeDirectory)
-                             .getChildFile("DrumEngine01_debug.log");
-
-    juce::String timestamp = juce::Time::getCurrentTime().toString(true, true, true, true);
-    juce::String logLine = timestamp + " - " + message + "\n";
-
-    logFile.appendText(logLine);
-#else
-    juce::ignoreUnused(message);
-#endif
+    DrumEngine::debugLog(message);
 }
 
 static juce::String resamplingModeToString(DrumEngine::ResamplingMode mode)
