@@ -354,6 +354,13 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
         lastStatusMessage = locked ? "MIDI note locked" : "MIDI note unlocked";
         statusIsError = false;
     }
+    else if (action == "setPhaseInverted")
+    {
+        bool inverted = obj->getProperty("inverted");
+        processorRef.setPhaseInverted(inverted);
+        lastStatusMessage = inverted ? "Phase inverted" : "Phase normal";
+        statusIsError = false;
+    }
     else if (action == "setPitchShift")
     {
         float semitones = obj->getProperty("semitones");
@@ -453,6 +460,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
     presetInfoObj->setProperty("layerCount", info.layerCount);
     presetInfoObj->setProperty("useVelocityToVolume", info.useVelocityToVolume);
     presetInfoObj->setProperty("midiNoteLocked", processorRef.getMidiNoteLocked());
+    presetInfoObj->setProperty("phaseInverted", processorRef.getPhaseInverted());
     presetInfoObj->setProperty("dawOctaveOffset", DrumEngine::MidiNoteUtils::getHostOctaveOffset());
     presetInfoObj->setProperty("pitchShift", processorRef.getPitchShift());
     presetInfoObj->setProperty("freq", info.freq);

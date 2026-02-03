@@ -122,6 +122,10 @@ public:
     void setMidiNoteLocked(bool locked);
     bool getMidiNoteLocked() const;
 
+    // Phase inversion (all outputs)
+    void setPhaseInverted(bool inverted);
+    bool getPhaseInverted() const { return phaseInverted; }
+
     // UI state persistence
     void setPresetBrowserOpen(bool open);
     bool getPresetBrowserOpen() const;
@@ -186,6 +190,9 @@ private:
 
     // Output volume (dB) for main output 1-2
     float outputVolumeDb = -6.0f;
+
+    // Phase inversion (all outputs)
+    bool phaseInverted = false;
 
     // Resampling mode
     DrumEngine::ResamplingMode resamplingMode = DrumEngine::ResamplingMode::CatmullRom;

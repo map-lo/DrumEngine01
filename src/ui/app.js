@@ -35,6 +35,7 @@ window.drumEngineApp = function () {
             slotCount: 0,
             useVelocityToVolume: false,
             midiNoteLocked: false,
+            phaseInverted: false,
             pitchShift: 0,
             sampleMap: {},
             freq: 0,

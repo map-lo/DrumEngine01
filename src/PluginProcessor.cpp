@@ -184,6 +184,9 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     buffer.applyGain(0, 0, numSamples, outputGain);
     if (buffer.getNumChannels() > 1)
         buffer.applyGain(1, 0, numSamples, outputGain);
+
+    if (phaseInverted)
+        buffer.applyGain(-1.0f);
 }
 
 //==============================================================================
@@ -221,6 +224,9 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 
     // Save output volume (dB)
     xml.setAttribute("outputVolumeDb", outputVolumeDb);
+
+    // Save phase inversion
+    xml.setAttribute("phaseInverted", phaseInverted);
 
     // Save resampling mode
     xml.setAttribute("resamplingMode", static_cast<int>(resamplingMode));
@@ -299,6 +305,13 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
     {
         float db = static_cast<float>(xml->getDoubleAttribute("outputVolumeDb", -6.0));
         setOutputVolumeDb(db);
+    }
+
+    // Restore phase inversion
+    if (xml->hasAttribute("phaseInverted"))
+    {
+        bool inverted = xml->getBoolAttribute("phaseInverted", false);
+        setPhaseInverted(inverted);
     }
 
     // Restore resampling mode
@@ -698,6 +711,11 @@ void AudioPluginAudioProcessor::setMidiNoteLocked(bool locked)
             customMidiNote = currentNote;
         }
     }
+}
+
+void AudioPluginAudioProcessor::setPhaseInverted(bool inverted)
+{
+    phaseInverted = inverted;
 }
 
 bool AudioPluginAudioProcessor::getMidiNoteLocked() const

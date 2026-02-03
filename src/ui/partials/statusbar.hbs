@@ -1,6 +1,6 @@
 <!-- Status Bar -->
-<div class="flex gap-3 items-end justify-start mx-2 mb-1">
-  <label class="flex items-center gap-1 mb-[2px]">
+<div class="flex gap-1 items-center mx-2 mb-2">
+  <label class="flex items-center gap-1">
     <span class="text-[10px]">Vol</span>
     <div
       @pointerdown="handleOutputVolumeDrag($event)"
@@ -13,6 +13,7 @@
         :style="`width: ${outputVolumePercent()}%`"
       ></div>
     </div>
+
     <span
       class="text-[10px] w-12 text-left pl-1"
       x-text="`${formatDb(outputVolumeDb)} dB`"
@@ -22,7 +23,7 @@
   <div class="flex items-center gap-1">
     <!-- Hz slider (shown when auto-pitch is ON) -->
     <label
-      class="flex items-center gap-1 mb-[2px]"
+      class="flex items-center gap-1"
       x-show="autoPitchMode"
       :class="hzSliderEnabled ? '' : 'opacity-40 pointer-events-none'"
     >
@@ -46,7 +47,7 @@
 
     <!-- Pitch slider (shown when auto-pitch is OFF) -->
     <label
-      class="flex items-center gap-1 mb-[2px]"
+      class="flex items-center gap-1"
       x-show="!autoPitchMode"
       :class="pitchEnabled ? '' : 'opacity-40 pointer-events-none'"
     >
@@ -69,7 +70,37 @@
     </label>
   </div>
 
+  <label class="flex">
+    <input
+      type="checkbox"
+      x-model="presetInfo.phaseInverted"
+      @change="sendMessage('setPhaseInverted', { inverted: presetInfo.phaseInverted })"
+      class="hidden peer"
+    />
+    <span
+      class="text-[10px] inline-flex gap-1 items-center px-1 mx-1 h-4 text-black text-opacity-50 peer-checked:bg-black peer-checked:text-white peer-checked:text-opacity-100"
+    >
+      Phase
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="3"
+        stroke="currentColor"
+        class="size-3"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 21L21 3" />
+      </svg>
+    </span>
+  </label>
+
   <div class="grow"></div>
+
   <label class="flex">
     <span class="text-[10px]">Midi Note</span>
     <input
@@ -82,6 +113,7 @@
       class="w-8 h-4 text-[10px] text-center ml-1 bg-black !text-white"
     />
   </label>
+
   <label class="flex">
     <input
       type="checkbox"
@@ -95,6 +127,7 @@
       Lock MIDI
     </span>
   </label>
+
   <label class="flex">
     <input
       type="checkbox"

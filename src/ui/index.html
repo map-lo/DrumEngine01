@@ -11,8 +11,11 @@
     class="bg-[ghostwhite] text-black font-bold select-none !cursor-default h-full overflow-hidden"
   >
     <div x-show="!editor" class="h-full flex flex-row-reverse items-stretch">
-      <div class="w-[660px]">
-        <div id="mainContent" class="m-[2px] flex flex-col overflow-hidden">
+      <div class="w-[660px] h-full">
+        <div
+          id="mainContent"
+          class="m-[2px] h-full flex flex-col overflow-hidden"
+        >
           {{> menubar}} {{> header}} {{> mixer}} {{> statusbar}}
         </div>
       </div>
