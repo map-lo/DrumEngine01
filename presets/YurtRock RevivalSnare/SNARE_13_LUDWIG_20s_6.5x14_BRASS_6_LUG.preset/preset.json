@@ -62,5 +62,7 @@
   "velToVol": {
     "amount": 100,
     "curveName": "soft"
-  }
+  },
+  "freq": 152.7,
+  "freqConfidence": 0.825
 }

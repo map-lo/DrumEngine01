@@ -261,5 +261,7 @@
       "type": "builtin",
       "name": "soft"
     }
-  }
+  },
+  "freq": 57.89,
+  "freqConfidence": 0.584
 }
