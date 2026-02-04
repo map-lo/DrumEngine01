@@ -186,10 +186,12 @@ def main():
             art_name = sanitize_name(art.get("name") or base_name)
             art_folder = art_name if multiple_articulations else ""
 
+            preset_name = art_name if multiple_articulations else (reference_name or base_name)
+            if art_folder and preset_name == art_folder:
+                art_folder = ""
+
             preset_parent = os.path.join(preset_root, art_folder) if art_folder else preset_root
             os.makedirs(preset_parent, exist_ok=True)
-
-            preset_name = art_name if multiple_articulations else (reference_name or base_name)
             preset_folder = os.path.join(preset_parent, f"{preset_name}.preset")
             os.makedirs(preset_folder, exist_ok=True)
             preset_path = os.path.join(preset_folder, "preset.json")
