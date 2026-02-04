@@ -168,6 +168,22 @@ def detect_frequency_fft(audio: np.ndarray, sr: int, fmin: float, fmax: float) -
         return None, 0.0
 
 
+def get_fft_magnitude_at_freq(audio: np.ndarray, sr: int, target_freq: float) -> float:
+    """Return FFT magnitude at the nearest bin to target_freq."""
+    if target_freq <= 0:
+        return 0.0
+    try:
+        windowed = audio * signal.windows.hann(len(audio))
+        fft_result = rfft(windowed)
+        freqs = rfftfreq(len(windowed), 1 / sr)
+        idx = int(np.argmin(np.abs(freqs - target_freq)))
+        if idx < 0 or idx >= len(fft_result):
+            return 0.0
+        return float(np.abs(fft_result[idx]))
+    except Exception:
+        return 0.0
+
+
 def detect_fundamental_frequency(
     wav_path: str,
     instrument_type: str
@@ -276,7 +292,27 @@ def detect_fundamental_frequency(
             reduced_fmax = max(params["fmin"] + 1.0, params["fmax"] - 50.0)
             freq_alt, conf_alt = run_detection(reduced_fmax)
             if conf_alt > conf:
-                return freq_alt, conf_alt
+                freq, conf = freq_alt, conf_alt
+
+        # If detected freq is very low, check if its octave is more likely
+        if freq and freq < 50.0:
+            doubled = freq * 2.0
+            if doubled <= params["fmax"]:
+                mag_low = get_fft_magnitude_at_freq(segment, sr, freq)
+                mag_double = get_fft_magnitude_at_freq(segment, sr, doubled)
+                if mag_double > mag_low:
+                    freq = doubled
+
+            # Also try YIN in a tighter octave range and use it if confidence improves
+            octave_center = doubled
+            octave_fmin = max(params["fmin"], octave_center - 20.0)
+            octave_fmax = min(params["fmax"], octave_center + 20.0)
+            if octave_fmax > octave_fmin:
+                freq_oct, conf_oct = detect_frequency_yin(
+                    segment, sr, octave_fmin, octave_fmax
+                )
+                if freq_oct and conf_oct > conf:
+                    freq, conf = freq_oct, conf_oct
 
         return freq, conf
             
