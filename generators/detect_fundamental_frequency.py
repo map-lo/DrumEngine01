@@ -330,14 +330,14 @@ def resolve_wav_path(preset_folder: str, rel_path: str) -> Optional[str]:
     return None
 
 
-def get_target_sample_paths(preset_json_path: str) -> List[str]:
+def get_target_sample_paths(preset_json_path: str, max_layers: int) -> List[str]:
     """
     Parse preset JSON and return paths to target samples:
-    - Top 3 velocity layers by 'hi' value
+    - Top N velocity layers by 'hi' value
     - First populated slot (first mic) and first round robin
     
     Returns:
-        List of sample paths (up to 3) or empty list if not found
+        List of sample paths (up to N) or empty list if not found
     """
     try:
         with open(preset_json_path, 'r') as f:
@@ -347,8 +347,9 @@ def get_target_sample_paths(preset_json_path: str) -> List[str]:
         if not velocity_layers:
             return []
         
-        # Top 3 velocity layers by highest 'hi' value
-        top_layers = sorted(velocity_layers, key=lambda l: l.get('hi', 0), reverse=True)[:3]
+        # Top N velocity layers by highest 'hi' value
+        max_layers = max(1, int(max_layers))
+        top_layers = sorted(velocity_layers, key=lambda l: l.get('hi', 0), reverse=True)[:max_layers]
         
         preset_folder = os.path.dirname(preset_json_path)
         sample_paths: List[str] = []
@@ -407,7 +408,7 @@ def update_preset_json(preset_json_path: str, freq: float, confidence: float) ->
         return False
 
 
-def process_preset(preset_folder: str, stats: Dict) -> None:
+def process_preset(preset_folder: str, stats: Dict, max_layers: int) -> None:
     """
     Process a single preset folder: detect frequency and update JSON.
     
@@ -440,8 +441,8 @@ def process_preset(preset_folder: str, stats: Dict) -> None:
         
         print(f"→ {preset_name} [{instrument_type}]")
         
-        # Get target sample paths (top 3 velocity layers)
-        sample_paths = get_target_sample_paths(preset_json_path)
+        # Get target sample paths (top N velocity layers)
+        sample_paths = get_target_sample_paths(preset_json_path, max_layers)
         if not sample_paths:
             stats['failed'] += 1
             print(f"  ✗ No valid sample found")
@@ -449,6 +450,8 @@ def process_preset(preset_folder: str, stats: Dict) -> None:
 
         freq = None
         confidence = 0.0
+
+        best_layer_index = None
 
         for idx, sample_path in enumerate(sample_paths, start=1):
             rel_sample = os.path.relpath(sample_path, preset_folder)
@@ -460,6 +463,10 @@ def process_preset(preset_folder: str, stats: Dict) -> None:
             )
             if conf_candidate > confidence:
                 freq, confidence = freq_candidate, conf_candidate
+                best_layer_index = idx
+
+        if best_layer_index is not None:
+            stats['layer_wins'][best_layer_index] = stats['layer_wins'].get(best_layer_index, 0) + 1
         
         if freq and confidence >= CONFIDENCE_THRESHOLD:
             # Update JSON
@@ -536,6 +543,11 @@ def print_summary(stats: Dict) -> None:
         print(f"\nBy instrument type:")
         for inst_type, count in sorted(stats['by_type'].items()):
             print(f"  {inst_type}: {count}")
+
+    if stats['layer_wins']:
+        print(f"\nWinning velocity layer (rank):")
+        for layer_idx, count in sorted(stats['layer_wins'].items()):
+            print(f"  top {layer_idx}: {count}")
     
     if stats['success'] > 0:
         success_rate = (stats['success'] / max(stats['total'] - stats['skipped'], 1)) * 100
@@ -569,6 +581,12 @@ def main():
         default='presets',
         help='Path to presets directory (default: presets/)'
     )
+    parser.add_argument(
+        '--velocity-layers',
+        type=int,
+        default=3,
+        help='Number of top velocity layers to test (default: 3)'
+    )
     
     args = parser.parse_args()
     
@@ -586,6 +604,7 @@ def main():
     print("="*70)
     print(f"Presets path: {presets_path}")
     print(f"Confidence threshold: {CONFIDENCE_THRESHOLD}")
+    print(f"Velocity layers tested: {args.velocity_layers}")
     
     if args.instrument_type:
         print(f"Filter: {args.instrument_type} only")
@@ -615,12 +634,13 @@ def main():
         'skipped': 0,
         'failed': 0,
         'by_type': {},
-        'low_conf_list': []
+        'low_conf_list': [],
+        'layer_wins': {}
     }
     
     # Process each preset
     for preset_folder in preset_folders:
-        process_preset(preset_folder, stats)
+        process_preset(preset_folder, stats, args.velocity_layers)
     
     # Print summary
     print_summary(stats)
