@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "tom",
+  "slotNames": [
+    "dir",
+    "",
+    "oh",
+    "moh",
+    "mroom",
+    "fx",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 14,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v1_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v1_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v1_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v1_rr4.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v1_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v1_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v1_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v1_rr4.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v1_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v1_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v1_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v1_rr4.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v1_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v1_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v1_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v1_rr4.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v1_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v1_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v1_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v1_rr4.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 15,
+      "hi": 29,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v2_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v2_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v2_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v2_rr4.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v2_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v2_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v2_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v2_rr4.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v2_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v2_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v2_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v2_rr4.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v2_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v2_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v2_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v2_rr4.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v2_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v2_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v2_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v2_rr4.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 30,
+      "hi": 44,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v3_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v3_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v3_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v3_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v3_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v3_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v3_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v3_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v3_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v3_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v3_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v3_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v3_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v3_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v3_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v3_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v3_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v3_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v3_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v3_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v3_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v3_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v3_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v3_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v3_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 45,
+      "hi": 59,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v4_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v4_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v4_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v4_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v4_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v4_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v4_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v4_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v4_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v4_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v4_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v4_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v4_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v4_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v4_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v4_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v4_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v4_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v4_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v4_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v4_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v4_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v4_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v4_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v4_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 5,
+      "lo": 60,
+      "hi": 86,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v5_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v5_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v5_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v5_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v5_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v5_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v5_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v5_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v5_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v5_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v5_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v5_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v5_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v5_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v5_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v5_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v5_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v5_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v5_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v5_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v5_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v5_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v5_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v5_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v5_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 6,
+      "lo": 87,
+      "hi": 96,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v6_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v6_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v6_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v6_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v6_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v6_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v6_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v6_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v6_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v6_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v6_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v6_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v6_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v6_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v6_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v6_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v6_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v6_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v6_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v6_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v6_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v6_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v6_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v6_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v6_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 7,
+      "lo": 97,
+      "hi": 106,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v7_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v7_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v7_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v7_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v7_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v7_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v7_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v7_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v7_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v7_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v7_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v7_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v7_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v7_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v7_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v7_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v7_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v7_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v7_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v7_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v7_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v7_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v7_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v7_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v7_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 8,
+      "lo": 107,
+      "hi": 116,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v8_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v8_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v8_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v8_rr4.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v8_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v8_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v8_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v8_rr4.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v8_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v8_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v8_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v8_rr4.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v8_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v8_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v8_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v8_rr4.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v8_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v8_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v8_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v8_rr4.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 9,
+      "lo": 117,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v9_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v9_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v9_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v9_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 Dir/Tom/A Tom Gth MAP 12 Dir_Tom_v9_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v9_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v9_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v9_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v9_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 OH/Tom/A Tom Gth MAP 12 OH_Tom_v9_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v9_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v9_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v9_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v9_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mOH/Tom/A Tom Gth MAP 12 mOH_Tom_v9_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v9_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v9_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v9_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v9_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 mRoom/Tom/A Tom Gth MAP 12 mRoom_Tom_v9_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v9_rr1.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v9_rr2.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v9_rr3.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v9_rr4.wav",
+          "../../A Tom Gth MAP 12 Dir_WAVS/A Tom Gth MAP 12 FX/Tom/A Tom Gth MAP 12 FX_Tom_v9_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  },
+  "freq": 125.86,
+  "freqConfidence": 0.693
+}

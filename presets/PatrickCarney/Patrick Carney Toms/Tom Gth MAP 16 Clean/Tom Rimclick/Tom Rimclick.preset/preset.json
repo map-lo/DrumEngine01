@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "tom",
+  "slotNames": [
+    "dir",
+    "",
+    "oh",
+    "moh",
+    "mroom",
+    "fx",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 29,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v1_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v1_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v1_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v1_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v1_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v1_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v1_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v1_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v1_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v1_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v1_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v1_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v1_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v1_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v1_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v1_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v1_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v1_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v1_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v1_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v1_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v1_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v1_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v1_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v1_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 30,
+      "hi": 74,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v2_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v2_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v2_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v2_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v2_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v2_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v2_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v2_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v2_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v2_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v2_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v2_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v2_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v2_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v2_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v2_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v2_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v2_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v2_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v2_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v2_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v2_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v2_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v2_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v2_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 75,
+      "hi": 106,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v3_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v3_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v3_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v3_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v3_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v3_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v3_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v3_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v3_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v3_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v3_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v3_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v3_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v3_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v3_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v3_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v3_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v3_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v3_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v3_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v3_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v3_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v3_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v3_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v3_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 107,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v4_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v4_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v4_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v4_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 Dir/Tom Rimclick/A Tom Gth MAP 16 Dir_Tom Rimclick_v4_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v4_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v4_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v4_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v4_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 OH/Tom Rimclick/A Tom Gth MAP 16 OH_Tom Rimclick_v4_rr5.wav"
+        ],
+        "4": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v4_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v4_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v4_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v4_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mOH/Tom Rimclick/A Tom Gth MAP 16 mOH_Tom Rimclick_v4_rr5.wav"
+        ],
+        "5": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v4_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v4_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v4_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v4_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 mRoom/Tom Rimclick/A Tom Gth MAP 16 mRoom_Tom Rimclick_v4_rr5.wav"
+        ],
+        "6": [
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v4_rr1.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v4_rr2.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v4_rr3.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v4_rr4.wav",
+          "../../A Tom Gth MAP 16 Dir_WAVS/A Tom Gth MAP 16 FX/Tom Rimclick/A Tom Gth MAP 16 FX_Tom Rimclick_v4_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  },
+  "freq": 80.05,
+  "freqConfidence": 0.69
+}

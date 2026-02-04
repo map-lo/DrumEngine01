@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "snare",
+  "slotNames": [
+    "dir",
+    "",
+    "oh",
+    "moh",
+    "mroom",
+    "fx",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 29,
+      "wavsBySlot": {
+        "1": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v1_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v1_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v1_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v1_rr4.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v1_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v1_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v1_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v1_rr4.wav"
+        ],
+        "4": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v1_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v1_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v1_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v1_rr4.wav"
+        ],
+        "5": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v1_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v1_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v1_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v1_rr4.wav"
+        ],
+        "6": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v1_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v1_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v1_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v1_rr4.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 30,
+      "hi": 86,
+      "wavsBySlot": {
+        "1": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v2_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v2_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v2_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v2_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v2_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v2_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v2_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v2_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v2_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v2_rr5.wav"
+        ],
+        "4": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v2_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v2_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v2_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v2_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v2_rr5.wav"
+        ],
+        "5": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v2_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v2_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v2_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v2_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v2_rr5.wav"
+        ],
+        "6": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v2_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v2_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v2_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v2_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v2_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 87,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v3_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v3_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v3_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v3_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP Dir/Snare Rimshot/A Snare Lwg 6.5 SUP Dir_Snare Rimshot_v3_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v3_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v3_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v3_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v3_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP OH/Snare Rimshot/A Snare Lwg 6.5 SUP OH_Snare Rimshot_v3_rr5.wav"
+        ],
+        "4": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v3_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v3_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v3_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v3_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mOH/Snare Rimshot/A Snare Lwg 6.5 SUP mOH_Snare Rimshot_v3_rr5.wav"
+        ],
+        "5": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v3_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v3_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v3_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v3_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP mRoom/Snare Rimshot/A Snare Lwg 6.5 SUP mRoom_Snare Rimshot_v3_rr5.wav"
+        ],
+        "6": [
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v3_rr1.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v3_rr2.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v3_rr3.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v3_rr4.wav",
+          "../../A Snare Lwg 6.5 SUP Dir_WAVS/A Snare Lwg 6.5 SUP FX/Snare Rimshot/A Snare Lwg 6.5 SUP FX_Snare Rimshot_v3_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  },
+  "freq": 199.17,
+  "freqConfidence": 0.523
+}

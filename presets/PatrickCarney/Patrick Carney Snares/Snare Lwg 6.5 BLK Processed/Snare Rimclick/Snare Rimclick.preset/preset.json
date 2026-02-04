@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "snare",
+  "slotNames": [
+    "dir",
+    "",
+    "oh",
+    "moh",
+    "mroom",
+    "fx",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 44,
+      "wavsBySlot": {
+        "1": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v1_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v1_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v1_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v1_rr4.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v1_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v1_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v1_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v1_rr4.wav"
+        ],
+        "4": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v1_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v1_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v1_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v1_rr4.wav"
+        ],
+        "5": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v1_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v1_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v1_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v1_rr4.wav"
+        ],
+        "6": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v1_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v1_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v1_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v1_rr4.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 45,
+      "hi": 86,
+      "wavsBySlot": {
+        "1": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v2_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v2_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v2_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v2_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v2_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v2_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v2_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v2_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v2_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v2_rr5.wav"
+        ],
+        "4": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v2_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v2_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v2_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v2_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v2_rr5.wav"
+        ],
+        "5": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v2_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v2_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v2_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v2_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v2_rr5.wav"
+        ],
+        "6": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v2_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v2_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v2_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v2_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v2_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 87,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v3_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v3_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v3_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v3_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK Dir/Snare Rimclick/B Snare Lwg 6.5 BLK Dir_Snare Rimclick_v3_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v3_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v3_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v3_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v3_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK OH/Snare Rimclick/B Snare Lwg 6.5 BLK OH_Snare Rimclick_v3_rr5.wav"
+        ],
+        "4": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v3_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v3_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v3_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v3_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mOH/Snare Rimclick/B Snare Lwg 6.5 BLK mOH_Snare Rimclick_v3_rr5.wav"
+        ],
+        "5": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v3_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v3_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v3_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v3_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK mRoom/Snare Rimclick/B Snare Lwg 6.5 BLK mRoom_Snare Rimclick_v3_rr5.wav"
+        ],
+        "6": [
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v3_rr1.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v3_rr2.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v3_rr3.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v3_rr4.wav",
+          "../../B Snare Lwg 6.5 BLK Dir_WAVS/B Snare Lwg 6.5 BLK FX/Snare Rimclick/B Snare Lwg 6.5 BLK FX_Snare Rimclick_v3_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  },
+  "freq": 177.08,
+  "freqConfidence": 0.617
+}

@@ -89,6 +89,15 @@ def collect_tci_files(root, endings):
     return groups
 
 
+def has_existing_presets(preset_root):
+    if not os.path.isdir(preset_root):
+        return False
+    for dirpath, _, filenames in os.walk(preset_root):
+        if "preset.json" in filenames and dirpath.endswith(".preset"):
+            return True
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -99,12 +108,14 @@ def main():
     parser.add_argument("--type")
     parser.add_argument("--fast", action="store_true")
     parser.add_argument("--bitDepth", type=int, choices=[16, 24], default=24)
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
 
     input_root = args.inputRoot
     output_root = args.outputRoot
     instrument_type = args.type
     sample_width = 2 if args.bitDepth == 16 else 3
+    resume = args.resume
 
     print(f"Input root: {input_root}")
     print(f"Output root: {output_root}")
@@ -119,6 +130,12 @@ def main():
     for (rel_dir, base_name), ending_map in sorted(groups.items()):
         processed_groups += 1
         print(f"[{processed_groups}/{total_groups}] Processing {rel_dir}/{base_name}")
+
+        preset_root = os.path.join(output_root, rel_dir) if rel_dir != "." else output_root
+        if resume and has_existing_presets(preset_root):
+            print(f"[resume] skip group with existing presets {preset_root}")
+            continue
+
         slot_sources = {}
         for ending, slot_index in ENDING_TO_SLOT.items():
             paths = ending_map.get(ending, [])
@@ -132,8 +149,14 @@ def main():
         reference_mapping = None
         reference_name = None
 
+        decode_failed = False
         for slot_index, tci_path in slot_sources.items():
-            parsed = decode_tci(tci_path, fast=args.fast)
+            try:
+                parsed = decode_tci(tci_path, fast=args.fast)
+            except ValueError as exc:
+                print(f"[skip] Unsupported TCI: {tci_path} ({exc})")
+                decode_failed = True
+                break
             tci_data_by_slot[slot_index] = {
                 "path": tci_path,
                 "base_name": os.path.splitext(os.path.basename(tci_path))[0],
@@ -144,13 +167,15 @@ def main():
                 reference_mapping = parsed["mapping"]
                 reference_name = os.path.splitext(os.path.basename(tci_path))[0]
 
+        if decode_failed:
+            continue
+
         articulations = reference_mapping.get("articulations", []) if reference_mapping else []
         if not articulations:
             articulations = [{"name": reference_name or base_name, "layers": []}]
 
         multiple_articulations = len(articulations) > 1
         shared_wav_root = None
-        preset_root = os.path.join(output_root, rel_dir) if rel_dir != "." else output_root
         os.makedirs(preset_root, exist_ok=True)
 
         if multiple_articulations:
@@ -168,6 +193,10 @@ def main():
             preset_folder = os.path.join(preset_parent, f"{preset_name}.preset")
             os.makedirs(preset_folder, exist_ok=True)
             preset_path = os.path.join(preset_folder, "preset.json")
+
+            if resume and os.path.exists(preset_path):
+                print(f"[resume] skip existing preset {preset_path}")
+                continue
 
             velocity_layers = []
             velocities = [layer.get("velocity", 0) for layer in art.get("layers", [])]

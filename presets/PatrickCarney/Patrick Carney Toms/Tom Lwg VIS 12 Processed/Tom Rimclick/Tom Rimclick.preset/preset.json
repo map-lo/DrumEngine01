@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "tom",
+  "slotNames": [
+    "dir",
+    "",
+    "oh",
+    "moh",
+    "mroom",
+    "fx",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 29,
+      "wavsBySlot": {
+        "1": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v1_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v1_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v1_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v1_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v1_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v1_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v1_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v1_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v1_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v1_rr5.wav"
+        ],
+        "4": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v1_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v1_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v1_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v1_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v1_rr5.wav"
+        ],
+        "5": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v1_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v1_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v1_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v1_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v1_rr5.wav"
+        ],
+        "6": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v1_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v1_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v1_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v1_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v1_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 30,
+      "hi": 74,
+      "wavsBySlot": {
+        "1": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v2_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v2_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v2_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v2_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v2_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v2_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v2_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v2_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v2_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v2_rr5.wav"
+        ],
+        "4": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v2_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v2_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v2_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v2_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v2_rr5.wav"
+        ],
+        "5": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v2_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v2_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v2_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v2_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v2_rr5.wav"
+        ],
+        "6": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v2_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v2_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v2_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v2_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v2_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 75,
+      "hi": 106,
+      "wavsBySlot": {
+        "1": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v3_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v3_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v3_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v3_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v3_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v3_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v3_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v3_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v3_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v3_rr5.wav"
+        ],
+        "4": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v3_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v3_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v3_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v3_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v3_rr5.wav"
+        ],
+        "5": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v3_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v3_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v3_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v3_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v3_rr5.wav"
+        ],
+        "6": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v3_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v3_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v3_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v3_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v3_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 4,
+      "lo": 107,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v4_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v4_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v4_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v4_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 Dir/Tom Rimclick/B Tom Lwg VIS 12 Dir_Tom Rimclick_v4_rr5.wav"
+        ],
+        "2": [],
+        "3": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v4_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v4_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v4_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v4_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 OH/Tom Rimclick/B Tom Lwg VIS 12 OH_Tom Rimclick_v4_rr5.wav"
+        ],
+        "4": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v4_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v4_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v4_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v4_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mOH/Tom Rimclick/B Tom Lwg VIS 12 mOH_Tom Rimclick_v4_rr5.wav"
+        ],
+        "5": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v4_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v4_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v4_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v4_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 mRoom/Tom Rimclick/B Tom Lwg VIS 12 mRoom_Tom Rimclick_v4_rr5.wav"
+        ],
+        "6": [
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v4_rr1.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v4_rr2.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v4_rr3.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v4_rr4.wav",
+          "../../B Tom Lwg VIS 12 Dir_WAVS/B Tom Lwg VIS 12 FX/Tom Rimclick/B Tom Lwg VIS 12 FX_Tom Rimclick_v4_rr5.wav"
+        ],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  },
+  "freq": 121.43,
+  "freqConfidence": 0.896
+}
