@@ -519,6 +519,7 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
         currentPresetInfo.useVelocityToVolume = engine.getUseVelocityToVolume();
         currentPresetInfo.freq = info.freq;
         currentPresetInfo.freqConfidence = info.freqConfidence;
+        currentPresetInfo.sourceSampleRate = info.sourceSampleRate;
 
         // Store preset JSON data
         currentPresetJsonData = jsonText;
@@ -543,8 +544,7 @@ juce::Result AudioPluginAudioProcessor::loadPresetFromJsonInternal(const juce::S
         // Auto-pitch: calculate and apply pitch shift to match target frequency
         if (autoPitchMode && info.freq > 0.0f)
         {
-            // Calculate semitones needed: semitones = 12 * log2(targetHz / presetHz)
-            float semitones = 12.0f * std::log2(targetFrequencyHz / info.freq);
+            float semitones = calculateAutoPitchSemitones(currentPresetInfo);
             setPitchShift(semitones);
         }
         else
@@ -796,7 +796,7 @@ void AudioPluginAudioProcessor::setAutoPitchMode(bool enabled)
         auto info = getPresetInfo();
         if (info.freq > 0.0f)
         {
-            float semitones = 12.0f * std::log2(targetFrequencyHz / info.freq);
+            float semitones = calculateAutoPitchSemitones(info);
             setPitchShift(semitones);
         }
     }
@@ -817,10 +817,26 @@ void AudioPluginAudioProcessor::setTargetFrequency(float hz)
         auto info = getPresetInfo();
         if (info.freq > 0.0f)
         {
-            float semitones = 12.0f * std::log2(targetFrequencyHz / info.freq);
+            float semitones = calculateAutoPitchSemitones(info);
             setPitchShift(semitones);
         }
     }
+}
+
+float AudioPluginAudioProcessor::calculateAutoPitchSemitones(const PresetInfo &info) const
+{
+    if (info.freq <= 0.0f)
+        return 0.0f;
+
+    const double hostRate = engine.getCurrentSampleRate();
+    const double sourceRate = info.sourceSampleRate;
+    const double rateRatio = (sourceRate > 0.0 && hostRate > 0.0) ? (hostRate / sourceRate) : 1.0;
+    const double effectivePresetHz = info.freq * rateRatio;
+
+    if (effectivePresetHz <= 0.0)
+        return 0.0f;
+
+    return static_cast<float>(12.0 * std::log2(targetFrequencyHz / effectivePresetHz));
 }
 
 void AudioPluginAudioProcessor::setOutputVolumeDb(float db)

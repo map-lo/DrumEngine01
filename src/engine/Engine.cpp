@@ -217,6 +217,7 @@ namespace DrumEngine
             auto *preset = activePreset.load();
             if (preset)
             {
+                info.sourceSampleRate = preset->getSourceSampleRate();
                 const auto &layers = preset->getLayers();
                 for (int slotIdx = 0; slotIdx < info.slotCount; ++slotIdx)
                 {

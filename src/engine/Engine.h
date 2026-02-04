@@ -38,6 +38,7 @@ namespace DrumEngine
             std::array<bool, 8> activeSlots = {}; // Which slots have samples
             float freq = 0.0f;                    // Hz, 0 = not detected
             float freqConfidence = 0.0f;          // 0-1, detection confidence
+            double sourceSampleRate = 0.0;        // Hz, 0 = unknown
         };
 
         PresetInfo getCurrentPresetInfo() const;

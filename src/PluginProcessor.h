@@ -58,8 +58,9 @@ public:
         juce::StringArray slotNames;
         std::array<bool, 8> activeSlots = {}; // Which slots have samples
         bool useVelocityToVolume = false;
-        float freq = 0.0f;           // Hz, 0 = not detected
-        float freqConfidence = 0.0f; // 0-1, detection confidence
+        float freq = 0.0f;             // Hz, 0 = not detected
+        float freqConfidence = 0.0f;   // 0-1, detection confidence
+        double sourceSampleRate = 0.0; // Hz, 0 = unknown
     };
 
     PresetInfo getPresetInfo() const;
@@ -162,6 +163,7 @@ private:
                                             const juce::String &presetName,
                                             const juce::String &defaultRootFolder = {});
     void updateLatency();
+    float calculateAutoPitchSemitones(const PresetInfo &info) const;
     //==============================================================================
     DrumEngine::Engine engine;
     OutputMode outputMode = OutputMode::Stereo;
