@@ -174,13 +174,8 @@ def main():
         if not articulations:
             articulations = [{"name": reference_name or base_name, "layers": []}]
 
-        multiple_articulations = len(articulations) > 1
-        shared_wav_root = None
-        os.makedirs(preset_root, exist_ok=True)
-
-        if multiple_articulations:
-            shared_name = sanitize_name(reference_name or base_name)
-            shared_wav_root = os.path.join(preset_root, f"{shared_name}_WAVS")
+            multiple_articulations = len(articulations) > 1
+            os.makedirs(preset_root, exist_ok=True)
 
         for art in articulations:
             art_name = sanitize_name(art.get("name") or base_name)
@@ -224,10 +219,7 @@ def main():
                         )
 
                         mic_base = tci_data["base_name"]
-                        wav_root = shared_wav_root or preset_folder
-                        tci_folder = os.path.join(wav_root, mic_base)
-                        if art_folder:
-                            tci_folder = os.path.join(tci_folder, art_folder)
+                        tci_folder = os.path.join(preset_folder, mic_base)
                         os.makedirs(tci_folder, exist_ok=True)
 
                         wav_name = f"{mic_base}_{art_name}_v{layer_index + 1}_rr{rr_index}.wav"
