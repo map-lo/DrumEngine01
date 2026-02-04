@@ -1,0 +1,5 @@
+Unknown instrument type: Dead/SAMPLES/Z PACK/Z - LO PING.wav
+Unknown instrument type: Dead/SAMPLES/Z PACK/Z - RIM.wav
+Unknown instrument type: Dead/SAMPLES/Z PACK/Z - SMASH DECAP.wav
+Unknown instrument type: Dead/SAMPLES/Z PACK/Z - PAUSE HIT.wav
+Unknown instrument type: Dead/SAMPLES/Z PACK/Z - HI PING.wav

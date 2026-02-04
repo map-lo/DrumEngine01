@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "instrumentType": "snare",
+  "slotNames": [
+    "main",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "velocityLayers": [
+    {
+      "index": 1,
+      "lo": 1,
+      "hi": 127,
+      "wavsBySlot": {
+        "1": [
+          "VIBE_SNARE_RIMSHOT_RR1.wav",
+          "VIBE_SNARE_RIMSHOT_RR2.wav",
+          "VIBE_SNARE_RIMSHOT_RR3.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    }
+  ],
+  "velToVol": {
+    "amount": 70,
+    "curve": {
+      "type": "builtin",
+      "name": "soft"
+    }
+  },
+  "freq": 199.04,
+  "freqConfidence": 0.936
+}
