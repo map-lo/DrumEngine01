@@ -321,15 +321,23 @@ def detect_fundamental_frequency(
         return None, 0.0
 
 
-def get_target_sample_path(preset_json_path: str) -> Optional[str]:
+def resolve_wav_path(preset_folder: str, rel_path: str) -> Optional[str]:
+    """Resolve a relative WAV path to an absolute path if it exists."""
+    wav_abs_path = os.path.normpath(os.path.join(preset_folder, rel_path))
+    if os.path.exists(wav_abs_path):
+        return wav_abs_path
+    print(f"    Warning: Sample not found: {wav_abs_path}")
+    return None
+
+
+def get_target_sample_paths(preset_json_path: str) -> List[str]:
     """
-    Parse preset JSON and return path to target sample:
-    - Loudest velocity layer (max 'hi' value)
-    - First populated slot (first mic)
-    - First round robin
+    Parse preset JSON and return paths to target samples:
+    - Top 3 velocity layers by 'hi' value
+    - First populated slot (first mic) and first round robin
     
     Returns:
-        Absolute path to target WAV file, or None if not found
+        List of sample paths (up to 3) or empty list if not found
     """
     try:
         with open(preset_json_path, 'r') as f:
@@ -337,39 +345,38 @@ def get_target_sample_path(preset_json_path: str) -> Optional[str]:
         
         velocity_layers = preset.get('velocityLayers', [])
         if not velocity_layers:
-            return None
+            return []
         
-        # Find loudest velocity layer (highest 'hi' value)
-        loudest_layer = max(velocity_layers, key=lambda l: l.get('hi', 0))
+        # Top 3 velocity layers by highest 'hi' value
+        top_layers = sorted(velocity_layers, key=lambda l: l.get('hi', 0), reverse=True)[:3]
         
-        wavs_by_slot = loudest_layer.get('wavsBySlot', {})
+        preset_folder = os.path.dirname(preset_json_path)
+        sample_paths: List[str] = []
         
-        # Find first populated slot (1-8)
-        for slot_num in range(1, 9):
-            slot_key = str(slot_num)
-            if slot_key in wavs_by_slot and wavs_by_slot[slot_key]:
-                # Get first round robin
-                first_rr_rel_path = wavs_by_slot[slot_key][0]
-                
-                # Resolve absolute path
-                preset_folder = os.path.dirname(preset_json_path)
-                
-                # Handle relative paths (including ../ for shared WAV folders)
-                wav_abs_path = os.path.normpath(
-                    os.path.join(preset_folder, first_rr_rel_path)
-                )
-                
-                if os.path.exists(wav_abs_path):
-                    return wav_abs_path
-                else:
-                    print(f"    Warning: Sample not found: {wav_abs_path}")
-                    return None
-        
-        return None
+        for layer in top_layers:
+            wavs_by_slot = layer.get('wavsBySlot', {})
+
+            # Find first populated slot (1-8)
+            chosen_slot_key = None
+            for slot_num in range(1, 9):
+                slot_key = str(slot_num)
+                if slot_key in wavs_by_slot and wavs_by_slot[slot_key]:
+                    chosen_slot_key = slot_key
+                    break
+
+            if not chosen_slot_key:
+                continue
+
+            rel_path = wavs_by_slot[chosen_slot_key][0]
+            abs_path = resolve_wav_path(preset_folder, rel_path)
+            if abs_path:
+                sample_paths.append(abs_path)
+
+        return sample_paths
         
     except Exception as e:
         print(f"    Error parsing preset JSON: {e}")
-        return None
+        return []
 
 
 def update_preset_json(preset_json_path: str, freq: float, confidence: float) -> bool:
@@ -433,18 +440,26 @@ def process_preset(preset_folder: str, stats: Dict) -> None:
         
         print(f"→ {preset_name} [{instrument_type}]")
         
-        # Get target sample path
-        sample_path = get_target_sample_path(preset_json_path)
-        if not sample_path:
+        # Get target sample paths (top 3 velocity layers)
+        sample_paths = get_target_sample_paths(preset_json_path)
+        if not sample_paths:
             stats['failed'] += 1
             print(f"  ✗ No valid sample found")
             return
-        
-        rel_sample = os.path.relpath(sample_path, preset_folder)
-        print(f"  Analyzing: {rel_sample}")
-        
-        # Detect frequency
-        freq, confidence = detect_fundamental_frequency(sample_path, instrument_type)
+
+        freq = None
+        confidence = 0.0
+
+        for idx, sample_path in enumerate(sample_paths, start=1):
+            rel_sample = os.path.relpath(sample_path, preset_folder)
+            label = "(top)" if idx == 1 else f"(top {idx})"
+            print(f"  Analyzing {label}: {rel_sample}")
+
+            freq_candidate, conf_candidate = detect_fundamental_frequency(
+                sample_path, instrument_type
+            )
+            if conf_candidate > confidence:
+                freq, confidence = freq_candidate, conf_candidate
         
         if freq and confidence >= CONFIDENCE_THRESHOLD:
             # Update JSON

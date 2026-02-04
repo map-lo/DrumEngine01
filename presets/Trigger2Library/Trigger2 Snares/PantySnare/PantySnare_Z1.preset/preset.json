@@ -190,6 +190,6 @@
       "name": "soft"
     }
   },
-  "freq": 270.12,
-  "freqConfidence": 0.535
+  "freq": 300.0,
+  "freqConfidence": 1.0
 }
