@@ -188,12 +188,23 @@ def should_treat_letter_rr(path_parts):
     return "PERCUSSION" not in {part.upper() for part in path_parts}
 
 
+def should_force_tambo_rr(path_parts, filename_tokens):
+    is_dead_pack = any(part.upper().startswith("DEAD") for part in path_parts)
+    if not is_dead_pack:
+        return False
+
+    token_set = {token.upper() for token in filename_tokens}
+    return "TAMBO" in token_set or "TAMBOURINE" in token_set
+
+
 def create_preset(preset_folder_path, instrument_type, velocity_layers):
+    use_velocity_to_volume = len(velocity_layers) == 1
     data = {
         "schemaVersion": 1,
         "instrumentType": instrument_type,
         "slotNames": SLOT_NAMES,
         "velocityLayers": velocity_layers,
+        "useVelocityToVolume": use_velocity_to_volume,
         "velToVol": {
             "amount": 70,
             "curve": {
@@ -218,11 +229,101 @@ def should_use_shared_folder(presets):
     return any(len(presets_used) > 1 for presets_used in source_usage.values())
 
 
+def generate_presets_for_pack(pack_name, samples_by_preset):
+    if not samples_by_preset:
+        return 0
+
+    created_presets = 0
+
+    for instrument_type, presets in sorted(samples_by_preset.items()):
+        output_folder = INSTRUMENT_OUTPUT_FOLDERS.get(instrument_type, instrument_type.title())
+        preset_base_folder = os.path.join(PRESETS_ROOT, pack_name, output_folder)
+        ensure_folder(preset_base_folder)
+
+        use_shared_folder = should_use_shared_folder(presets)
+        shared_folder_path = os.path.join(preset_base_folder, f"{output_folder}_WAVS") if use_shared_folder else None
+
+        for preset_name, samples_by_velocity in sorted(presets.items()):
+            velocity_keys = sorted(samples_by_velocity.keys(), key=velocity_sort_key)
+            velocity_ranges = build_velocity_ranges(len(velocity_keys))
+            velocity_layers = []
+
+            preset_folder_path = os.path.join(preset_base_folder, f"{preset_name}.preset")
+            if use_shared_folder:
+                wavs_folder_path = shared_folder_path
+            else:
+                wavs_folder_path = preset_folder_path
+            ensure_folder(wavs_folder_path)
+
+            for index, velocity_key in enumerate(velocity_keys):
+                wavs_with_rr = samples_by_velocity[velocity_key]
+                wavs_with_rr.sort(key=lambda item: rr_sort_key(item[0]))
+
+                wavs_rel = []
+                for _, wav_path in wavs_with_rr:
+                    dest_path = copy_wav_to_folder(wav_path, wavs_folder_path, os.path.basename(wav_path))
+                    rel_path = os.path.relpath(dest_path, preset_folder_path)
+                    wavs_rel.append(rel_path.replace(os.sep, "/"))
+
+                lo, hi = velocity_ranges[index]
+                wavs_by_slot = {str(slot): [] for slot in range(1, 9)}
+                wavs_by_slot["1"] = wavs_rel
+
+                velocity_layers.append({
+                    "index": index + 1,
+                    "lo": lo,
+                    "hi": hi,
+                    "wavsBySlot": wavs_by_slot
+                })
+
+            create_preset(preset_folder_path, instrument_type, velocity_layers)
+            created_presets += 1
+
+    return created_presets
+
+
+def cleanup_one_shot_presets(root_folder):
+    removed = 0
+
+    def normalize_name(name):
+        tokens = [token.upper() for token in tokenize(name)]
+        filtered = [token for token in tokens if token not in {"ONE", "SHOT"}]
+        return " ".join(sorted(filtered))
+
+    for current_root, dirnames, _ in os.walk(root_folder):
+        if not dirnames:
+            continue
+
+        normalized_map = defaultdict(list)
+        for dirname in dirnames:
+            normalized_map[normalize_name(dirname)].append(dirname)
+
+        for normalized_key, names in normalized_map.items():
+            if len(names) < 2:
+                continue
+
+            one_shot_candidates = [name for name in names if "ONE" in tokenize(name.upper()) and "SHOT" in tokenize(name.upper())]
+            if not one_shot_candidates:
+                continue
+
+            non_one_shot = [name for name in names if name not in one_shot_candidates]
+            if not non_one_shot:
+                continue
+
+            for one_shot_dir in one_shot_candidates:
+                full_path = os.path.join(current_root, one_shot_dir)
+                shutil.rmtree(full_path)
+                removed += 1
+
+    return removed
+
+
 def main():
     ensure_folder(PRESETS_ROOT)
 
     skipped_samples = []
     created_presets = 0
+    ish_samples_by_preset = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
     for root, _, files in os.walk(CIRCLES_ROOT):
         wavs = [file for file in files if file.lower().endswith(".wav")]
@@ -231,7 +332,9 @@ def main():
 
         rel_dir = os.path.relpath(root, CIRCLES_ROOT)
         path_parts = rel_dir.split(os.sep)
-        allow_letter_rr = should_treat_letter_rr(path_parts)
+        pack_name = path_parts[0] if path_parts else "Circles"
+        is_ish_pack = pack_name.lower() == "ish"
+        allow_letter_rr_default = should_treat_letter_rr(path_parts)
         samples_by_preset = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
         for wav in wavs:
@@ -241,6 +344,7 @@ def main():
                 skipped_samples.append(f"Unknown instrument type: {os.path.join(rel_dir, wav)}")
                 continue
 
+            allow_letter_rr = allow_letter_rr_default or should_force_tambo_rr(path_parts, filename_tokens)
             base_name, velocity, rr = parse_filename(wav, allow_letter_rr=allow_letter_rr)
 
             if velocity is None:
@@ -250,53 +354,19 @@ def main():
                 base_name = os.path.basename(root)
 
             wav_path = os.path.join(root, wav)
-            samples_by_preset[instrument_type][base_name][velocity].append((rr, wav_path))
 
-        pack_name = path_parts[0] if path_parts else "Circles"
-        for instrument_type, presets in sorted(samples_by_preset.items()):
-            output_folder = INSTRUMENT_OUTPUT_FOLDERS.get(instrument_type, instrument_type.title())
-            preset_base_folder = os.path.join(PRESETS_ROOT, pack_name, output_folder)
-            ensure_folder(preset_base_folder)
+            target_samples = ish_samples_by_preset if is_ish_pack else samples_by_preset
+            target_samples[instrument_type][base_name][velocity].append((rr, wav_path))
+        if not is_ish_pack:
+            created_presets += generate_presets_for_pack(pack_name, samples_by_preset)
 
-            use_shared_folder = should_use_shared_folder(presets)
-            shared_folder_path = os.path.join(preset_base_folder, f"{output_folder}_WAVS") if use_shared_folder else None
+    if ish_samples_by_preset:
+        created_presets += generate_presets_for_pack("Ish", ish_samples_by_preset)
 
-            for preset_name, samples_by_velocity in sorted(presets.items()):
-                velocity_keys = sorted(samples_by_velocity.keys(), key=velocity_sort_key)
-                velocity_ranges = build_velocity_ranges(len(velocity_keys))
-                velocity_layers = []
-
-                preset_folder_path = os.path.join(preset_base_folder, f"{preset_name}.preset")
-                if use_shared_folder:
-                    wavs_folder_path = shared_folder_path
-                else:
-                    wavs_folder_path = preset_folder_path
-                ensure_folder(wavs_folder_path)
-
-                for index, velocity_key in enumerate(velocity_keys):
-                    wavs_with_rr = samples_by_velocity[velocity_key]
-                    wavs_with_rr.sort(key=lambda item: rr_sort_key(item[0]))
-                    wavs_rel = []
-                    for _, wav_path in wavs_with_rr:
-                        dest_path = copy_wav_to_folder(wav_path, wavs_folder_path, os.path.basename(wav_path))
-                        rel_path = os.path.relpath(dest_path, preset_folder_path)
-                        wavs_rel.append(rel_path.replace(os.sep, "/"))
-
-                    lo, hi = velocity_ranges[index]
-                    wavs_by_slot = {str(slot): [] for slot in range(1, 9)}
-                    wavs_by_slot["1"] = wavs_rel
-
-                    velocity_layers.append({
-                        "index": index + 1,
-                        "lo": lo,
-                        "hi": hi,
-                        "wavsBySlot": wavs_by_slot
-                    })
-
-                create_preset(preset_folder_path, instrument_type, velocity_layers)
-                created_presets += 1
+    removed_one_shots = cleanup_one_shot_presets(PRESETS_ROOT)
 
     print(f"Created presets: {created_presets}")
+    print(f"Removed ONE SHOT presets: {removed_one_shots}")
     print(f"Skipped samples: {len(skipped_samples)}")
 
     if skipped_samples:

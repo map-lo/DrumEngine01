@@ -18,7 +18,9 @@
       "hi": 127,
       "wavsBySlot": {
         "1": [
-          "DEAD TAMBO 2 - A.wav"
+          "DEAD TAMBO 1 - A.wav",
+          "DEAD TAMBO 1 - B.wav",
+          "DEAD TAMBO 1 - C.wav"
         ],
         "2": [],
         "3": [],
@@ -30,6 +32,7 @@
       }
     }
   ],
+  "useVelocityToVolume": true,
   "velToVol": {
     "amount": 70,
     "curve": {

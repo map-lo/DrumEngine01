@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "instrumentType": "snare",
+  "instrumentType": "percussion",
   "slotNames": [
     "main",
     "",
@@ -18,7 +18,9 @@
       "hi": 127,
       "wavsBySlot": {
         "1": [
-          "ONE_SHOT_SNARE_STRUT.wav"
+          "DEAD TAMBO 4 - A.wav",
+          "DEAD TAMBO 4 - B.wav",
+          "DEAD TAMBO 4 - C.wav"
         ],
         "2": [],
         "3": [],
@@ -30,13 +32,12 @@
       }
     }
   ],
+  "useVelocityToVolume": true,
   "velToVol": {
     "amount": 70,
     "curve": {
       "type": "builtin",
       "name": "soft"
     }
-  },
-  "freq": 189.31,
-  "freqConfidence": 0.956
+  }
 }

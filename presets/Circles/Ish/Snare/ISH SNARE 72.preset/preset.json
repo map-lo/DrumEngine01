@@ -15,6 +15,40 @@
     {
       "index": 1,
       "lo": 1,
+      "hi": 42,
+      "wavsBySlot": {
+        "1": [
+          "ISH-SNARE-SOFT-72.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 2,
+      "lo": 43,
+      "hi": 84,
+      "wavsBySlot": {
+        "1": [
+          "ISH-SNARE-MED-72.wav"
+        ],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": [],
+        "8": []
+      }
+    },
+    {
+      "index": 3,
+      "lo": 85,
       "hi": 127,
       "wavsBySlot": {
         "1": [
@@ -30,6 +64,7 @@
       }
     }
   ],
+  "useVelocityToVolume": false,
   "velToVol": {
     "amount": 70,
     "curve": {
@@ -37,6 +72,6 @@
       "name": "soft"
     }
   },
-  "freq": 154.03,
-  "freqConfidence": 0.726
+  "freq": 154.0,
+  "freqConfidence": 0.981
 }

@@ -30,6 +30,7 @@
       }
     }
   ],
+  "useVelocityToVolume": true,
   "velToVol": {
     "amount": 70,
     "curve": {
