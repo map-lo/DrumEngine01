@@ -216,6 +216,9 @@ def main():
                             chunk["bit_len"],
                             chunk["sample_count"],
                             channels=chunk["channels"],
+                            start_bit=chunk.get("start_bit", 0),
+                            force_start_bit=chunk.get("force_start_bit", False),
+                            block_size=chunk.get("block_size", None) or 0xC9,
                         )
 
                         mic_base = tci_data["base_name"]
