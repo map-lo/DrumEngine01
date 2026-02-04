@@ -174,8 +174,8 @@ def main():
         if not articulations:
             articulations = [{"name": reference_name or base_name, "layers": []}]
 
-            multiple_articulations = len(articulations) > 1
-            os.makedirs(preset_root, exist_ok=True)
+        multiple_articulations = len(articulations) > 1
+        os.makedirs(preset_root, exist_ok=True)
 
         for art in articulations:
             art_name = sanitize_name(art.get("name") or base_name)
