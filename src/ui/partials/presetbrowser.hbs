@@ -26,6 +26,12 @@
           </svg>
         </button>
         <button
+          @click="toggleViewMode()"
+          class="p-1 hover:opacity-60 text-[10px] uppercase tracking-widest"
+          aria-label="Toggle preset view"
+          x-text="viewMode === 'list' ? 'Folders' : 'List'"
+        ></button>
+        <button
           @click="getRoot()?.togglePresetBrowser()"
           class="p-1 -mr-1.5 hover:opacity-60"
           aria-label="Close preset browser"
@@ -71,29 +77,91 @@
 
       <div
         class="mt-2 bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
+        :class="viewMode === 'folders' ? 'pt-0' : ''"
         aria-label="Preset list"
       >
-        <template x-if="filteredPresets.length === 0">
+        <div
+          x-show="viewMode === 'folders'"
+          class="sticky z-10 shrink-0 bg-neutral-800 top-0 px-1 py-1 h-8 flex items-center gap-2"
+        >
+          <button
+            x-show="currentFolderPath.length > 0"
+            @click="navigateUpFolder()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              class="size-4"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+          <div
+            class="text-[10px] font-medium opacity-70 truncate"
+            dir="rtl"
+            x-text="currentFolderPath.length ? currentFolderPath.join(' / ') : 'All Presets'"
+          ></div>
+        </div>
+
+        <template
+          x-if="viewMode === 'folders' && folderView.folders.length === 0 && currentPresetList.length === 0"
+        >
+          <div class="px-2 py-2 text-black text-opacity-50">
+            No presets found
+          </div>
+        </template>
+
+        <template x-for="folder in folderView.folders" :key="folder">
+          <button
+            x-show="viewMode === 'folders'"
+            @click="enterFolder(folder)"
+            class="mx-1 flex gap-2 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1 bg-black"
+          >
+            <span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                class="size-4"
+              >
+                <path
+                  d="M2 3.5A1.5 1.5 0 0 1 3.5 2h2.879a1.5 1.5 0 0 1 1.06.44l1.122 1.12A1.5 1.5 0 0 0 9.62 4H12.5A1.5 1.5 0 0 1 14 5.5v1.401a2.986 2.986 0 0 0-1.5-.401h-9c-.546 0-1.059.146-1.5.401V3.5ZM2 9.5v3A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-3A1.5 1.5 0 0 0 12.5 8h-9A1.5 1.5 0 0 0 2 9.5Z"
+                />
+              </svg>
+            </span>
+            <span x-text="folder"></span>
+          </button>
+        </template>
+
+        <template x-if="viewMode === 'list' && currentPresetList.length === 0">
           <div class="px-2 py-2 text-black text-opacity-50">
             No presets found
           </div>
         </template>
 
         <template
-          x-for="(preset, index) in filteredPresets"
+          x-for="(preset, index) in currentPresetList"
           :key="preset.index"
         >
           <button
             @click="loadPreset(preset.index)"
-            @keydown.down.prevent="navigateDown(index)"
-            @keydown.up.prevent="navigateUp(index)"
+            @keydown.down.prevent="navigateDown($event)"
+            @keydown.up.prevent="navigateUp($event)"
             tabindex="0"
             :id="optionId(preset.index)"
+            data-preset-item="true"
+            :data-preset-index="preset.index"
             class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
             :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
           >
             <div
-              class="text-[8px] -mb-0.5 font-medium opacity-70 tracking-wide"
+              class="text-[8px] -mb-0.5 font-medium opacity-70 tracking-wide truncate"
+              dir="rtl"
               x-text="preset.category"
             ></div>
             <div x-text="preset.displayName"></div>

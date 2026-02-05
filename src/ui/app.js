@@ -866,6 +866,14 @@ window.drumEngineApp = function () {
 window.presetBrowser = function () {
     return {
         searchTerm: '',
+        viewMode: 'list',
+        currentFolderPath: [],
+        presetButtonCache: {
+            list: null,
+            buttons: [],
+            elementIndex: new WeakMap(),
+            byPresetIndex: new Map()
+        },
 
         init() {
             // Request initial data from root component
@@ -888,25 +896,47 @@ window.presetBrowser = function () {
                 if (!owner) return;
                 owner.presetBrowserSearchTerm = value;
                 this.sendToRoot('setPresetBrowserSearchTerm', { term: value });
+                this.$nextTick(() => this.refreshPresetButtonCache());
             });
 
             this.$watch(() => this.getRoot()?.isPresetBrowserOpen, value => {
                 if (value) {
-                    this.$nextTick(() => this.scrollToCurrentPreset());
+                    this.syncFolderToCurrentPreset();
+                    this.$nextTick(() => {
+                        this.refreshPresetButtonCache();
+                        this.scrollToCurrentPreset();
+                    });
                 }
             });
 
             this.$watch(() => this.getRoot()?.currentPresetIndex, () => {
                 if (this.getRoot()?.isPresetBrowserOpen) {
+                    this.syncFolderToCurrentPreset();
                     this.$nextTick(() => this.scrollToCurrentPreset());
                 }
             });
 
             this.$watch(() => this.getRoot()?.presetList?.length, () => {
-                this.$nextTick(() => this.scrollToCurrentPreset());
+                this.syncFolderToCurrentPreset();
+                this.$nextTick(() => {
+                    this.refreshPresetButtonCache();
+                    this.scrollToCurrentPreset();
+                });
             });
 
-            this.$nextTick(() => this.scrollToCurrentPreset());
+            this.$watch(() => this.viewMode, () => {
+                this.$nextTick(() => this.refreshPresetButtonCache());
+            });
+
+            this.$watch(() => this.currentFolderPath.join('||'), () => {
+                this.$nextTick(() => this.refreshPresetButtonCache());
+            });
+
+            this.syncFolderToCurrentPreset();
+            this.$nextTick(() => {
+                this.refreshPresetButtonCache();
+                this.scrollToCurrentPreset();
+            });
         },
 
         sendToRoot(action, data = {}) {
@@ -918,6 +948,17 @@ window.presetBrowser = function () {
 
         refreshPresets() {
             this.sendToRoot('refreshPresetList');
+        },
+
+        toggleViewMode() {
+            this.viewMode = this.viewMode === 'list' ? 'folders' : 'list';
+            if (this.viewMode === 'folders') {
+                this.syncFolderToCurrentPreset();
+                this.$nextTick(() => {
+                    this.refreshPresetButtonCache();
+                    this.scrollToCurrentPreset();
+                });
+            }
         },
 
         getRoot() {
@@ -993,6 +1034,44 @@ window.presetBrowser = function () {
             return [...promoted, ...remaining];
         },
 
+        get currentPresetList() {
+            if (this.viewMode === 'folders') {
+                return this.folderView.presets;
+            }
+            return this.filteredPresets;
+        },
+
+        get folderView() {
+            const presets = this.filteredPresets;
+            const path = this.currentFolderPath;
+            const folders = new Set();
+            const presetsInFolder = [];
+
+            presets.forEach(preset => {
+                const segments = (preset.category || '')
+                    .split('/')
+                    .map(segment => segment.trim())
+                    .filter(Boolean);
+
+                if (path.length > segments.length) return;
+
+                for (let i = 0; i < path.length; i++) {
+                    if (segments[i] !== path[i]) return;
+                }
+
+                if (segments.length === path.length) {
+                    presetsInFolder.push(preset);
+                } else {
+                    folders.add(segments[path.length]);
+                }
+            });
+
+            return {
+                folders: Array.from(folders).filter(Boolean).sort(),
+                presets: presetsInFolder
+            };
+        },
+
         toggleTag(tag) {
             const root = this.getRoot();
             if (!root) return;
@@ -1006,6 +1085,41 @@ window.presetBrowser = function () {
 
             root.presetBrowserTags = Array.from(selectedTags);
             this.sendToRoot('setPresetBrowserTags', { tags: root.presetBrowserTags });
+            this.$nextTick(() => this.refreshPresetButtonCache());
+        },
+
+        enterFolder(folderName) {
+            if (!folderName) return;
+            this.currentFolderPath = [...this.currentFolderPath, folderName];
+            this.$nextTick(() => this.refreshPresetButtonCache());
+        },
+
+        navigateUpFolder() {
+            if (this.currentFolderPath.length === 0) return;
+            this.currentFolderPath = this.currentFolderPath.slice(0, -1);
+            this.$nextTick(() => this.refreshPresetButtonCache());
+        },
+
+        syncFolderToCurrentPreset() {
+            if (this.viewMode !== 'folders') return;
+
+            const root = this.getRoot();
+            if (!root || !Array.isArray(root.presetList)) {
+                this.currentFolderPath = [];
+                return;
+            }
+
+            const preset = root.presetList.find(item => item.index === root.currentPresetIndex);
+            if (!preset || !preset.category) {
+                this.currentFolderPath = [];
+                return;
+            }
+
+            const segments = preset.category
+                .split('/')
+                .map(segment => segment.trim())
+                .filter(Boolean);
+            this.currentFolderPath = segments;
         },
 
         optionId(index) {
@@ -1019,10 +1133,14 @@ window.presetBrowser = function () {
             const activeId = this.getActiveOptionId();
             if (!activeId) return;
 
-            const item = document.getElementById(activeId);
+            let item = this.presetButtonCache.byPresetIndex.get(root.currentPresetIndex);
+            if (!item) {
+                this.refreshPresetButtonCache();
+                item = this.presetButtonCache.byPresetIndex.get(root.currentPresetIndex);
+            }
             if (!item) return;
 
-            const list = item.closest('[aria-label="Preset list"]') || document.querySelector('[aria-label="Preset list"]');
+            const list = this.presetButtonCache.list || item.closest('[aria-label="Preset list"]');
             if (!list) return;
 
             const listRect = list.getBoundingClientRect();
@@ -1049,32 +1167,73 @@ window.presetBrowser = function () {
             }
         },
 
-        navigateDown(currentIndex) {
-            if (currentIndex < this.filteredPresets.length - 1) {
-                const nextPreset = this.filteredPresets[currentIndex + 1];
-                this.loadPreset(nextPreset.index);
-                // Focus the next button element
-                this.$nextTick(() => {
-                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
-                    if (buttons[currentIndex + 1]) {
-                        buttons[currentIndex + 1].focus();
-                    }
-                });
-            }
+        refreshPresetButtonCache() {
+            const list = document.querySelector('[aria-label="Preset list"]');
+            const buttons = list ? Array.from(list.querySelectorAll('[data-preset-item="true"]')) : [];
+            const elementIndex = new WeakMap();
+            const byPresetIndex = new Map();
+
+            buttons.forEach((button, index) => {
+                elementIndex.set(button, index);
+                const presetIndex = Number(button?.dataset?.presetIndex);
+                if (!Number.isNaN(presetIndex)) {
+                    byPresetIndex.set(presetIndex, button);
+                }
+            });
+
+            this.presetButtonCache = { list, buttons, elementIndex, byPresetIndex };
         },
 
-        navigateUp(currentIndex) {
-            if (currentIndex > 0) {
-                const prevPreset = this.filteredPresets[currentIndex - 1];
-                this.loadPreset(prevPreset.index);
-                // Focus the previous button element
-                this.$nextTick(() => {
-                    const buttons = document.querySelectorAll('[aria-label="Preset list"] button');
-                    if (buttons[currentIndex - 1]) {
-                        buttons[currentIndex - 1].focus();
-                    }
-                });
+        getPresetButtons() {
+            return this.presetButtonCache.buttons || [];
+        },
+
+        navigateDown(event) {
+            let buttons = this.getPresetButtons();
+            if (!buttons.length) {
+                this.refreshPresetButtonCache();
+                buttons = this.getPresetButtons();
             }
+            const current = event?.currentTarget;
+            if (!current) return;
+
+            const cachedIndex = this.presetButtonCache.elementIndex.get(current);
+            const currentIndex = Number.isInteger(cachedIndex) ? cachedIndex : buttons.indexOf(current);
+            if (currentIndex < 0 || currentIndex >= buttons.length - 1) return;
+
+            const next = buttons[currentIndex + 1];
+            const nextIndex = Number(next?.dataset?.presetIndex);
+            if (!Number.isNaN(nextIndex)) {
+                this.loadPreset(nextIndex);
+            }
+
+            this.$nextTick(() => {
+                if (next) next.focus();
+            });
+        },
+
+        navigateUp(event) {
+            let buttons = this.getPresetButtons();
+            if (!buttons.length) {
+                this.refreshPresetButtonCache();
+                buttons = this.getPresetButtons();
+            }
+            const current = event?.currentTarget;
+            if (!current) return;
+
+            const cachedIndex = this.presetButtonCache.elementIndex.get(current);
+            const currentIndex = Number.isInteger(cachedIndex) ? cachedIndex : buttons.indexOf(current);
+            if (currentIndex <= 0) return;
+
+            const prev = buttons[currentIndex - 1];
+            const prevIndex = Number(prev?.dataset?.presetIndex);
+            if (!Number.isNaN(prevIndex)) {
+                this.loadPreset(prevIndex);
+            }
+
+            this.$nextTick(() => {
+                if (prev) prev.focus();
+            });
         },
 
         getPresetName(displayName) {
