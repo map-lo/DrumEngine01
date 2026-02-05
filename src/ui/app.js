@@ -973,9 +973,24 @@ window.presetBrowser = function () {
                 otherTags.add(tag);
             });
 
-            const sortedInstrumentTags = Array.from(instrumentTags).sort();
-            const sortedOtherTags = Array.from(otherTags).filter(tag => !instrumentTags.has(tag)).sort();
-            return [...sortedInstrumentTags, ...sortedOtherTags];
+            const preferredOrder = ['kick', 'snare', 'tom', 'hihat', 'crash', 'ride', 'cymbal'];
+            const allTags = [...instrumentTags, ...otherTags];
+            const normalizedMap = new Map();
+            allTags.forEach(tag => {
+                const key = String(tag).toLowerCase();
+                if (!normalizedMap.has(key)) {
+                    normalizedMap.set(key, tag);
+                }
+            });
+
+            const promoted = preferredOrder
+                .map(key => normalizedMap.get(key))
+                .filter(tag => tag !== undefined);
+
+            const promotedSet = new Set(promoted);
+            const remaining = allTags.filter(tag => !promotedSet.has(tag)).sort();
+
+            return [...promoted, ...remaining];
         },
 
         toggleTag(tag) {
