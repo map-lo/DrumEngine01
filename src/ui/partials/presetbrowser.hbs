@@ -7,6 +7,14 @@
       <div class="font-semibold tracking-wide uppercase">Presets</div>
       <div class="flex items-center gap-1">
         <button
+          @click="toggleViewMode()"
+          class="p-1 hover:opacity-60 text-[10px] uppercase tracking-widest"
+          aria-label="Toggle preset view"
+          x-text="viewMode === 'list' ? 'Folders' : 'List'"
+        >
+        </button>
+
+        <button
           @click="refreshPresets()"
           class="p-1 hover:opacity-60"
           aria-label="Refresh preset list"
@@ -25,12 +33,7 @@
             />
           </svg>
         </button>
-        <button
-          @click="toggleViewMode()"
-          class="p-1 hover:opacity-60 text-[10px] uppercase tracking-widest"
-          aria-label="Toggle preset view"
-          x-text="viewMode === 'list' ? 'Folders' : 'List'"
-        ></button>
+
         <button
           @click="getRoot()?.togglePresetBrowser()"
           class="p-1 -mr-1.5 hover:opacity-60"

@@ -8,6 +8,7 @@
 #include <atomic>
 #include <functional>
 #include <map>
+#include <vector>
 
 namespace DrumEngine
 {
@@ -91,7 +92,6 @@ namespace DrumEngine
 
     private:
         static constexpr int kMaxHitGroups = 3;
-        static constexpr int kMaxVelocityLayers = 10;
 
         double currentSampleRate = 44100.0;
         int fadeLenSamples = 32;
@@ -128,7 +128,7 @@ namespace DrumEngine
         juce::AudioBuffer<float> sourceBuffer;
 
         // RR counters per velocity layer
-        std::array<int, kMaxVelocityLayers> rrCounters = {};
+        std::vector<int> rrCounters;
 
         // Hit notification
         HitCallback hitCallback;

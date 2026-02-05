@@ -71,7 +71,7 @@ namespace DrumEngine
 
     Engine::Engine()
     {
-        rrCounters.fill(0);
+        rrCounters.clear();
     }
 
     Engine::~Engine()
@@ -96,7 +96,7 @@ namespace DrumEngine
     {
         voicePool.reset();
         activeHitGroups.clear();
-        rrCounters.fill(0);
+        std::fill(rrCounters.begin(), rrCounters.end(), 0);
     }
 
     juce::Result Engine::loadPresetAsync(const juce::File &presetFile)
@@ -135,7 +135,7 @@ namespace DrumEngine
         delete oldPreset;
 
         // Reset RR counters
-        rrCounters.fill(0);
+        rrCounters.assign(static_cast<size_t>(schema.velocityLayers.size()), 0);
 
         // Clear all solo states when loading a new preset
         slotSoloed.fill(false);
@@ -187,7 +187,7 @@ namespace DrumEngine
         delete oldPreset;
 
         // Reset RR counters
-        rrCounters.fill(0);
+        rrCounters.assign(static_cast<size_t>(schema.velocityLayers.size()), 0);
 
         // Clear all solo states
         slotSoloed.fill(false);
@@ -537,6 +537,9 @@ namespace DrumEngine
         if (layerIndex >= static_cast<int>(layers.size()))
             return;
 
+        if (layerIndex >= static_cast<int>(rrCounters.size()))
+            return;
+
         const auto &layer = layers[layerIndex];
 
         // Get RR index
@@ -621,6 +624,9 @@ namespace DrumEngine
 
         const auto &layers = preset->getLayers();
         if (layerIndex < 0 || layerIndex >= static_cast<int>(layers.size()))
+            return;
+
+        if (layerIndex >= static_cast<int>(rrCounters.size()))
             return;
 
         const auto &layer = layers[layerIndex];
