@@ -222,8 +222,8 @@ namespace DrumEngine
             return juce::Result::fail("Slot count must be 1..8, got: " + juce::String(slotCount));
 
         // Check velocity layer count
-        if (velocityLayers.size() < 1 || velocityLayers.size() > 10)
-            return juce::Result::fail("Velocity layer count must be 1..10, got: " + juce::String(velocityLayers.size()));
+        if (velocityLayers.size() < 1)
+            return juce::Result::fail("Velocity layer count must be >= 1, got: " + juce::String(velocityLayers.size()));
 
         // Validate each velocity layer
         for (size_t i = 0; i < velocityLayers.size(); ++i)
