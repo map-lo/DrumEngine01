@@ -88,6 +88,7 @@
             @keydown.down.prevent="navigateDown(index)"
             @keydown.up.prevent="navigateUp(index)"
             tabindex="0"
+            :id="optionId(preset.index)"
             class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
             :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
           >

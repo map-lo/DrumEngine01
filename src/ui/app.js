@@ -889,6 +889,24 @@ window.presetBrowser = function () {
                 owner.presetBrowserSearchTerm = value;
                 this.sendToRoot('setPresetBrowserSearchTerm', { term: value });
             });
+
+            this.$watch(() => this.getRoot()?.isPresetBrowserOpen, value => {
+                if (value) {
+                    this.$nextTick(() => this.scrollToCurrentPreset());
+                }
+            });
+
+            this.$watch(() => this.getRoot()?.currentPresetIndex, () => {
+                if (this.getRoot()?.isPresetBrowserOpen) {
+                    this.$nextTick(() => this.scrollToCurrentPreset());
+                }
+            });
+
+            this.$watch(() => this.getRoot()?.presetList?.length, () => {
+                this.$nextTick(() => this.scrollToCurrentPreset());
+            });
+
+            this.$nextTick(() => this.scrollToCurrentPreset());
         },
 
         sendToRoot(action, data = {}) {
@@ -977,6 +995,27 @@ window.presetBrowser = function () {
 
         optionId(index) {
             return `preset-option-${index}`;
+        },
+
+        scrollToCurrentPreset() {
+            const root = this.getRoot();
+            if (!root) return;
+
+            const activeId = this.getActiveOptionId();
+            if (!activeId) return;
+
+            const item = document.getElementById(activeId);
+            if (!item) return;
+
+            const list = item.closest('[aria-label="Preset list"]') || document.querySelector('[aria-label="Preset list"]');
+            if (!list) return;
+
+            const listRect = list.getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
+            const isInView = itemRect.top >= listRect.top && itemRect.bottom <= listRect.bottom;
+            if (isInView) return;
+
+            item.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
         },
 
         getActiveOptionId() {
