@@ -229,6 +229,30 @@ window.drumEngineApp = function () {
             return `[${this.presetInfo.instrumentType}] ${this.presetInfo.presetName}`;
         },
 
+        getDefaultSlotNamesForInstrument(instrumentType) {
+            const normalized = (instrumentType || '').trim().toLowerCase();
+
+            if (normalized === 'snare') {
+                return ['top', 'bottom', 'oh', 'room1', 'room2', 'extra1', 'extra2', 'extra3'];
+            }
+
+            if (normalized === 'kick') {
+                return ['in', 'out', 'sub', 'room1', 'room2', 'extra1', 'extra2', 'extra3'];
+            }
+
+            return ['spot1', 'spot2', 'oh', 'room1', 'room2', 'extra1', 'extra2', 'extra3'];
+        },
+
+        getSlotDisplayName(slot, index) {
+            const provided = (slot && typeof slot.name === 'string') ? slot.name.trim() : '';
+            if (provided.length > 0) return provided;
+
+            const defaults = this.getDefaultSlotNamesForInstrument(this.presetInfo.instrumentType);
+            if (index >= 0 && index < defaults.length) return defaults[index];
+
+            return (index + 1).toString();
+        },
+
         // Volume utilities
         faderPositionToDb(position) {
             if (position <= 0) return -80;

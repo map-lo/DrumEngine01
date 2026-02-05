@@ -8,7 +8,7 @@
     >
       <div
         class="slot-label text-center truncate text-[10px] uppercase font-black mb-1 cursor-pointer"
-        x-text="slot.name || (index + 1)"
+        x-text="getSlotDisplayName(slot, index)"
         @click="auditionSlot(index)"
       ></div>
       <div
