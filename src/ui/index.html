@@ -12,7 +12,7 @@
     tabindex="-1"
   >
     <div x-show="!editor" class="h-full flex flex-row-reverse items-stretch">
-      <div class="w-[660px] h-full">
+      <div class="w-[660px] h-full overflow-hidden">
         <div
           id="mainContent"
           class="m-[2px] h-full flex flex-col overflow-hidden"
@@ -21,7 +21,10 @@
         </div>
       </div>
 
-      <div id="presetBrowserContainer" class="h-full w-[300px] shrink-0">
+      <div
+        id="presetBrowserContainer"
+        class="h-full overflow-hidden w-[300px] shrink-0"
+      >
         {{> presetbrowser}}
       </div>
     </div>
