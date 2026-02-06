@@ -1,6 +1,6 @@
 <div
-  class="mx-1 flex items-center gap-1 group"
-  :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
+  class="flex p-[2px] items-center gap-1 group"
+  :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700 ring-2 ring-inset ring-black' : 'bg-black'"
 >
   <button
     @click="loadPreset(preset.index); document.body.focus()"
@@ -18,7 +18,7 @@
     @mousedown.prevent
     tabindex="-1"
     class="shrink-0 px-1 py-1 text-[10px]"
-    :class="preset.isFavorite ? 'text-white' : preset.index === getRoot()?.currentPresetIndex ? 'text-white text-opacity-0 hover:text-opacity-100 group-hover:text-opacity-50' : 'opacity-0'"
+    :class="preset.isFavorite ? 'text-white' : preset.index === getRoot()?.currentPresetIndex ? 'text-white text-opacity-0 hover:group-hover:text-opacity-100 group-hover:text-opacity-50' : 'opacity-0'"
     :disabled="preset.index !== getRoot()?.currentPresetIndex"
     aria-label="Toggle favorite"
   >

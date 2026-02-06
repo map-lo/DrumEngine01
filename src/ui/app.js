@@ -19,6 +19,7 @@ window.drumEngineApp = function () {
         isScanningPresets: false,
         presetBrowserTags: [],
         presetBrowserSearchTerm: '',
+        presetBrowserViewMode: 'list',
 
         // Data
         presetList: [],
@@ -584,6 +585,10 @@ window.drumEngineApp = function () {
             if (typeof state.presetBrowserSearchTerm === 'string') {
                 this.presetBrowserSearchTerm = state.presetBrowserSearchTerm;
             }
+
+            if (typeof state.presetBrowserViewMode === 'string') {
+                this.presetBrowserViewMode = state.presetBrowserViewMode;
+            }
         },
 
         // Hit visualization
@@ -905,10 +910,19 @@ window.presetBrowser = function () {
             if (root && typeof root.presetBrowserSearchTerm === 'string') {
                 this.searchTerm = root.presetBrowserSearchTerm;
             }
+            if (root && typeof root.presetBrowserViewMode === 'string') {
+                this.viewMode = root.presetBrowserViewMode;
+            }
 
             this.$watch(() => this.getRoot()?.presetBrowserSearchTerm, value => {
                 if (typeof value === 'string' && value !== this.searchTerm) {
                     this.searchTerm = value;
+                }
+            });
+
+            this.$watch(() => this.getRoot()?.presetBrowserViewMode, value => {
+                if (typeof value === 'string' && value !== this.viewMode) {
+                    this.viewMode = value;
                 }
             });
 
@@ -946,6 +960,7 @@ window.presetBrowser = function () {
             });
 
             this.$watch(() => this.viewMode, () => {
+                this.sendToRoot('setPresetBrowserViewMode', { mode: this.viewMode });
                 this.$nextTick(() => this.refreshPresetButtonCache());
             });
 

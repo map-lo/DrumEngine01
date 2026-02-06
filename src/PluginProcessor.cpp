@@ -255,6 +255,7 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
         uiElement->setAttribute("open", presetBrowserOpen);
         uiElement->setAttribute("selectedPresetIndex", lastSelectedPresetIndex);
         uiElement->setAttribute("searchTerm", presetBrowserSearchTerm);
+        uiElement->setAttribute("viewMode", presetBrowserViewMode);
 
         auto *tagsElement = uiElement->createNewChildElement("Tags");
         for (const auto &tag : presetBrowserSelectedTags)
@@ -456,6 +457,7 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
         presetBrowserOpen = uiElement->getBoolAttribute("open", false);
         lastSelectedPresetIndex = uiElement->getIntAttribute("selectedPresetIndex", -1);
         presetBrowserSearchTerm = uiElement->getStringAttribute("searchTerm");
+        presetBrowserViewMode = uiElement->getStringAttribute("viewMode", "list");
 
         presetBrowserSelectedTags.clear();
         if (auto *tagsElement = uiElement->getChildByName("Tags"))
@@ -749,6 +751,12 @@ void AudioPluginAudioProcessor::setPresetBrowserSearchTerm(const juce::String &t
     presetBrowserSearchTerm = term;
 }
 
+void AudioPluginAudioProcessor::setPresetBrowserViewMode(const juce::String &mode)
+{
+    juce::ScopedLock lock(uiStateLock);
+    presetBrowserViewMode = mode;
+}
+
 juce::StringArray AudioPluginAudioProcessor::getPresetBrowserSelectedTags() const
 {
     juce::ScopedLock lock(uiStateLock);
@@ -759,6 +767,12 @@ juce::String AudioPluginAudioProcessor::getPresetBrowserSearchTerm() const
 {
     juce::ScopedLock lock(uiStateLock);
     return presetBrowserSearchTerm;
+}
+
+juce::String AudioPluginAudioProcessor::getPresetBrowserViewMode() const
+{
+    juce::ScopedLock lock(uiStateLock);
+    return presetBrowserViewMode;
 }
 
 void AudioPluginAudioProcessor::setLastSelectedPresetIndex(int index)

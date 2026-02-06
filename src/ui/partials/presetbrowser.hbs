@@ -80,7 +80,7 @@
       </div>
 
       <div
-        class="mt-2 bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 pt-0 flex flex-col items-stretch text-xs"
+        class="mt-2 bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden py-1 pt-0 flex flex-col items-stretch text-xs"
         aria-label="Preset list"
         tabindex="-1"
         @mousedown.prevent
@@ -150,7 +150,7 @@
         </template>
 
         <template x-if="viewMode === 'folders'">
-          <div class="flex flex-col my-[2px]">
+          <div class="flex flex-col">
             <template x-for="preset in currentPresetList" :key="preset.index">
               {{> presetbutton }}
             </template>

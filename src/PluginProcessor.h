@@ -134,6 +134,8 @@ public:
     juce::StringArray getPresetBrowserSelectedTags() const;
     void setPresetBrowserSearchTerm(const juce::String &term);
     juce::String getPresetBrowserSearchTerm() const;
+    void setPresetBrowserViewMode(const juce::String &mode);
+    juce::String getPresetBrowserViewMode() const;
     void setLastSelectedPresetIndex(int index);
     int getLastSelectedPresetIndex() const;
 
@@ -204,6 +206,7 @@ private:
     bool presetBrowserOpen = false;
     juce::StringArray presetBrowserSelectedTags;
     juce::String presetBrowserSearchTerm;
+    juce::String presetBrowserViewMode = "list";
     int lastSelectedPresetIndex = -1;
 
     // Hit listeners

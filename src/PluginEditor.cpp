@@ -314,6 +314,10 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
     {
         processorRef.setPresetBrowserSearchTerm(obj->getProperty("term").toString());
     }
+    else if (action == "setPresetBrowserViewMode")
+    {
+        processorRef.setPresetBrowserViewMode(obj->getProperty("mode").toString());
+    }
     else if (action == "togglePresetFavorite")
     {
         int index = obj->getProperty("index");
@@ -596,6 +600,7 @@ void AudioPluginAudioProcessorEditor::sendStateUpdateToWebView()
         state->setProperty("presetBrowserTags", tagsArray);
     }
     state->setProperty("presetBrowserSearchTerm", processorRef.getPresetBrowserSearchTerm());
+    state->setProperty("presetBrowserViewMode", processorRef.getPresetBrowserViewMode());
 
     // Convert to JSON and send to WebView
     juce::String jsonState = juce::JSON::toString(juce::var(state.get()));
