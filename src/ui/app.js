@@ -499,7 +499,8 @@ window.drumEngineApp = function () {
                 displayName: preset.displayName || 'Unnamed Preset',
                 instrumentType: preset.instrumentType || 'Unknown',
                 category: preset.category || '',
-                tags: Array.isArray(preset.tags) ? preset.tags : []
+                tags: Array.isArray(preset.tags) ? preset.tags : [],
+                isFavorite: Boolean(preset.isFavorite) || (Array.isArray(preset.tags) && preset.tags.includes('favorite'))
             }));
         },
 
@@ -1222,6 +1223,10 @@ window.presetBrowser = function () {
                 root.currentPresetIndex = index;
                 this.sendToRoot('loadPresetByIndex', { index });
             }
+        },
+
+        toggleFavorite(index) {
+            this.sendToRoot('togglePresetFavorite', { index });
         },
 
         refreshPresetButtonCache() {

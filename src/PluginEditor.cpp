@@ -314,6 +314,25 @@ void AudioPluginAudioProcessorEditor::handleMessageFromWebView(const juce::Strin
     {
         processorRef.setPresetBrowserSearchTerm(obj->getProperty("term").toString());
     }
+    else if (action == "togglePresetFavorite")
+    {
+        int index = obj->getProperty("index");
+        if (index >= 0 && index < static_cast<int>(presetList.size()))
+        {
+            auto &preset = presetList[static_cast<size_t>(index)];
+            const auto presetId = getPresetIdForFile(preset.file);
+
+            if (favoritePresetIds.contains(presetId))
+                favoritePresetIds.removeString(presetId, true);
+            else
+                favoritePresetIds.addIfNotAlreadyThere(presetId);
+
+            applyFavoritesToPresetList();
+            savePresetMetadata();
+            savePresetCache();
+            sendPresetListToWebView();
+        }
+    }
     else if (action == "setOutputMode")
     {
         juce::String mode = obj->getProperty("mode").toString();
@@ -602,6 +621,7 @@ void AudioPluginAudioProcessorEditor::sendPresetListToWebView()
         presetObj->setProperty("displayName", preset.displayName);
         presetObj->setProperty("category", preset.category);
         presetObj->setProperty("instrumentType", preset.instrumentType);
+        presetObj->setProperty("isFavorite", preset.tags.contains("favorite", true));
         if (!preset.tags.isEmpty())
         {
             juce::Array<juce::var> tagsArray;
@@ -630,6 +650,114 @@ juce::File AudioPluginAudioProcessorEditor::getPresetCacheFile() const
         .getChildFile("preset-index.json");
 }
 
+juce::File AudioPluginAudioProcessorEditor::getPresetMetadataFile() const
+{
+    return getPresetRootFolder().getChildFile("DrumEngine01.metadata.json");
+}
+
+juce::String AudioPluginAudioProcessorEditor::getPresetIdForFile(const juce::File &file) const
+{
+    return file.getRelativePathFrom(getPresetRootFolder()).replace("\\", "/");
+}
+
+void AudioPluginAudioProcessorEditor::loadPresetMetadata()
+{
+    favoritePresetIds.clear();
+
+    auto metadataFile = getPresetMetadataFile();
+    if (!metadataFile.existsAsFile())
+        return;
+
+    const auto jsonText = metadataFile.loadFileAsString();
+    if (jsonText.isEmpty())
+        return;
+
+    juce::var json;
+    const auto result = juce::JSON::parse(jsonText, json);
+    if (!result.wasOk() || !json.isObject())
+        return;
+
+    auto *rootObj = json.getDynamicObject();
+    if (!rootObj)
+        return;
+
+    const int schemaVersion = static_cast<int>(rootObj->getProperty("schemaVersion"));
+    if (schemaVersion != presetMetadataSchemaVersion)
+        return;
+
+    const auto favoritesVar = rootObj->getProperty("favorites");
+    if (!favoritesVar.isArray())
+        return;
+
+    if (const auto *favoritesArray = favoritesVar.getArray())
+    {
+        for (const auto &favVar : *favoritesArray)
+        {
+            const auto fav = favVar.toString().trim();
+            if (fav.isNotEmpty())
+                favoritePresetIds.addIfNotAlreadyThere(fav);
+        }
+    }
+}
+
+void AudioPluginAudioProcessorEditor::savePresetMetadata() const
+{
+    auto metadataFile = getPresetMetadataFile();
+    auto metadataDir = metadataFile.getParentDirectory();
+    if (!metadataDir.exists())
+        metadataDir.createDirectory();
+
+    juce::DynamicObject::Ptr rootObj = new juce::DynamicObject();
+    rootObj->setProperty("schemaVersion", presetMetadataSchemaVersion);
+    rootObj->setProperty("updatedAt", juce::Time::getCurrentTime().toISO8601(true));
+
+    juce::Array<juce::var> favoritesArray;
+    for (const auto &fav : favoritePresetIds)
+        favoritesArray.add(fav);
+
+    rootObj->setProperty("favorites", juce::var(favoritesArray));
+
+    const auto jsonText = juce::JSON::toString(juce::var(rootObj.get()), true);
+    metadataFile.replaceWithText(jsonText);
+}
+
+void AudioPluginAudioProcessorEditor::applyFavoritesToPresetList()
+{
+    const juce::String favoriteTag = "favorite";
+    juce::StringArray normalizedFavorites;
+
+    auto areStringArraysEquivalent = [](const juce::StringArray &a, const juce::StringArray &b)
+    {
+        if (a.size() != b.size())
+            return false;
+        for (const auto &item : a)
+        {
+            if (!b.contains(item))
+                return false;
+        }
+        return true;
+    };
+
+    for (auto &preset : presetList)
+    {
+        const auto presetId = getPresetIdForFile(preset.file);
+        const bool isFavorite = favoritePresetIds.contains(presetId);
+
+        preset.tags.removeString(favoriteTag, true);
+        if (isFavorite)
+        {
+            preset.tags.addIfNotAlreadyThere(favoriteTag);
+            normalizedFavorites.addIfNotAlreadyThere(presetId);
+        }
+    }
+
+    if (!areStringArraysEquivalent(favoritePresetIds, normalizedFavorites))
+    {
+        favoritePresetIds = normalizedFavorites;
+        savePresetMetadata();
+    }
+}
+
 void AudioPluginAudioProcessorEditor::startPresetScanAsync()
 {
     if (isScanningPresets)
@@ -650,6 +778,8 @@ void AudioPluginAudioProcessorEditor::startPresetScanAsync()
                                                             return;
 
                                                         safeThis->presetList = std::move(results);
+                                                        safeThis->loadPresetMetadata();
+                                                        safeThis->applyFavoritesToPresetList();
                                                         safeThis->currentPresetIndex = safeThis->resolvePresetIndexFromState();
                                                         safeThis->savePresetCache();
                                                         safeThis->isScanningPresets = false;
@@ -742,6 +872,9 @@ bool AudioPluginAudioProcessorEditor::loadPresetCache()
         presetList.push_back({displayName, category, instrumentType, presetFile, tags});
     }
 
+    loadPresetMetadata();
+    applyFavoritesToPresetList();
+
     currentPresetIndex = resolvePresetIndexFromState();
     return true;
 }
@@ -796,6 +929,8 @@ void AudioPluginAudioProcessorEditor::scanPresetsFolder()
     sendStateUpdateToWebView();
 
     presetList = PresetCacheBuilder::buildPresetListFromRoot(getPresetRootFolder());
+    loadPresetMetadata();
+    applyFavoritesToPresetList();
     currentPresetIndex = resolvePresetIndexFromState();
     savePresetCache();
 

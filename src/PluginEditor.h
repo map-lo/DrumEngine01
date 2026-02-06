@@ -42,6 +42,7 @@ private:
     using PresetEntry = PresetCacheBuilder::PresetEntry;
     std::vector<PresetEntry> presetList;
     int currentPresetIndex = -1;
+    juce::StringArray favoritePresetIds;
 
     // Preset management
     juce::File getPresetRootFolder() const;
@@ -55,6 +56,11 @@ private:
     void loadPrevPreset();
     void browseForPreset();
     int resolvePresetIndexFromState() const;
+    juce::File getPresetMetadataFile() const;
+    void loadPresetMetadata();
+    void savePresetMetadata() const;
+    juce::String getPresetIdForFile(const juce::File &file) const;
+    void applyFavoritesToPresetList();
 
     // File chooser (must persist for async callback)
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -69,6 +75,7 @@ private:
     juce::String lastSentState;
 
     static constexpr int presetCacheSchemaVersion = 1;
+    static constexpr int presetMetadataSchemaVersion = 1;
 
 #if JUCE_DEBUG
     bool useLiveReload = true; // Enable hot reload in debug builds

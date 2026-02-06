@@ -150,20 +150,9 @@
         </template>
 
         <template x-if="viewMode === 'folders'">
-          <div class="flex flex-col">
+          <div class="flex flex-col my-[2px]">
             <template x-for="preset in currentPresetList" :key="preset.index">
-              <button
-                @click="loadPreset(preset.index); document.body.focus()"
-                @mousedown.prevent
-                tabindex="-1"
-                :id="optionId(preset.index)"
-                data-preset-item="true"
-                :data-preset-index="preset.index"
-                class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
-                :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
-              >
-                <div x-text="preset.displayName"></div>
-              </button>
+              {{> presetbutton }}
             </template>
           </div>
         </template>
@@ -181,18 +170,7 @@
                   x-text="group.category"
                 ></div>
                 <template x-for="preset in group.presets" :key="preset.index">
-                  <button
-                    @click="loadPreset(preset.index); document.body.focus()"
-                    @mousedown.prevent
-                    tabindex="-1"
-                    :id="optionId(preset.index)"
-                    data-preset-item="true"
-                    :data-preset-index="preset.index"
-                    class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
-                    :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
-                  >
-                    <div x-text="preset.displayName"></div>
-                  </button>
+                  {{> presetbutton }}
                 </template>
               </div>
             </template>
