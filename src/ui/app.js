@@ -868,6 +868,8 @@ window.presetBrowser = function () {
         searchTerm: '',
         viewMode: 'list',
         currentFolderPath: [],
+        _filteredPresetsCache: null,
+        _groupedPresetListCache: null,
         presetButtonCache: {
             list: null,
             buttons: [],
@@ -968,13 +970,20 @@ window.presetBrowser = function () {
 
         get filteredPresets() {
             const root = this.getRoot();
-            if (!root || !root.presetList) return [];
-            let filtered = root.presetList;
+            if (!root || !Array.isArray(root.presetList)) return [];
+            const presetList = root.presetList;
+            const query = this.searchTerm.trim().toLowerCase();
+            const tagsKey = (root.presetBrowserTags || []).slice().sort().join('||');
+            const cached = this._filteredPresetsCache;
+            if (cached && cached.source === presetList && cached.query === query && cached.tagsKey === tagsKey) {
+                return cached.value;
+            }
+
+            let filtered = presetList;
             const selectedTags = new Set(root.presetBrowserTags || []);
 
             // Apply search filter
-            if (this.searchTerm.trim()) {
-                const query = this.searchTerm.trim().toLowerCase();
+            if (query) {
                 filtered = filtered.filter(preset =>
                     preset.displayName.toLowerCase().includes(query)
                 );
@@ -987,6 +996,13 @@ window.presetBrowser = function () {
                     return Array.from(selectedTags).every(tag => tags.includes(tag));
                 });
             }
+
+            this._filteredPresetsCache = {
+                source: presetList,
+                query,
+                tagsKey,
+                value: filtered
+            };
 
             return filtered;
         },
@@ -1043,6 +1059,10 @@ window.presetBrowser = function () {
 
         get groupedPresetList() {
             const list = this.filteredPresets;
+            const cached = this._groupedPresetListCache;
+            if (cached && cached.source === list) {
+                return cached.value;
+            }
             const groups = [];
             let currentGroup = null;
 
@@ -1054,6 +1074,8 @@ window.presetBrowser = function () {
                 }
                 currentGroup.presets.push(preset);
             });
+
+            this._groupedPresetListCache = { source: list, value: groups };
 
             return groups;
         },
