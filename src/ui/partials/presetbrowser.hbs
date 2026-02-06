@@ -55,7 +55,8 @@
 
     <div class="pt-0 p-2 flex flex-col grow overflow-hidden">
       <input
-        x-model="searchTerm"
+        @mouseenter="isPresetListHovered = true"
+        @mouseleave="isPresetListHovered = false"
         type="text"
         placeholder="Search presets..."
         autocomplete="off"

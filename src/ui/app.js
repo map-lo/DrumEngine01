@@ -868,6 +868,7 @@ window.presetBrowser = function () {
         searchTerm: '',
         viewMode: 'list',
         currentFolderPath: [],
+        isPresetListHovered: false,
         _filteredPresetsCache: null,
         _groupedPresetListCache: null,
         presetButtonCache: {
