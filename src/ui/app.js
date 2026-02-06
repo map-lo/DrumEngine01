@@ -882,6 +882,23 @@ window.presetBrowser = function () {
             this.sendToRoot('requestPresetList');
             this.sendToRoot('requestUpdate');
 
+            this._onPresetBrowserKeydown = event => {
+                const key = event?.key;
+                if (key !== 'ArrowDown' && key !== 'ArrowUp') return;
+
+                const target = event?.target;
+                const tagName = target?.tagName?.toLowerCase();
+                if (tagName === 'input' || tagName === 'textarea' || target?.isContentEditable) return;
+
+                const root = this.getRoot();
+                if (!root || !root.isPresetBrowserOpen) return;
+
+                event.preventDefault();
+                this.navigateRelative(key === 'ArrowDown' ? 1 : -1);
+            };
+
+            window.addEventListener('keydown', this._onPresetBrowserKeydown);
+
             const root = this.getRoot();
             if (root && typeof root.presetBrowserSearchTerm === 'string') {
                 this.searchTerm = root.presetBrowserSearchTerm;
@@ -1227,52 +1244,43 @@ window.presetBrowser = function () {
             return this.presetButtonCache.buttons || [];
         },
 
-        navigateDown(event) {
+        navigateRelative(direction) {
             let buttons = this.getPresetButtons();
             if (!buttons.length) {
                 this.refreshPresetButtonCache();
                 buttons = this.getPresetButtons();
             }
-            const current = event?.currentTarget;
-            if (!current) return;
 
-            const cachedIndex = this.presetButtonCache.elementIndex.get(current);
-            const currentIndex = Number.isInteger(cachedIndex) ? cachedIndex : buttons.indexOf(current);
-            if (currentIndex < 0 || currentIndex >= buttons.length - 1) return;
+            if (!buttons.length) return;
 
-            const next = buttons[currentIndex + 1];
-            const nextIndex = Number(next?.dataset?.presetIndex);
-            if (!Number.isNaN(nextIndex)) {
-                this.loadPreset(nextIndex);
+            const root = this.getRoot();
+            const currentPresetIndex = root?.currentPresetIndex;
+            const byPresetIndex = this.presetButtonCache.byPresetIndex || new Map();
+            const currentButton = byPresetIndex.get(Number(currentPresetIndex));
+            const currentIndex = currentButton
+                ? buttons.indexOf(currentButton)
+                : -1;
+
+            const startIndex = currentIndex >= 0
+                ? currentIndex
+                : (direction > 0 ? -1 : buttons.length);
+
+            const nextIndex = startIndex + direction;
+            if (nextIndex < 0 || nextIndex >= buttons.length) return;
+
+            const next = buttons[nextIndex];
+            const nextPresetIndex = Number(next?.dataset?.presetIndex);
+            if (!Number.isNaN(nextPresetIndex)) {
+                this.loadPreset(nextPresetIndex);
             }
-
-            this.$nextTick(() => {
-                if (next) next.focus();
-            });
         },
 
-        navigateUp(event) {
-            let buttons = this.getPresetButtons();
-            if (!buttons.length) {
-                this.refreshPresetButtonCache();
-                buttons = this.getPresetButtons();
-            }
-            const current = event?.currentTarget;
-            if (!current) return;
+        navigateDown() {
+            this.navigateRelative(1);
+        },
 
-            const cachedIndex = this.presetButtonCache.elementIndex.get(current);
-            const currentIndex = Number.isInteger(cachedIndex) ? cachedIndex : buttons.indexOf(current);
-            if (currentIndex <= 0) return;
-
-            const prev = buttons[currentIndex - 1];
-            const prevIndex = Number(prev?.dataset?.presetIndex);
-            if (!Number.isNaN(prevIndex)) {
-                this.loadPreset(prevIndex);
-            }
-
-            this.$nextTick(() => {
-                if (prev) prev.focus();
-            });
+        navigateUp() {
+            this.navigateRelative(-1);
         },
 
         getPresetName(displayName) {

@@ -81,6 +81,8 @@
       <div
         class="mt-2 bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 pt-0 flex flex-col items-stretch text-xs"
         aria-label="Preset list"
+        tabindex="-1"
+        @mousedown.prevent
       >
         <div
           x-show="viewMode === 'folders'"
@@ -151,9 +153,8 @@
             <template x-for="preset in currentPresetList" :key="preset.index">
               <button
                 @click="loadPreset(preset.index)"
-                @keydown.down.prevent="navigateDown($event)"
-                @keydown.up.prevent="navigateUp($event)"
-                tabindex="0"
+                @mousedown.prevent
+                tabindex="-1"
                 :id="optionId(preset.index)"
                 data-preset-item="true"
                 :data-preset-index="preset.index"
@@ -174,15 +175,15 @@
             >
               <div class="flex flex-col">
                 <div
-                  class="sticky top-0 z-10 bg-neutral-800 px-1 py-1 text-[8px] font-medium tracking-wide truncate"
+                  class="sticky top-0 z-10 bg-neutral-800 px-1 py-2 text-[10px] font-medium text-white text-opacity-70 truncate text-left"
+                  dir="rtl"
                   x-text="group.category"
                 ></div>
                 <template x-for="preset in group.presets" :key="preset.index">
                   <button
                     @click="loadPreset(preset.index)"
-                    @keydown.down.prevent="navigateDown($event)"
-                    @keydown.up.prevent="navigateUp($event)"
-                    tabindex="0"
+                    @mousedown.prevent
+                    tabindex="-1"
                     :id="optionId(preset.index)"
                     data-preset-item="true"
                     :data-preset-index="preset.index"
