@@ -961,7 +961,10 @@ window.presetBrowser = function () {
 
             this.$watch(() => this.viewMode, () => {
                 this.sendToRoot('setPresetBrowserViewMode', { mode: this.viewMode });
-                this.$nextTick(() => this.refreshPresetButtonCache());
+                this.$nextTick(() => {
+                    this.refreshPresetButtonCache();
+                    this.scrollToCurrentPreset();
+                });
             });
 
             this.$watch(() => this.currentFolderPath.join('||'), () => {
@@ -1064,7 +1067,7 @@ window.presetBrowser = function () {
                 otherTags.add(tag);
             });
 
-            const preferredOrder = ['kick', 'snare', 'tom', 'hihat', 'crash', 'ride', 'cymbal'];
+            const preferredOrder = ['kick', 'snare', 'tom', 'hihat', 'crash', 'ride', 'cymbal', 'favorite'];
             const allTags = [...instrumentTags, ...otherTags];
             const normalizedMap = new Map();
             allTags.forEach(tag => {
