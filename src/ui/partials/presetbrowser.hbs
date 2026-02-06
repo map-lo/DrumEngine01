@@ -79,8 +79,7 @@
       </div>
 
       <div
-        class="mt-2 bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 flex flex-col items-stretch text-xs"
-        :class="viewMode === 'folders' ? 'pt-0' : ''"
+        class="mt-2 bg-black scrollbar-none text-white grow overflow-y-auto overflow-x-hidden gap-0.5 py-1 pt-0 flex flex-col items-stretch text-xs"
         aria-label="Preset list"
       >
         <div
@@ -141,35 +140,61 @@
           </button>
         </template>
 
-        <template x-if="viewMode === 'list' && currentPresetList.length === 0">
+        <template x-if="viewMode === 'list' && groupedPresetList.length === 0">
           <div class="px-2 py-2 text-black text-opacity-50">
             No presets found
           </div>
         </template>
 
-        <template
-          x-for="(preset, index) in currentPresetList"
-          :key="preset.index"
-        >
-          <button
-            @click="loadPreset(preset.index)"
-            @keydown.down.prevent="navigateDown($event)"
-            @keydown.up.prevent="navigateUp($event)"
-            tabindex="0"
-            :id="optionId(preset.index)"
-            data-preset-item="true"
-            :data-preset-index="preset.index"
-            class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
-            :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
-          >
-            <div
-              class="text-[8px] -mb-0.5 font-medium opacity-70 tracking-wide truncate"
-              dir="rtl"
-              x-text="preset.category"
-              x-show="viewMode === 'list'"
-            ></div>
-            <div x-text="preset.displayName"></div>
-          </button>
+        <template x-if="viewMode === 'folders'">
+          <div class="flex flex-col">
+            <template x-for="preset in currentPresetList" :key="preset.index">
+              <button
+                @click="loadPreset(preset.index)"
+                @keydown.down.prevent="navigateDown($event)"
+                @keydown.up.prevent="navigateUp($event)"
+                tabindex="0"
+                :id="optionId(preset.index)"
+                data-preset-item="true"
+                :data-preset-index="preset.index"
+                class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
+                :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
+              >
+                <div x-text="preset.displayName"></div>
+              </button>
+            </template>
+          </div>
+        </template>
+
+        <template x-if="viewMode === 'list'">
+          <div class="flex flex-col">
+            <template
+              x-for="group in groupedPresetList"
+              :key="group.category + '-' + (group.presets[0] ? group.presets[0].index : '')"
+            >
+              <div class="flex flex-col">
+                <div
+                  class="sticky top-0 z-10 bg-neutral-800 px-1 py-1 text-[8px] font-medium tracking-wide truncate"
+                  x-text="group.category"
+                ></div>
+                <template x-for="preset in group.presets" :key="preset.index">
+                  <button
+                    @click="loadPreset(preset.index)"
+                    @keydown.down.prevent="navigateDown($event)"
+                    @keydown.up.prevent="navigateUp($event)"
+                    tabindex="0"
+                    :id="optionId(preset.index)"
+                    data-preset-item="true"
+                    :data-preset-index="preset.index"
+                    class="mx-1 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1"
+                    :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700' : 'bg-black'"
+                  >
+                    <div x-text="preset.displayName"></div>
+                  </button>
+                </template>
+              </div>
+            </template>
+          </div>
         </template>
       </div>
     </div>

@@ -1041,6 +1041,23 @@ window.presetBrowser = function () {
             return this.filteredPresets;
         },
 
+        get groupedPresetList() {
+            const list = this.filteredPresets;
+            const groups = [];
+            let currentGroup = null;
+
+            list.forEach(preset => {
+                const category = preset.category || '';
+                if (!currentGroup || currentGroup.category !== category) {
+                    currentGroup = { category, presets: [] };
+                    groups.push(currentGroup);
+                }
+                currentGroup.presets.push(preset);
+            });
+
+            return groups;
+        },
+
         get folderView() {
             const presets = this.filteredPresets;
             const path = this.currentFolderPath;
