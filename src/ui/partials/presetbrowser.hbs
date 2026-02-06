@@ -74,8 +74,24 @@
             @click="toggleTag(tag)"
             class="px-2 py-1 text-[10px] uppercase tracking-widest"
             :class="getRoot()?.presetBrowserTags?.includes(tag) ? 'bg-white text-black' : 'bg-neutral-800 text-white'"
-            x-text="tag"
-          ></button>
+            :aria-label="tag === 'favorite' ? 'Favorite' : tag"
+          >
+            <template x-if="tag === 'favorite'">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                class="size-3"
+              >
+                <path
+                  d="M7.999 1.25a.75.75 0 0 1 .673.418l1.74 3.526 3.894.566a.75.75 0 0 1 .416 1.279l-2.817 2.746.665 3.878a.75.75 0 0 1-1.088.791L8 12.73l-3.483 1.831a.75.75 0 0 1-1.089-.79l.665-3.879L1.276 7.04a.75.75 0 0 1 .416-1.279l3.894-.566 1.74-3.526A.75.75 0 0 1 7.999 1.25Z"
+                />
+              </svg>
+            </template>
+            <template x-if="tag !== 'favorite'">
+              <span x-text="tag"></span>
+            </template>
+          </button>
         </template>
       </div>
 
@@ -125,7 +141,7 @@
           <button
             x-show="viewMode === 'folders'"
             @click="enterFolder(folder)"
-            class="mx-1 flex gap-2 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1 bg-black"
+            class="mx-1 flex gap-2 text-left break-all text-white text-[10px] tracking-wider px-0.5 py-1.5 bg-black"
           >
             <span>
               <svg
