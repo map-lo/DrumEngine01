@@ -1,6 +1,6 @@
 <div
-  class="flex p-[2px] items-center gap-1 group"
-  :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-700 ring-2 ring-inset ring-black' : 'bg-black'"
+  class="flex p-1 items-center gap-1 group"
+  :class="preset.index === getRoot()?.currentPresetIndex ? 'bg-neutral-600' : 'bg-black'"
 >
   <button
     @click="loadPreset(preset.index); document.body.focus()"
