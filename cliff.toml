@@ -18,7 +18,12 @@ body = """
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | upper_first }}
     {% for commit in commits %}
-        - {{ commit.message | split(pat="\n") | first | trim_end }}\
+        - {{ commit.message | split(pat="\n") | first | upper_first | trim }} [{{ commit.id | truncate(length=7, end="") }}]\
+          {% if commit.footers %}\
+            {% for footer in commit.footers -%}
+                , {{ footer.token }}{{ footer.separator }}{{ footer.value }}\
+            {% endfor %}\
+          {% endif %}\
     {% endfor %}
 {% endfor %}\n
 """
@@ -33,9 +38,9 @@ trim = true
 [git]
 # Parse commits according to the conventional commits specification.
 # See https://www.conventionalcommits.org
-conventional_commits = false
+conventional_commits = true
 # Exclude commits that do not match the conventional commits specification.
-filter_unconventional = false
+filter_unconventional = true
 # Split commits on newlines, treating each line as an individual commit.
 split_commits = false
 # An array of regex based parsers for extracting data from the commit message.
@@ -61,3 +66,12 @@ topo_order = false
 # Order of commits in each group/release within the changelog.
 # Allowed values: newest, oldest
 sort_commits = "oldest"
+skip_tags = "^v0\\.(0\\.\\d+|1\\.[0-2])$"
+# include_paths = ["src/", "doc/**/*.md"]
+include_paths = ["src/"]
+# exclude_paths = ["preset-from-tci/*"]
+
+[bump]
+features_always_bump_minor = false
+breaking_always_bump_major = true
+initial_tag = "0.1.3"
