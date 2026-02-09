@@ -388,11 +388,14 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
                 if (xml->hasAttribute("customMidiNote"))
                 {
                     customMidiNote = xml->getIntAttribute("customMidiNote", -1);
-                    // If we have a locked custom note, apply it now (overriding preset default)
-                    if (midiNoteLocked && customMidiNote >= 0 && customMidiNote <= 127)
+                    if (customMidiNote >= 0 && customMidiNote <= 127)
                     {
+                        // Always restore the saved note for session persistence; lock only affects future preset changes.
                         setFixedMidiNote(customMidiNote);
-                        DrumEngine::debugLog("Restored locked custom MIDI note: " + juce::String(customMidiNote));
+                        if (midiNoteLocked)
+                            DrumEngine::debugLog("Restored locked custom MIDI note: " + juce::String(customMidiNote));
+                        else
+                            DrumEngine::debugLog("Restored custom MIDI note: " + juce::String(customMidiNote));
                     }
                 }
 
